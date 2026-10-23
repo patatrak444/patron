@@ -529,7 +529,7 @@ Il giocatore resta finché ha sempre un passo successivo chiaro, vicino e divers
 
 ## 10. Direzione artistica e game feel
 
-Stile low-poly a colori pieni, luce calda da tardo pomeriggio, e una sola cosa che brilla nel mondo: la Lumina. Tutti i modelli si costruiscono via codice da forme semplici, quindi non serve procurarsi grafica. È anche lo standard del genere: camera dall'alto leggermente inclinata e personaggi stilizzati o low-poly ([Homa](https://www.homagames.com/blog/arcade-idle-a-new-hybridcasual-genre-enters-the-game)).
+Stile low-poly a colori pieni, luce calda da tardo pomeriggio, e una sola cosa che brilla nel mondo: la Lumina. Personaggi, alberi, vegetazione e oggetti di villaggio vengono da pacchetti di modelli low-poly gratuiti con licenza CC0; le stazioni del gioco, che nei pacchetti non esistono, si costruiscono da codice nello stesso stile. È anche lo standard del genere: camera dall'alto leggermente inclinata e personaggi stilizzati o low-poly ([Homa](https://www.homagames.com/blog/arcade-idle-a-new-hybridcasual-genre-enters-the-game)).
 
 **Tono visivo.** Giungla e villaggio sudamericano anni '80 con un tocco di "tramonto da serie TV": colori saturi ma caldi, nessun realismo. Le cose pericolose (polizia, rivali) si leggono dal colore, mai dal sangue.
 
@@ -546,36 +546,57 @@ Stile low-poly a colori pieni, luce calda da tardo pomeriggio, e una sola cosa c
 | Testo interfaccia / ombre      | \#FFFFFF / \#1B1B2F               |
 | Polizia                        | \#2F5BD3 blu, \#E33B3B rosso      |
 
-**Luce e materiali.**
+**Modelli da pacchetti CC0.**
 
-- Luce emisferica (cielo arancio tenue, suolo verde) più una luce direzionale dal sud-ovest a circa 45°.
+- Pacchetto di riferimento: **Kenney** (kenney.nl), licenza CC0: si possono usare, modificare e pubblicare senza obbligo di citazione. Li citiamo comunque nei Crediti.
+- Da un solo autore per tutto (personaggi, natura, villaggio), così lo stile resta coerente. Un secondo pacchetto (Quaternius, anch'esso CC0) si usa solo per ciò che manca, ad esempio piante tropicali, e solo se si accorda nei colori.
+- I modelli stanno in `public/models/` in formato glTF (`.glb`) e si caricano con il GLTFLoader di Three.js (incluso in Three.js, non è un framework in più). I colori dei modelli si riportano alla palette di questa sezione.
+- Le stazioni (Pressa, Laboratorio, Banco, bancone della Plaza) si costruiscono da codice con le stesse regole dei pacchetti: forme semplici smussate, colori pieni, nessuna texture fotografica.
 
+**Luce e atmosfera.**
+
+- Sempre tardo pomeriggio, niente ciclo giorno-notte. Sole basso da sud-ovest (circa 35° di elevazione) di colore oro caldo, ombre lunghe e morbide; luce emisferica con cielo arancio tenue e suolo verde.
+- Nebbia calda che sfuma la giungla lontana nel colore del cielo.
 - Materiali Lambert con ombreggiatura piatta: le facce dei poligoni si vedono, ed è lo stile.
+- Ombre vere dalla luce direzionale (mappa d'ombra da 2048 px, bordi morbidi) su personaggi, stazioni e alberi vicini; in qualità Media scendono a 1024 px. La mappa d'ombra segue il giocatore invece di coprire tutta la valle, così resta nitida.
+- Terreno vivo: il verde varia a chiazze tra i tre toni della giungla, con ciuffi d'erba sparsi (una sola geometria disegnata molte volte).
+- Sentieri e campi con bordi morbidi e irregolari che sfumano nell'erba, niente rettangoli netti.
+- Bloom (UnrealBloomPass) solo sulle cose che brillano: Lumina, lampade, finestre del Laboratorio. Si disattiva in qualità Media.
 
-- Ombre vere dalla luce direzionale (mappa d'ombra da 2048 px, bordi morbidi) su personaggi, stazioni e alberi; in qualità Media scendono a 1024 px.
+**Proporzioni.** La scala del mondo è in metri reali e tutti i modelli si adattano a questa tabella:
 
-- Nebbia leggera e calda in lontananza per dare profondità.
+| Elemento | Misura |
+|---|---|
+| Personaggio adulto | 1,7 m di altezza |
+| Porta | 2,0 m di altezza |
+| Capanna | 5 × 4 m di pianta, gronda a 2,4 m, colmo a 3,6 m |
+| Pressa | 2,4 × 2,4 m, alta 1,8 m |
+| Camion di El Gordo | 2,3 × 5,5 m, alto 2,6 m |
+| Appezzamento | 4 × 4 m, piante alte 0,4–0,8 m |
+| Cespugli | 0,5–1,2 m |
+| Alberi della giungla | 4–8 m |
 
-- Nella Beta è sempre tardo pomeriggio: niente ciclo giorno-notte.
+**Visibilità del personaggio.**
 
-**Modelli (costruiti da forme primitive).**
+- Gli oggetti che stanno tra la camera e il giocatore (alberi, tetti, stazioni) diventano trasparenti al 30% in 0,15 s e tornano pieni quando il giocatore si allontana. Il giocatore non è mai nascosto.
+- Inquadratura di partenza: il giocatore davanti alla capanna, nel terzo centrale dello schermo, con il Campo 1 in vista; niente di più alto delle ginocchia tra la camera e lui, e nessun oggetto che copra più di un quinto dello schermo.
+
+**Modelli.**
 
 | Elemento           | Composizione                                                  | Dettaglio distintivo                     |
 |--------------------|---------------------------------------------------------------|------------------------------------------|
-| Personaggi         | Capsula per il corpo, sfera per la testa, circa 200 triangoli | Il cappello dice il ruolo (sezione 6)    |
+| Personaggi         | Dal pacchetto CC0, con scheletro e animazioni di camminata e di attesa | Il cappello dice il ruolo (sezione 6)    |
 | Giocatore          | Come sopra                                                    | L'abito cambia con le fasi (sezione 9)   |
 | Piante di Lumina   | Gruppi di coni e piani                                        | Le foglie pronte hanno un bordo azzurro  |
-| Pressa             | Box e cilindro che scende                                     | Pistone animato                          |
-| Laboratorio        | Baracca di legno con camino                                   | Fumo e luce azzurra dalle finestre       |
-| Camion di El Gordo | Box con cassone                                               | Motore che vibra quando arriva un ordine |
-| Plaza              | Facciate di case piatte, bancone, tenda a strisce             | Lampadine appese                         |
-| Alberi e giungla   | Icosaedri sopra cilindri                                      | Muri di vegetazione sulle aree bloccate  |
+| Pressa             | Da codice: basamento, telaio e pistone che scende             | Pistone animato                          |
+| Laboratorio        | Da codice: baracca di legno con camino                        | Fumo e luce azzurra dalle finestre       |
+| Camion di El Gordo | Dal pacchetto se c'è un camion adatto, altrimenti da codice   | Motore che vibra quando arriva un ordine |
+| Plaza              | Case dal pacchetto, bancone e tenda a strisce da codice       | Lampadine appese                         |
+| Alberi e giungla   | Dal pacchetto: palme, alberi tropicali, cespugli, felci       | Muri di vegetazione sulle aree bloccate  |
 
-**Animazioni procedurali** (niente scheletri, tutto da codice):
+**Animazioni.**
 
-- Camminata: oscillazione verticale sinusoidale e inclinazione in avanti proporzionale alla velocità.
-
-- Fermo: leggero respiro (scala 1,00–1,02 in 2 s).
+- Personaggi: camminata e attesa dalle animazioni del pacchetto, con la velocità della camminata legata alla velocità reale (niente piedi che scivolano). Se un personaggio non ha animazioni, si usa il ripiego procedurale: oscillazione verticale e inclinazione in avanti in camminata, respiro da fermo (scala 1,00–1,02 in 2 s).
 
 - Pila sulla schiena: ogni oggetto segue quello sotto con un ritardo a molla, così la pila ondeggia in curva.
 
@@ -595,7 +616,7 @@ Stile low-poly a colori pieni, luce calda da tardo pomeriggio, e una sola cosa c
 
 La vibrazione della camera si usa solo per sblocchi e retate, mai per azioni ripetute.
 
-**Obiettivi di prestazione.** 60 fotogrammi al secondo su un portatile recente di fascia media in qualità Alta, e fluido sul tuo iMac 2015 in qualità Media; meno di 150 chiamate di disegno e meno di 150.000 triangoli in scena. Per oggetti ripetuti (piante, pile, mazzette, clienti) si usa una sola geometria disegnata più volte. Risoluzione interna limitata a 2560 × 1440, anche sugli schermi 5K. Le impostazioni offrono Qualità grafica Alta o Media.
+**Obiettivi di prestazione.** 60 fotogrammi al secondo su un portatile recente di fascia media in qualità Alta, e almeno 50 sul tuo iMac 2015; meno di 150 chiamate di disegno e meno di 150.000 triangoli in scena. Nella zona di partenza (capanna e Campo 1) il limite è 60.000 triangoli. I conteggi sono quelli del pannello debug, ombre comprese. Gli alberi della giungla lontana sono versioni semplificate, senza ombre. Per oggetti ripetuti (piante, pile, mazzette, clienti) si usa una sola geometria disegnata più volte. Risoluzione interna limitata a 2560 × 1440, anche sugli schermi 5K. Le impostazioni offrono Qualità grafica Alta o Media.
 
 ## 11. Audio
 
@@ -715,6 +736,7 @@ patron/
   index.html
   vite.config.ts
   public/                  logo SVG, font, eventuale musica
+    models/                modelli glTF dei pacchetti CC0, con il file della licenza
   src/
     main.ts                avvio, schermata iniziale, ciclo principale
     config/
@@ -769,7 +791,7 @@ patron/
 
 ## 15. Piano di sviluppo per Claude Code
 
-La Beta si costruisce in 9 tappe, una per sessione di Claude Code, e ognuna finisce con qualcosa che si prova nel browser. Non si passa alla tappa successiva finché i criteri di quella attuale non sono verificati.
+La Beta si costruisce in 10 tappe, una per sessione di Claude Code, e ognuna finisce con qualcosa che si prova nel browser. Non si passa alla tappa successiva finché i criteri di quella attuale non sono verificati.
 
 **Come lavorare.**
 
@@ -789,6 +811,7 @@ La Beta si costruisce in 9 tappe, una per sessione di Claude Code, e ognuna fini
 |-----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
 | M0 · Fondamenta             | Progetto Vite + TypeScript + Three.js, pubblicazione su GitHub Pages, CLAUDE.md, scheletro del pannello debug                                    | Il link pubblico si apre in Chrome e mostra una scena 3D a 60 fps                                |
 | M1 · Muoversi               | Terreno della valle, tastiera, clic per muoversi, zoom, personaggio, camera, collisioni                                                          | Il movimento è fluido; il clic porta il personaggio a destinazione; la camera segue senza scatti |
+| M1b · Direzione visiva      | Modelli dai pacchetti CC0, stazioni da codice nello stesso stile, luce e atmosfera, terreno ed erba, bordi morbidi, bloom, proporzioni, oggetti trasparenti davanti al giocatore, inquadratura di partenza, budget dei triangoli | L'angolo capanna + Campo 1 sembra il gioco finito; meno di 60.000 triangoli lì; almeno 50 fps sull'iMac |
 | M2 · Fase 1 a mano          | Campi, Pressa, camion, pila, zone, contante, tappetini di sblocco                                                                                | Si gioca a mano dal minuto 0 allo sblocco della Pressa 2                                         |
 | M3 · Lavoratori e Ufficio   | Raccoglitori, Cargador di El Gordo, percorsi, stipendi e sciopero, pannello Ufficio e potenziamenti                                              | La Fase 1 gira da sola; i potenziamenti cambiano i numeri come in tabella                        |
 | M4 · Fase 2                 | Laboratorio, Corriere A, barra del Calore, Purezza, ordini speciali                                                                              | Il Calore sale e scende come da sezione 7; un ordine si completa e paga doppio                   |
