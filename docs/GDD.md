@@ -286,6 +286,12 @@ Ogni lavoratore ripete un tratto della catena che prima facevi tu, e alla fine d
 | Capo squadra         | Uno per area; +25% velocità ai lavoratori dell'area; incassa per te i soldi dell'area                                                                                                                                                                                    | —        | —        | \$40/min                          | Cappello a tesa larga, sigaro     |
 | Cargador di El Gordo | Uomo di El Gordo, non tuo: ritira e vende al camion pagando il 10% in meno. Priorità: Cristalli dal Laboratorio solo se il Banco non esiste o ha l'ingresso pieno; Pasta dalla Pressa solo se non c'è Laboratorio o ha l'ingresso pieno. Così non ruba merce alla catena | 6        | 3 m/s    | Nessuno (la commissione è il 10%) | Grembiule e berretto di lana      |
 
+**Regole del Cargador.**
+
+- Le sue vendite non contano per gli ordini speciali di El Gordo (sezione 7): valgono solo le consegne fatte dal giocatore.
+- I suoi incassi vanno direttamente nel contante, senza mazzette da raccogliere al camion; a ogni vendita un testo verde "+$" con l'importo sale dal camion.
+- Ce n'è uno solo: non si compra dall'Ufficio come lavoratore extra e Formazione non lo potenzia.
+
 **Stipendi.** Si pagano in automatico ogni 60 s dal contante. Se il contante non basta, i lavoratori non pagati si fermano e mostrano un cartello "PAGA!" finché non c'è di nuovo abbastanza contante. Nessuno se ne va e nulla si perde: è una pausa, non una punizione.
 
 **Comportamento dei lavoratori che trasportano** (macchina a stati):
