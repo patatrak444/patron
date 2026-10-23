@@ -86,7 +86,7 @@ L'azione principale del gioco è muoversi: ogni azione parte da sola quando il p
 | Tasto                     | Azione                                                                                                                                            |
 |---------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
 | W A S D o frecce          | Movimento in 8 direzioni (in diagonale la velocità resta la stessa)                                                                               |
-| Clic sinistro sul terreno | Il personaggio cammina fino a quel punto lungo il percorso più breve; un cerchio segna la destinazione. Un tasto di movimento annulla il percorso |
+| Clic sinistro sul terreno | Il personaggio cammina fino a quel punto lungo il percorso più breve; un cerchio segna la destinazione. Se il punto non è raggiungibile (dentro una stazione, oltre un muro di vegetazione o fuori dalla valle), va al punto raggiungibile più vicino. Un tasto di movimento annulla il percorso. I clic sull'interfaccia (pannelli, pulsanti, pannello debug) non muovono il personaggio |
 | Rotella del mouse         | Zoom della camera su 3 livelli: vicino, medio, lontano                                                                                            |
 | U                         | Apre il pannello Ufficio da qualunque punto della mappa                                                                                           |
 | Esc                       | Menu e impostazioni (chiude anche i pannelli aperti)                                                                                              |
@@ -127,7 +127,7 @@ L'azione principale del gioco è muoversi: ogni azione parte da sola quando il p
 
 - Pila piena: un'etichetta "MAX" lampeggia sopra la testa.
 
-**Camera.** Prospettica, dall'alto e inclinata di circa 55° (la vista tipica del genere), con campo visivo di 35°. Segue il giocatore con smorzamento (interpolazione 0,1 al fotogramma), senza rotazione. Allo zoom medio mostra circa 24 m di mondo in larghezza; vicino 16 m, lontano 34 m. Lo zoom lontano serve a controllare l'intera catena quando è automatizzata.
+**Camera.** Prospettica, dall'alto e inclinata di circa 55° (la vista tipica del genere), con campo visivo di 35°. Segue il giocatore con smorzamento, senza rotazione: l'interpolazione equivale a 0,1 per fotogramma a 60 fps, ma è calcolata sul tempo trascorso, così la camera si muove allo stesso modo con qualunque frequenza dello schermo. Allo zoom medio mostra circa 24 m di mondo in larghezza; vicino 16 m, lontano 34 m. Lo zoom lontano serve a controllare l'intera catena quando è automatizzata. La camera non mostra mai il vuoto: oltre i bordi della valle il terreno continua come giungla decorativa, non calpestabile, che sfuma nella nebbia.
 
 **Schermo.** Orizzontale, adattato a qualunque finestra da 1280 × 600 in su (16:9 è il formato di riferimento); ridimensionare la finestra non deforma la scena.
 
@@ -308,7 +308,7 @@ Ogni lavoratore ripete un tratto della catena che prima facevi tu, e alla fine d
 
 6.  Torna al punto 1.
 
-**Percorsi.** Griglia di celle da 1 m sopra la mappa, con le stazioni come ostacoli e ricerca del percorso A\*. I lavoratori non si scontrano tra loro, per semplicità e per non creare ingorghi frustranti.
+**Percorsi.** Griglia di celle da 1 m sopra la mappa, con le stazioni come ostacoli e ricerca del percorso A\* (`src/sim/pathfinding.ts`, logica pura usata dal giocatore e dai lavoratori). I lavoratori non si scontrano tra loro, per semplicità e per non creare ingorghi frustranti.
 
 **Il passaggio di ruolo del giocatore.**
 
@@ -728,6 +728,8 @@ patron/
       save.ts              salvataggio, migrazioni, esporta/importa
     sim/
       state.ts             tipi dello stato di gioco
+      player.ts            movimento del giocatore, collisioni
+      pathfinding.ts       griglia dei percorsi e ricerca A*
       economy.ts           formule di costo, prezzi, Purezza, Fama
       stations.ts          cicli di produzione e buffer
       workers.ts           macchina a stati dei lavoratori, stipendi
@@ -737,7 +739,7 @@ patron/
       unlocks.ts           sequenza degli sblocchi e barra obiettivo
       offline.ts           calcolo dei guadagni offline
     world/
-      scene.ts  camera.ts  lights.ts  map.ts  pathfinding.ts
+      scene.ts  camera.ts  lights.ts  map.ts
       models/              personaggi, piante, pressa, laboratorio, camion, plaza, merci
     fx/
       tweens.ts  particles.ts  floatingText.ts  shake.ts
