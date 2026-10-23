@@ -730,6 +730,7 @@ patron/
       state.ts             tipi dello stato di gioco
       player.ts            movimento del giocatore, collisioni
       pathfinding.ts       griglia dei percorsi e ricerca A*
+      geometry.ts          collisioni tra cerchi, rettangoli e bordi
       economy.ts           formule di costo, prezzi, Purezza, Fama
       stations.ts          cicli di produzione e buffer
       workers.ts           macchina a stati dei lavoratori, stipendi

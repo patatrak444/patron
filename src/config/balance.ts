@@ -17,8 +17,26 @@ export interface CameraConfig {
   readonly fovDeg: number;
   /** Larghezza di mondo inquadrata ai tre livelli di zoom, in metri. */
   readonly zoomWidths: readonly [near: number, medium: number, far: number];
-  /** Interpolazione dell'inseguimento per fotogramma. */
+  /** Interpolazione dell'inseguimento per fotogramma a 60 fps; si applica in base al tempo trascorso. */
   readonly followLerp: number;
+}
+
+export interface PlayerConfig {
+  /** Velocità base in m/s (GDD sezione 3). */
+  readonly speed: number;
+  /** Secondi per arrivare alla velocità piena da fermo. */
+  readonly accelTime: number;
+  /** Secondi per fermarsi dalla velocità piena. */
+  readonly stopTime: number;
+  /** Secondi dell'interpolazione con cui si gira verso la direzione di marcia. */
+  readonly turnTime: number;
+  /** Raggio del cerchio di collisione, in metri. */
+  readonly radius: number;
+}
+
+export interface NavConfig {
+  /** Margine dagli ostacoli usato dalla griglia dei percorsi: poco più del raggio, per non strisciare sugli spigoli. */
+  readonly pad: number;
 }
 
 export interface RenderConfig {
@@ -38,6 +56,8 @@ export interface ScreenConfig {
 export interface Balance {
   readonly sim: SimConfig;
   readonly camera: CameraConfig;
+  readonly player: PlayerConfig;
+  readonly nav: NavConfig;
   readonly render: RenderConfig;
   readonly screen: ScreenConfig;
 }
@@ -53,6 +73,16 @@ export const BALANCE: Balance = {
     fovDeg: 35,
     zoomWidths: [16, 24, 34],
     followLerp: 0.1,
+  },
+  player: {
+    speed: 4,
+    accelTime: 0.08,
+    stopTime: 0.1,
+    turnTime: 0.08,
+    radius: 0.35,
+  },
+  nav: {
+    pad: 0.45,
   },
   render: {
     maxInternalWidth: 2560,

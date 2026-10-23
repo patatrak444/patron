@@ -19,17 +19,35 @@ interface Action {
   run?: (button: HTMLButtonElement) => void;
 }
 
-export function createDebugPanel(root: HTMLElement, stepper: FixedStepper, state: GameState): DebugPanel {
+export interface DebugHooks {
+  /** Mostra o nasconde la griglia dei percorsi; restituisce il nuovo stato. */
+  toggleNavGrid(): boolean;
+  /** Chiamate di disegno e triangoli dell'ultimo fotogramma (limiti della sezione 10). */
+  renderStats(): { calls: number; triangles: number };
+}
+
+export function createDebugPanel(
+  root: HTMLElement,
+  stepper: FixedStepper,
+  state: GameState,
+  hooks: DebugHooks,
+): DebugPanel {
   const panel = document.createElement('div');
   panel.className = 'debug';
   panel.innerHTML = `
     <div class="debug__title">DEBUG</div>
     <div class="debug__row"><span>FPS</span><b data-fps>–</b></div>
     <div class="debug__row"><span>Tempo</span><b data-time>0 s</b></div>
+    <div class="debug__row"><span>Disegni</span><b data-calls>–</b></div>
+    <div class="debug__row"><span>Triangoli</span><b data-tris>–</b></div>
+    <div class="debug__row"><span>Posizione</span><b data-pos>–</b></div>
     <div class="debug__actions"></div>
   `;
   const fpsEl = panel.querySelector<HTMLElement>('[data-fps]')!;
   const timeEl = panel.querySelector<HTMLElement>('[data-time]')!;
+  const posEl = panel.querySelector<HTMLElement>('[data-pos]')!;
+  const callsEl = panel.querySelector<HTMLElement>('[data-calls]')!;
+  const trisEl = panel.querySelector<HTMLElement>('[data-tris]')!;
   const actionsEl = panel.querySelector<HTMLElement>('.debug__actions')!;
 
   const actions: Action[] = [
@@ -43,7 +61,7 @@ export function createDebugPanel(root: HTMLElement, stepper: FixedStepper, state
     },
     { label: 'Calore +20', from: 'M4' },
     { label: 'Avvia evento', from: 'M5' },
-    { label: 'Griglia percorsi', from: 'M3' },
+    { label: 'Griglia percorsi', run: (b) => b.classList.toggle('is-on', hooks.toggleNavGrid()) },
     { label: 'Reset', from: 'M6' },
   ];
 
@@ -70,6 +88,10 @@ export function createDebugPanel(root: HTMLElement, stepper: FixedStepper, state
       if (elapsed >= 0.5) {
         fpsEl.textContent = String(Math.round(frames / elapsed));
         timeEl.textContent = `${state.time.toFixed(1)} s`;
+        const stats = hooks.renderStats();
+        callsEl.textContent = String(stats.calls);
+        trisEl.textContent = stats.triangles.toLocaleString('it-IT');
+        posEl.textContent = `${state.player.x.toFixed(1)}, ${state.player.y.toFixed(1)}`;
         frames = 0;
         elapsed = 0;
       }

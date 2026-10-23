@@ -12,6 +12,14 @@ export function distanceForWidth(width: number, fovDeg: number, aspect: number):
   return width / 2 / Math.tan(halfH);
 }
 
+/**
+ * Fattore di interpolazione per un fotogramma di `dt` secondi che equivale a `perFrame60`
+ * applicato a ogni fotogramma a 60 fps (GDD sezione 3).
+ */
+export function frameLerp(perFrame60: number, dt: number): number {
+  return 1 - Math.pow(1 - perFrame60, dt * 60);
+}
+
 /** Camera prospettica dall'alto, inclinata, che segue un bersaglio senza ruotare (GDD sezione 3). */
 export class GameCamera {
   readonly camera: THREE.PerspectiveCamera;
@@ -36,17 +44,23 @@ export class GameCamera {
     this.camera.updateProjectionMatrix();
   }
 
+  /** Scatto di zoom: −1 avvicina, +1 allontana. */
+  zoom(step: number): void {
+    this.zoomIndex = Math.min(Math.max(this.zoomIndex + step, 0), this.cfg.zoomWidths.length - 1);
+  }
+
   /** Imposta il punto da seguire; `snap` salta l'interpolazione. */
   follow(x: number, z: number, snap = false): void {
     this.desiredTarget.set(x, 0, z);
     if (snap) {
       this.target.copy(this.desiredTarget);
       this.distance = this.desiredDistance();
+      this.update(0);
     }
   }
 
-  update(): void {
-    const k = this.cfg.followLerp;
+  update(dt: number): void {
+    const k = frameLerp(this.cfg.followLerp, dt);
     this.target.lerp(this.desiredTarget, k);
     this.distance += (this.desiredDistance() - this.distance) * k;
     this.camera.position.copy(this.target).addScaledVector(this.offsetDir, this.distance);

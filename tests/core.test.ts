@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createBus, type GameEvents } from '../src/core/bus';
-import { createInitialState, stepSim } from '../src/sim/state';
-import { distanceForWidth } from '../src/world/camera';
+import { createInitialState, createMoveContext, stepSim } from '../src/sim/state';
+import { distanceForWidth, frameLerp } from '../src/world/camera';
 import { cappedPixelRatio } from '../src/world/scene';
 
 describe('eventi interni', () => {
@@ -22,7 +22,7 @@ describe('stato di gioco', () => {
     const state = createInitialState(1);
     let emitted = 0;
     bus.on('sim:step', () => emitted++);
-    stepSim(state, 1 / 30, bus);
+    stepSim(state, 1 / 30, bus, { moveX: 0, moveY: 0 }, createMoveContext());
     expect(state.time).toBeCloseTo(1 / 30);
     expect(emitted).toBe(1);
   });
@@ -34,6 +34,17 @@ describe('camera', () => {
     const d = distanceForWidth(24, 35, aspect);
     const halfH = Math.atan(Math.tan((35 * Math.PI) / 360) * aspect);
     expect(2 * d * Math.tan(halfH)).toBeCloseTo(24);
+  });
+});
+
+describe('smorzamento della camera', () => {
+  it('a 60 fps vale 0,1 per fotogramma', () => {
+    expect(frameLerp(0.1, 1 / 60)).toBeCloseTo(0.1);
+  });
+
+  it('a 120 fps due fotogrammi equivalgono a uno a 60 fps', () => {
+    const k = frameLerp(0.1, 1 / 120);
+    expect(1 - (1 - k) * (1 - k)).toBeCloseTo(0.1);
   });
 });
 
