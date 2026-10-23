@@ -69,7 +69,7 @@ PATRÓN è un arcade idle 3D da giocare nel browser del computer in cui un conta
 
 - Safari cancella i dati dei siti non aperti per 7 giorni di uso del browser: chi gioca su Safari rischia di perdere il salvataggio. La schermata iniziale lo segnala e consiglia Chrome.
 
-- Finestra minima 1280 × 720. Sotto questa misura compare un invito ad allargare la finestra.
+- Finestra minima 1280 × 600 (così entrano anche i portatili 1366 × 768, dove lo spazio utile nel browser è circa 1366 × 650). Sotto questa misura compare un invito ad allargare la finestra.
 
 - Chi apre il link da telefono vede il logo e il messaggio "PATRÓN si gioca da computer", con un pulsante per copiare il link.
 
@@ -129,7 +129,7 @@ L'azione principale del gioco è muoversi: ogni azione parte da sola quando il p
 
 **Camera.** Prospettica, dall'alto e inclinata di circa 55° (la vista tipica del genere), con campo visivo di 35°. Segue il giocatore con smorzamento (interpolazione 0,1 al fotogramma), senza rotazione. Allo zoom medio mostra circa 24 m di mondo in larghezza; vicino 16 m, lontano 34 m. Lo zoom lontano serve a controllare l'intera catena quando è automatizzata.
 
-**Schermo.** Orizzontale 16:9, adattato a qualunque finestra da 1280 × 720 in su; ridimensionare la finestra non deforma la scena.
+**Schermo.** Orizzontale, adattato a qualunque finestra da 1280 × 600 in su (16:9 è il formato di riferimento); ridimensionare la finestra non deforma la scena.
 
 ## 4. Mondo e stazioni della Beta
 
@@ -615,7 +615,7 @@ Tutti gli effetti sonori si generano da codice con ZzFX, una libreria di pochi k
 
 ## 12. Interfaccia e HUD
 
-L'interfaccia occupa il meno possibile: tre elementi fissi in alto, una piccola legenda dei tasti in basso, e tutto il resto vive nel mondo (prezzi sui tappetini, contatori sulle stazioni). È scritta in HTML e CSS sopra il canvas 3D, in orizzontale 16:9, da 1280 × 720 in su.
+L'interfaccia occupa il meno possibile: tre elementi fissi in alto, una piccola legenda dei tasti in basso, e tutto il resto vive nel mondo (prezzi sui tappetini, contatori sulle stazioni). È scritta in HTML e CSS sopra il canvas 3D, in orizzontale, da 1280 × 600 in su.
 
 **Schermo di gioco, dall'alto in basso.**
 
@@ -651,7 +651,7 @@ L'interfaccia occupa il meno possibile: tre elementi fissi in alto, una piccola 
 
 **Impostazioni.** Volumi (musica, effetti, ambiente) · Qualità grafica (Alta/Media) · Valore dell'impero e Condividi · Esporta salvataggio · Importa salvataggio · Ricomincia da zero (con doppia conferma) · Versione del gioco.
 
-**Tipografia.** Un solo carattere tondo e in grassetto, incluso nei file del gioco (ad esempio Baloo 2, licenza libera OFL), con contorno scuro per leggerlo sopra il 3D. Testi minimi 14 px a 1280 × 720, che crescono in proporzione sugli schermi più grandi. Il logo ha un carattere suo (sezione 8).
+**Tipografia.** Un solo carattere tondo e in grassetto, incluso nei file del gioco (ad esempio Baloo 2, licenza libera OFL), con contorno scuro per leggerlo sopra il 3D. Testi minimi 14 px a 1280 × 600, che crescono in proporzione sugli schermi più grandi. Il logo ha un carattere suo (sezione 8).
 
 ## 13. Salvataggio, guadagni offline, impostazioni
 
