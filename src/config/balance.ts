@@ -61,6 +61,6 @@ export const BALANCE: Balance = {
   },
   screen: {
     minWidth: 1280,
-    minHeight: 720,
+    minHeight: 600,
   },
 };

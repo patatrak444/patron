@@ -82,7 +82,7 @@ body {
   opacity: 0.8;
 }
 
-/* Finestra sotto 1280 × 720 */
+/* Finestra sotto la misura minima (GDD sezione 2) */
 .min-size {
   position: absolute;
   inset: 0;
