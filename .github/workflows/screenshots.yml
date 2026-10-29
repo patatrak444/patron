@@ -1,0 +1,31 @@
+name: Screenshot del gioco
+
+# Fa gli stessi scatti di `npm run shot` su GitHub, dove il browser si scarica senza limiti di rete,
+# e li allega all'esecuzione: servono quando la sessione cloud di Claude Code non può scaricarlo.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npx playwright install --with-deps chromium
+      - run: npm run shot
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshot
+          path: artifacts/

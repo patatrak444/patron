@@ -13,6 +13,8 @@ export interface SimConfig {
 export interface CameraConfig {
   /** Inclinazione dall'orizzontale, in gradi (GDD sezione 3). */
   readonly pitchDeg: number;
+  /** Rotazione fissa attorno alla verticale: 45° = guarda da sud-ovest verso nord-est (GDD sezione 3). */
+  readonly yawDeg: number;
   /** Campo visivo verticale, in gradi. */
   readonly fovDeg: number;
   /** Larghezza di mondo inquadrata ai tre livelli di zoom, in metri. */
@@ -39,12 +41,21 @@ export interface NavConfig {
   readonly pad: number;
 }
 
+export interface BloomConfig {
+  /** Luminanza minima per brillare: la superano solo i materiali emissivi. */
+  readonly threshold: number;
+  readonly strength: number;
+  readonly radius: number;
+}
+
 export interface RenderConfig {
   /** Risoluzione interna massima (GDD sezione 10). */
   readonly maxInternalWidth: number;
   readonly maxInternalHeight: number;
   /** Lato della mappa d'ombra in qualità Alta e Media. */
   readonly shadowMapSize: { readonly high: number; readonly medium: number };
+  /** Bloom (UnrealBloomPass) in qualità Alta (GDD sezione 10). */
+  readonly bloom: BloomConfig;
 }
 
 export interface ScreenConfig {
@@ -69,9 +80,10 @@ export const BALANCE: Balance = {
     maxStepsPerFrame: 120,
   },
   camera: {
-    pitchDeg: 55,
-    fovDeg: 35,
-    zoomWidths: [16, 24, 34],
+    pitchDeg: 50,
+    yawDeg: 45,
+    fovDeg: 22,
+    zoomWidths: [14, 20, 30],
     followLerp: 0.1,
   },
   player: {
@@ -88,6 +100,7 @@ export const BALANCE: Balance = {
     maxInternalWidth: 2560,
     maxInternalHeight: 1440,
     shadowMapSize: { high: 2048, medium: 1024 },
+    bloom: { threshold: 0.92, strength: 0.3, radius: 0.35 },
   },
   screen: {
     minWidth: 1280,
