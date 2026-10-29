@@ -26,19 +26,19 @@ Griglia in `../../00-metodo/valutazione.md`.
 
 ## Forma (fase 2)
 
-Una riga per campo; codici dei campi in `../../02-forma/README.md`.
+Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su: 6 schermate ufficiali di Google Play (29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| F1 Camera e inquadratura | da compilare |
-| F2 Luce e ombre | da compilare |
-| F3 Colore e palette | da compilare |
-| F4 Forme e modelli | da compilare |
-| F5 Personaggi | da compilare |
-| F6 Ambienti e pavimenti | da compilare |
-| F7 Oggetti di gioco nel mondo | da compilare |
-| F8 Interfaccia | da compilare |
-| F9 Animazione ed effetti | da compilare |
+| F1 Camera e inquadratura | dall'alto a circa 50°, ruotata di 45°, prospettiva leggera; si vedono 2–4 tavoli o stazioni; il personaggio è alto circa 1/12 dello schermo |
+| F2 Luce e ombre | luce piena e calda; ombre corte e morbide; nessuna zona buia |
+| F3 Colore e palette | pavimento in parquet arancio chiaro o pesca, pareti rosse e arancio, tavoli marrone scuro, divanetti rossi e bianchi; soldi verde brillante; tutto in tinte calde tranne il verde dei soldi |
+| F4 Forme e modelli | blocchi semplici smussati; panini e patatine fuori scala; schermate promozionali con oggetti enormi (una bistecca grande quanto una stanza che entra in una sega) |
+| F5 Personaggi | manichini lisci senza volto; giocatore e lavoratori con cappellino e divisa rossa; clienti grigio-azzurri tutti uguali; un lavoratore su un piccolo veicolo |
+| F6 Ambienti e pavimenti | stanze aperte senza muri davanti; parquet a righe; scale mobili; zone libere segnate da quadrotti beige a terra |
+| F7 Oggetti di gioco nel mondo | torri di hamburger sulla schiena e sui banchi; blocchi di banconote verdi 3×3 alti tre strati; scritta MAX rossa in corsivo sopra la macchina piena; fumetto bianco con icona e numero ("burger 9"); cerchio verde tratteggiato dove deve stare un lavoratore; quadrotti a terra con icona dei soldi per le zone da sbloccare; prezzo a terra ("180") |
+| F8 Interfaccia | ingranaggio in alto a sinistra, stella del livello con barra (201/237), soldi (369,06K) e gemme in alto a destra; schermata "Machine upgrade" con tre schede, pulsanti verdi Select e uno con gemme o pubblicità (FREE) |
+| F9 Animazione ed effetti | montagne di panini e di patate che riempiono lo spazio; dalle immagini ferme non si vede il ritmo |
 
 ## Contenuto (fase 3)
 

@@ -26,19 +26,19 @@ Griglia in `../../00-metodo/valutazione.md`.
 
 ## Forma (fase 2)
 
-Una riga per campo; codici dei campi in `../../02-forma/README.md`.
+Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su: 3 schermate ufficiali di Google Play (29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| F1 Camera e inquadratura | da compilare |
-| F2 Luce e ombre | da compilare |
-| F3 Colore e palette | da compilare |
-| F4 Forme e modelli | da compilare |
-| F5 Personaggi | da compilare |
-| F6 Ambienti e pavimenti | da compilare |
-| F7 Oggetti di gioco nel mondo | da compilare |
-| F8 Interfaccia | da compilare |
-| F9 Animazione ed effetti | da compilare |
+| F1 Camera e inquadratura | dall'alto a circa 50°, ruotata di 45°; inquadratura media; personaggio alto circa 1/14 |
+| F2 Luce e ombre | luce chiara e calda; ombre morbide; nessuna zona buia |
+| F3 Colore e palette | mare azzurro, prato verde chiaro, sentieri color sabbia, tetti blu e rossi; pastelli luminosi |
+| F4 Forme e modelli | forme tonde e piene, castello da fiaba, barca a forma di animale; alberi secchi e rocce grigie nelle zone ancora da risanare |
+| F5 Personaggi | personaggi con volto, piccoli e tondi; abitanti diversi con cappelli |
+| F6 Ambienti e pavimenti | isole sul mare con bordi di sabbia; zone grigie e spente da riportare al colore; ponti di legno |
+| F7 Oggetti di gioco nel mondo | freccia gialla 3D sul prossimo obiettivo; scheda della missione in alto ("Build town hall 0/1", "Collect 20 stones 3/20"); numero "+1" che sale dal sasso raccolto; icona sopra la costruzione |
+| F8 Interfaccia | in alto barra del livello (1471/1850) con casetta; risorse a destra in colonna con icone; pulsanti tondi viola a sinistra (baule, spade, cristallo) |
+| F9 Animazione ed effetti | scintille, "+1" che sale; dalle immagini ferme non si vede il ritmo |
 
 ## Contenuto (fase 3)
 

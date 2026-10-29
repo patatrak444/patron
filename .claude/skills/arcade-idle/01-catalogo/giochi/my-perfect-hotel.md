@@ -26,19 +26,19 @@ Griglia in `../../00-metodo/valutazione.md`.
 
 ## Forma (fase 2)
 
-Una riga per campo; codici dei campi in `../../02-forma/README.md`.
+Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su: 6 schermate ufficiali di Google Play (29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| F1 Camera e inquadratura | da compilare |
-| F2 Luce e ombre | da compilare |
-| F3 Colore e palette | da compilare |
-| F4 Forme e modelli | da compilare |
-| F5 Personaggi | da compilare |
-| F6 Ambienti e pavimenti | da compilare |
-| F7 Oggetti di gioco nel mondo | da compilare |
-| F8 Interfaccia | da compilare |
-| F9 Animazione ed effetti | da compilare |
+| F1 Camera e inquadratura | dall'alto a circa 50°, ruotata di 45°; inquadratura stretta su 1–2 stanze; mappa del mondo a parte con isole e alberghi |
+| F2 Luce e ombre | luce chiara e calda, ombre morbide; atmosfera da cartone animato |
+| F3 Colore e palette | palette diversa per ogni albergo (rosa per l'evento Barbie, viola e grigio per l'albergo sulla luna, rosa e arancio per quello dei dolci); sempre saturi e luminosi |
+| F4 Forme e modelli | molto dettaglio: letti, tappeti, vasi, decorazioni a tema; forme tonde; più oggetti per stanza degli altri giochi |
+| F5 Personaggi | personaggi con volto e testa grande (stile cartone), clienti tutti diversi; personale riconoscibile (fattorino in rosso, cameriera); nelle didascalie personaggi disegnati in 2D a mezzo busto |
+| F6 Ambienti e pavimenti | stanze a vista con muri bassi, pavimenti a scacchi o tappeti; temi diversi per ogni sede (spiaggia, montagna, luna, dolci, antico) |
+| F7 Oggetti di gioco nel mondo | icone tonde blu sopra i letti da rifare, punti esclamativi rossi, fumetti con richieste; coriandoli all'evento |
+| F8 Interfaccia | interfaccia fitta: in alto nome dell'albergo, livello con barra (MAX) e quattro valute; a sinistra colonna di pulsanti tondi (offerte, menu); a destra pulsanti con timer; didascalie su fascia azzurra con scritta gialla e bianca |
+| F9 Animazione ed effetti | coriandoli, raggio di luce sulle stanze nuove; dalle immagini ferme non si vede il ritmo |
 
 ## Contenuto (fase 3)
 

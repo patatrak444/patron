@@ -26,19 +26,19 @@ Griglia in `../../00-metodo/valutazione.md`.
 
 ## Forma (fase 2)
 
-Una riga per campo; codici dei campi in `../../02-forma/README.md`.
+Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su: 3 schermate ufficiali di Google Play (29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| F1 Camera e inquadratura | da compilare |
-| F2 Luce e ombre | da compilare |
-| F3 Colore e palette | da compilare |
-| F4 Forme e modelli | da compilare |
-| F5 Personaggi | da compilare |
-| F6 Ambienti e pavimenti | da compilare |
-| F7 Oggetti di gioco nel mondo | da compilare |
-| F8 Interfaccia | da compilare |
-| F9 Animazione ed effetti | da compilare |
+| F1 Camera e inquadratura | dall'alto a circa 50°, ruotata di 45°, prospettiva quasi nulla; personaggio alto circa 1/16 |
+| F2 Luce e ombre | luce piena; ombre corte e leggere |
+| F3 Colore e palette | grigio-azzurro chiaro dominante (pavimenti, muri), blu per macchine e guardie, arancione per i detenuti e la merce; soldi verdi; molto ordinato e poco colorato |
+| F4 Forme e modelli | blocchi semplici smussati; manette e divise in pile grandi; celle fatte di sbarre sottili |
+| F5 Personaggi | manichini senza volto come Pizza Ready: guardia in blu con berretto, detenuti in arancione con righe, visitatori bianchi |
+| F6 Ambienti e pavimenti | pavimenti grigi con percorsi dipinti a terra (linee scure) che collegano le zone; icone dipinte a terra in ogni zona; scale mobili con UP e DOWN; bordi del mondo a gradino |
+| F7 Oggetti di gioco nel mondo | contatore della cella (3/4); fumetti gialli con icona sopra i detenuti; torri di divise e manette; mattonella di soldi verde; icona a terra dove si posa la merce |
+| F8 Interfaccia | non si vede interfaccia nelle tre schermate guardate |
+| F9 Animazione ed effetti | pietre e divise che piovono sul nastro; dalle immagini ferme non si vede il ritmo |
 
 ## Contenuto (fase 3)
 

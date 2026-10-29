@@ -26,19 +26,19 @@ Griglia in `../../00-metodo/valutazione.md`.
 
 ## Forma (fase 2)
 
-Una riga per campo; codici dei campi in `../../02-forma/README.md`.
+Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su: 6 schermate ufficiali di Google Play (29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| F1 Camera e inquadratura | da compilare |
-| F2 Luce e ombre | da compilare |
-| F3 Colore e palette | da compilare |
-| F4 Forme e modelli | da compilare |
-| F5 Personaggi | da compilare |
-| F6 Ambienti e pavimenti | da compilare |
-| F7 Oggetti di gioco nel mondo | da compilare |
-| F8 Interfaccia | da compilare |
-| F9 Animazione ed effetti | da compilare |
+| F1 Camera e inquadratura | dall'alto a circa 55°, ruotata di 45°, prospettiva leggera; inquadratura un po' più lontana dei Supercent: 4–6 zone per schermo; personaggio alto circa 1/15 |
+| F2 Luce e ombre | luce piatta e chiarissima, quasi senza ombre; solo una macchia scura morbida sotto gli oggetti |
+| F3 Colore e palette | prato verde chiaro, pavimenti color menta, sabbia e beige pastello; personaggi in tinte unite sature (viola, azzurro, verde, giallo); poche zone scure (le piazzole grigie da sbloccare) |
+| F4 Forme e modelli | forme molto tonde e morbide, poco dettaglio; animali (mucca, gallina) cubici e simpatici; ortaggi grandi quanto la testa del personaggio |
+| F5 Personaggi | omini a fagiolo senza volto, ognuno di un colore pieno; cappellino; il giocatore si distingue dal colore; clienti con carrello |
+| F6 Ambienti e pavimenti | prato aperto con recinti di legno, campi a riquadri marroni, negozio con pavimento pastello e scaffali; bordo del mondo poco visibile |
+| F7 Oggetti di gioco nel mondo | piazzole grigie ottagonali da sbloccare con icona, "LEVEL 2" e prezzo (200); fumetti piccoli e tondi con icona e contatore (0/2, 0/4, 5/8) sopra ogni scaffale o recinto; scritta MAX; grande freccia gialla verso il prossimo obiettivo; mano bianca che indica; mattonelle di soldi verdi |
+| F8 Interfaccia | poca interfaccia nel gioco; pulsante giallo "Add" con prezzo per assumere; didascalie dello store su fasce gialle o viola in maiuscolo bianco |
+| F9 Animazione ed effetti | scie di oggetti che volano verso il personaggio, mucchi di bottiglie; dalle immagini ferme non si vede il ritmo |
 
 ## Contenuto (fase 3)
 

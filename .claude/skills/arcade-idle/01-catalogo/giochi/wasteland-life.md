@@ -26,19 +26,19 @@ Griglia in `../../00-metodo/valutazione.md`.
 
 ## Forma (fase 2)
 
-Una riga per campo; codici dei campi in `../../02-forma/README.md`.
+Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su: 3 schermate ufficiali di Google Play (29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| F1 Camera e inquadratura | da compilare |
-| F2 Luce e ombre | da compilare |
-| F3 Colore e palette | da compilare |
-| F4 Forme e modelli | da compilare |
-| F5 Personaggi | da compilare |
-| F6 Ambienti e pavimenti | da compilare |
-| F7 Oggetti di gioco nel mondo | da compilare |
-| F8 Interfaccia | da compilare |
-| F9 Animazione ed effetti | da compilare |
+| F1 Camera e inquadratura | dall'alto a circa 50°, ruotata di 45°; inquadratura stretta sul personaggio; mappa del mondo a parte |
+| F2 Luce e ombre | luce calda e polverosa, ombre morbide; sole basso |
+| F3 Colore e palette | ocra, sabbia, marrone e ruggine; poche note fredde (blu delle auto); il deserto è il colore dominante |
+| F4 Forme e modelli | oggetti consumati ma tondi: casse di legno, baracche di lamiera, semafori; stile cartone con un po' di dettaglio |
+| F5 Personaggi | sopravvissuto con volto e canottiera, più alto e "adulto" degli altri giochi; personaggi da salvare con icona sopra |
+| F6 Ambienti e pavimenti | deserto con strade, recinti e campi; mappa con città, alberi secchi, mulini a vento |
+| F7 Oggetti di gioco nel mondo | barra di vita sopra gli oggetti da abbattere (22/60); segnaposto rosso sulla mappa; fumetto della missione in alto |
+| F8 Interfaccia | colonna di risorse a destra con icone; livello e soldi in alto; carte degli attrezzi a sinistra (LVL 1, LVL 2); barra dell'energia (49/50) con tempo; didascalie su cartelli di legno con icona a sinistra |
+| F9 Animazione ed effetti | getto d'acqua che pulisce la sabbia; dalle immagini ferme non si vede il ritmo |
 
 ## Contenuto (fase 3)
 

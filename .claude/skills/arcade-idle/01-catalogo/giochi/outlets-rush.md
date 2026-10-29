@@ -26,19 +26,19 @@ Griglia in `../../00-metodo/valutazione.md`.
 
 ## Forma (fase 2)
 
-Una riga per campo; codici dei campi in `../../02-forma/README.md`.
+Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su: 3 schermate ufficiali di Google Play (29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| F1 Camera e inquadratura | da compilare |
-| F2 Luce e ombre | da compilare |
-| F3 Colore e palette | da compilare |
-| F4 Forme e modelli | da compilare |
-| F5 Personaggi | da compilare |
-| F6 Ambienti e pavimenti | da compilare |
-| F7 Oggetti di gioco nel mondo | da compilare |
-| F8 Interfaccia | da compilare |
-| F9 Animazione ed effetti | da compilare |
+| F1 Camera e inquadratura | dall'alto a circa 50°, ruotata di 45°; prospettiva un po' più marcata; personaggio alto circa 1/18 dello schermo |
+| F2 Luce e ombre | luce chiara con ombre morbide e un po' di ombra di contatto sotto i mucchi |
+| F3 Colore e palette | interni bianchi e grigio chiaro con dettagli arancio; pavimento a quadri azzurri; colori vivi solo nella merce (scarpe e magliette multicolori) |
+| F4 Forme e modelli | arredi realistici semplificati (scaffali, appendiabiti, manichini); merce numerosa e piccola, con una scarpa gigante come insegna sulla macchina |
+| F5 Personaggi | figure più realistiche e più piccole (arbitro a righe, commesse); meno carattere degli altri |
+| F6 Ambienti e pavimenti | negozio su più piani con scale mobili e ringhiere; pareti basse; piante in vaso |
+| F7 Oggetti di gioco nel mondo | mucchi enormi di scarpe nei cassoni e sul nastro; piastrella scura con lucchetto e prezzo (400) per sbloccare |
+| F8 Interfaccia | solo i soldi (12820) in alto a destra in una pillola bianca con icona verde |
+| F9 Animazione ed effetti | merce che cade a valanga dai cassoni; dalle immagini ferme non si vede il ritmo |
 
 ## Contenuto (fase 3)
 

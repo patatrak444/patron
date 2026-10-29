@@ -26,19 +26,19 @@ Griglia in `../../00-metodo/valutazione.md`.
 
 ## Forma (fase 2)
 
-Una riga per campo; codici dei campi in `../../02-forma/README.md`.
+Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su: 6 schermate ufficiali di Google Play (29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| F1 Camera e inquadratura | da compilare |
-| F2 Luce e ombre | da compilare |
-| F3 Colore e palette | da compilare |
-| F4 Forme e modelli | da compilare |
-| F5 Personaggi | da compilare |
-| F6 Ambienti e pavimenti | da compilare |
-| F7 Oggetti di gioco nel mondo | da compilare |
-| F8 Interfaccia | da compilare |
-| F9 Animazione ed effetti | da compilare |
+| F1 Camera e inquadratura | dall'alto a circa 50°, ruotata di 45° (pareti in diagonale), prospettiva leggera; in gioco si vedono 2–3 stazioni e il personaggio è alto circa 1/14 dello schermo; una schermata lontana mostra l'intero piano con circa 40 tavoli |
+| F2 Luce e ombre | luce piena e uniforme, quasi senza zone scure; ombre corte e morbide sotto oggetti e personaggi; facce laterali degli oggetti appena più scure |
+| F3 Colore e palette | pavimenti chiari (crema, beige a quadri), pareti bianche con fascia blu in cima, macchinari blu e rossi, prato verde acceso fuori; soldi verde brillante; due colori di marca (blu e rosso) ripetuti ovunque |
+| F4 Forme e modelli | forme semplici e piene con spigoli smussati; il cibo è fuori scala (una pizza larga quanto il busto del personaggio); auto e furgoni giocattolo; il forno con una pizza gigante in vetrina come insegna |
+| F5 Personaggi | omini lisci senza volto, testa tonda, cappellino rosso e corpo blu per il giocatore; lavoratori con lo stesso corpo e grembiule bianco; clienti in grigio scuro |
+| F6 Ambienti e pavimenti | stanze a vista con muri bassi solo sui lati lontani; pavimento a piastrelle a quadri; fuori strada nera con strisce di parcheggio, prato e alberi tondi; scale mobili tra i piani |
+| F7 Oggetti di gioco nel mondo | torri di scatole di pizza più alte del personaggio; soldi a terra in mattonelle 2×3 di banconote; fumetto bianco con icona e numero ("pizza 2") sopra il banco; scritte dipinte a terra (UPGRADE, DOWN, UP); cerchio bianco con mano dove si sta fermi; grandi frecce gialle luminose sulle zone nuove |
+| F8 Interfaccia | in alto: stella del livello con barra (50/100), soldi (13,54K), gemme; nella prima ora solo il contatore dei soldi in alto a sinistra; schermata "Machine upgrade" con tre schede e il bollino HOT |
+| F9 Animazione ed effetti | scintille sul nastro, fumo dalle auto, pioggia di pizze che forma una montagna; dalle immagini ferme non si vede il ritmo del movimento |
 
 ## Contenuto (fase 3)
 

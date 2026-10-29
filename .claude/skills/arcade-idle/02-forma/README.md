@@ -1,6 +1,8 @@
 # Forma: come appare il genere
 
-Un file per campo, compilato nella fase 4 riunendo le osservazioni delle schede. Ogni file ha la stessa struttura: cosa si osserva gioco per gioco, cosa è comune, numeri (dove misurabili), eccezioni.
+Compilata nella fase 2. Un file per campo: riunisce le righe "Forma" delle 11 schede, poi dice cosa è comune (con quanti giochi lo fanno), i numeri misurabili e le eccezioni. Le regole vere e proprie, con la soglia di metà dei giochi, si scrivono nella fase 4 in `../04-sintesi/`.
+
+Fonte: le schermate ufficiali di Google Play di ogni gioco (da 3 a 6 per gioco), guardate il 29 ottobre 2026. Le misure sono stime a occhio.
 
 | Codice | File | Cosa si osserva |
 | --- | --- | --- |
@@ -13,3 +15,11 @@ Un file per campo, compilato nella fase 4 riunendo le osservazioni delle schede.
 | F7 | `oggetti-nel-mondo.md` | Pile, soldi a terra, tappetini di sblocco, fumetti, contatori, scritte sopra le stazioni |
 | F8 | `interfaccia.md` | Cosa c'è sullo schermo fuori dal mondo: soldi, livello, pulsanti, dove stanno |
 | F9 | `animazione.md` | Come si muovono personaggi e oggetti, risposte a ogni azione |
+
+## Le cinque osservazioni più nette
+
+1. Camera 50–55°, ruotata di 45°, personaggio 1/18–1/12 dello schermo (11/11).
+2. Fondo chiaro, oggetti e personaggi più saturi sopra (10/11); ombre corte e morbide (11/11).
+3. Mai un muro tra camera e personaggio (11/11).
+4. Numeri scritti nella scena: contatori n/max, prezzi a terra, quantità (9/11).
+5. Fumetti tondi con un'icona e un numero, mai frasi (tutti quelli osservati).
