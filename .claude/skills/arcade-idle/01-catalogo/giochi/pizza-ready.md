@@ -42,20 +42,20 @@ Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su
 
 ## Contenuto (fase 3)
 
-Codici dei campi in `../../03-contenuto/README.md`.
+Codici dei campi in `../../03-contenuto/README.md`. Fonti con indirizzo in `../../03-contenuto/fonti/` (ricerca del 29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| C1 Ciclo di gioco | da compilare |
-| C2 Stazioni e filiera | da compilare |
-| C3 Pila | da compilare |
-| C4 Sblocchi ed espansione | da compilare |
-| C5 Lavoratori e automazione | da compilare |
-| C6 Clienti | da compilare |
-| C7 Economia e ritmo | da compilare |
-| C8 Progressione lunga | da compilare |
-| C9 Primi minuti | da compilare |
-| C10 Tema | da compilare |
+| C1 Ciclo di gioco | si tiene premuto per muoversi; si prende dal forno, si porta al bancone, si raccolgono i soldi a terra e si versano sugli sblocchi; non si perde mai |
+| C2 Stazioni e filiera | forno → bancone; ramo d'asporto: bancone confezioni → scatole → zona asporto; ramo di ritorno: i tavoli lasciano spazzatura da portare al cestino; poi drive-in e consegne |
+| C3 Pila | giocatore e lavoratori partono da 1 oggetto alla volta (pizza, scatola o spazzatura); la capacità sale con i potenziamenti; massimo non trovato nelle fonti pubbliche |
+| C4 Sblocchi ed espansione | ci si ferma sopra una "scatola" a terra e i soldi si scaricano; ogni sezione nuova del locale si compra così; costi non trovato nelle fonti pubbliche |
+| C5 Lavoratori e automazione | si assume una volta pagando; i primi coprono il bancone, i successivi il trasporto forno → bancone; più lenti del giocatore, fanno pause visibili; solo il giocatore raccoglie i soldi |
+| C6 Clienti | in fila dal primo secondo, infiniti; tavoli, asporto, drive-in; pazienza non trovato nelle fonti pubbliche |
+| C7 Economia e ritmo | due uffici (personale e giocatore) con velocità, capacità, assunzioni o guadagno: 5 livelli ciascuno a costo esponenziale, primo livello gratis, 30 potenziamenti; guadagno offline con tetto, raddoppiato da pubblicità; icone a tempo (velocità oltre 2×, capacità); prezzi non trovato nelle fonti pubbliche |
+| C8 Progressione lunga | nuovi locali da una mappa della città, aperti anche prima di finire il corrente; ogni locale ha una divisa nuova; pass stagionale; eventi |
+| C9 Primi minuti | nessun menu iniziale: si parte giocando con i clienti già in fila; tutorial a frecce |
+| C10 Tema | pizzeria; il lavoretto del tema è la spazzatura dei tavoli |
 
 ## Fonti della scheda
 

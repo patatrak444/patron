@@ -1,6 +1,6 @@
 # Contenuto: come funziona il genere
 
-Un file per campo, compilato nella fase 4. Stessa struttura dei file di forma.
+Compilata nella fase 3. Un file per campo, stessa struttura dei file di forma. `rapporto-ricerca.md` è il rapporto della ricerca che ha alimentato le schede; `fonti/` contiene le note con l'indirizzo di ogni dato. Quasi nessun numero di bilanciamento è pubblico: ogni file dice cosa resta da misurare sui video delle partite.
 
 | Codice | File | Cosa si osserva |
 | --- | --- | --- |

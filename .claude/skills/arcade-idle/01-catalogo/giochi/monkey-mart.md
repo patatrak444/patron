@@ -42,20 +42,20 @@ Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su
 
 ## Contenuto (fase 3)
 
-Codici dei campi in `../../03-contenuto/README.md`.
+Codici dei campi in `../../03-contenuto/README.md`. Fonti con indirizzo in `../../03-contenuto/fonti/` (ricerca del 29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| C1 Ciclo di gioco | da compilare |
-| C2 Stazioni e filiera | da compilare |
-| C3 Pila | da compilare |
-| C4 Sblocchi ed espansione | da compilare |
-| C5 Lavoratori e automazione | da compilare |
-| C6 Clienti | da compilare |
-| C7 Economia e ritmo | da compilare |
-| C8 Progressione lunga | da compilare |
-| C9 Primi minuti | da compilare |
-| C10 Tema | da compilare |
+| C1 Ciclo di gioco | si raccoglie dai campi, si riempiono gli scaffali, si incassa; il lavoro parte da solo quando la scimmia arriva alla postazione |
+| C2 Stazioni e filiera | coltivazioni (banane, mais, grano, caffè, cacao) → scaffali → cassa; animali che producono uova e latte solo dopo aver mangiato mais; macchine che trasformano (yogurt, popcorn, farina, caffè, cioccolato) |
+| C3 Pila | potenziamento "Pila": capacità di trasporto e di deposito delle macchine; 4 livelli |
+| C4 Sblocchi ed espansione | si sbloccano corridoi e macchine; il market successivo si apre solo dopo aver sbloccato tutto nel corrente; costi non trovato nelle fonti pubbliche |
+| C5 Lavoratori e automazione | cassiere, assistente, contadino, cuoco; si addormentano e vanno svegliati, oppure si fa il lavoro da sé |
+| C6 Clienti | clienti in fila alla cassa; scimmie dispettose che fanno cadere la merce |
+| C7 Economia e ritmo | 3 potenziamenti da 4 livelli: Resistenza (meno sonno e meno guasti), Pila, Velocità; 5 missioni giornaliere pagate in diamanti; oltre 20 cappelli in diamanti |
+| C8 Progressione lunga | 6 market a tema (banane, cioccolato, muffin, pesce, mela, cocco) |
+| C9 Primi minuti | nessun tasto pausa; si gioca subito |
+| C10 Tema | supermercato di scimmie; per PATRÓN conta come riferimento per il browser (Poki, 4,6 su 3,8 M voti) |
 
 ## Fonti della scheda
 

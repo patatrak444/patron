@@ -42,20 +42,20 @@ Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su
 
 ## Contenuto (fase 3)
 
-Codici dei campi in `../../03-contenuto/README.md`.
+Codici dei campi in `../../03-contenuto/README.md`. Fonti con indirizzo in `../../03-contenuto/fonti/` (ricerca del 29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| C1 Ciclo di gioco | da compilare |
-| C2 Stazioni e filiera | da compilare |
-| C3 Pila | da compilare |
-| C4 Sblocchi ed espansione | da compilare |
-| C5 Lavoratori e automazione | da compilare |
-| C6 Clienti | da compilare |
-| C7 Economia e ritmo | da compilare |
-| C8 Progressione lunga | da compilare |
-| C9 Primi minuti | da compilare |
-| C10 Tema | da compilare |
+| C1 Ciclo di gioco | si parte facchino e si fa tutto a mano: accettazione, pulizia delle camere, carta igienica, incasso di pagamenti e mance |
+| C2 Stazioni e filiera | reception → camera → pulizia; più servizi che aumentano i ricavi ma chiedono personale: bagni, distributori, ristoranti, parcheggi, piscine, ascensori |
+| C3 Pila | pila di asciugamani e carta igienica; capacità non trovato nelle fonti pubbliche |
+| C4 Sblocchi ed espansione | si comprano camere, arredi (letto, TV, bagno) e servizi; costi non trovato nelle fonti pubbliche |
+| C5 Lavoratori e automazione | addetti alle pulizie e receptionist con potenziamenti di velocità; il secondo livello delle pulizie "si ripaga in meno di 10 minuti di gioco attivo" (guida non ufficiale) |
+| C6 Clienti | ospiti in arrivo con richieste; lamentele e guasti crescono con le folle; mance |
+| C7 Economia e ritmo | gemme da 1,99 a 9,99 $; "togli pubblicità" 9,99 $ offerto nei primi due minuti, il più venduto; animali a 2,99 $ |
+| C8 Progressione lunga | hotel a tema con valute proprie (costa, montagna, foresta, luna, dolci, antico…; circa 8–10, numero ufficiale non trovato nelle fonti pubbliche); pass a livelli; missioni giornaliere; eventi stagionali (Halloween 2026: aspirare fantasmi, zucche, ruota dei premi); hotel Barbie su licenza dal 23 aprile 2026 al 31 marzo 2027 |
+| C9 Primi minuti | tutto a mano come facchino; offerta "togli pubblicità" entro i primi due minuti |
+| C10 Tema | albergo; il tema si rinnova a ogni sede e a ogni evento (verbo nuovo: aspirare i fantasmi) |
 
 ## Fonti della scheda
 

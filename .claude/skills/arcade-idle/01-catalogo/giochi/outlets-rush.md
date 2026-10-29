@@ -42,20 +42,20 @@ Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su
 
 ## Contenuto (fase 3)
 
-Codici dei campi in `../../03-contenuto/README.md`.
+Codici dei campi in `../../03-contenuto/README.md`. Fonti con indirizzo in `../../03-contenuto/fonti/` (ricerca del 29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| C1 Ciclo di gioco | da compilare |
-| C2 Stazioni e filiera | da compilare |
-| C3 Pila | da compilare |
-| C4 Sblocchi ed espansione | da compilare |
-| C5 Lavoratori e automazione | da compilare |
-| C6 Clienti | da compilare |
-| C7 Economia e ritmo | da compilare |
-| C8 Progressione lunga | da compilare |
-| C9 Primi minuti | da compilare |
-| C10 Tema | da compilare |
+| C1 Ciclo di gioco | si scarica la merce dal magazzino, si riempiono gli scaffali, si incassa; si puliscono i camerini |
+| C2 Stazioni e filiera | spedizioni dal magazzino → scaffali → cassa; nessuna produzione propria; camerini da pulire |
+| C3 Pila | pila trasportata; potenziamento della capacità; valori non trovato nelle fonti pubbliche |
+| C4 Sblocchi ed espansione | piastrella con lucchetto e prezzo (400 in una schermata); soglie di stelle per i negozi nuovi non trovato nelle fonti pubbliche |
+| C5 Lavoratori e automazione | personale assunto per scaffali e cassa; dettagli non trovato nelle fonti pubbliche |
+| C6 Clienti | clienti che provano i vestiti nei camerini e pagano alla cassa |
+| C7 Economia e ritmo | prima pubblicità forzata subito dopo il tutorial, poi ogni 2 minuti, poi ogni minuto; gemme in 6 pacchetti da 1,99 a 29,99 $; "togli pubblicità" 9,99 $ il più venduto |
+| C8 Progressione lunga | 7 negozi sbloccati con le stelle, dal negozio sportivo "Neki"; si torna nei vecchi a raccogliere soldi |
+| C9 Primi minuti | frecce e brevi testi; pubblicità subito dopo il tutorial |
+| C10 Tema | outlet di abbigliamento sportivo; il lavoretto del tema sono i camerini |
 
 ## Fonti della scheda
 

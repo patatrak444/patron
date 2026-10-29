@@ -42,20 +42,20 @@ Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su
 
 ## Contenuto (fase 3)
 
-Codici dei campi in `../../03-contenuto/README.md`.
+Codici dei campi in `../../03-contenuto/README.md`. Fonti con indirizzo in `../../03-contenuto/fonti/` (ricerca del 29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| C1 Ciclo di gioco | da compilare |
-| C2 Stazioni e filiera | da compilare |
-| C3 Pila | da compilare |
-| C4 Sblocchi ed espansione | da compilare |
-| C5 Lavoratori e automazione | da compilare |
-| C6 Clienti | da compilare |
-| C7 Economia e ritmo | da compilare |
-| C8 Progressione lunga | da compilare |
-| C9 Primi minuti | da compilare |
-| C10 Tema | da compilare |
+| C1 Ciclo di gioco | si spaccano rocce e alberi col piccone o l'ascia (anche a raffica camminandoci vicino), si consegnano le risorse sui quadrati bianchi, si espande un esagono alla volta |
+| C2 Stazioni e filiera | nodi di risorse → edifici che trasformano → costruzioni; oltre 70 risorse (versione console) |
+| C3 Pila | zaino; capacità non trovato nelle fonti pubbliche |
+| C4 Sblocchi ed espansione | esagoni da costruire con risorse; ogni esagono porta un ambiente nuovo e nemici |
+| C5 Lavoratori e automazione | aiutanti; dettagli non trovato nelle fonti pubbliche |
+| C6 Clienti | nessun cliente: nemici, sotterranei (oltre 65) e boss (oltre 150 nemici, versione console) |
+| C7 Economia e ritmo | attrezzi a 8 livelli ciascuno (piccone, ascia) e 8 armi su mobile; l'attrezzo superiore scava 2× più veloce; timer dei potenziamenti saltabili con pubblicità; attrezzo "d'oro" a pagamento |
+| C8 Progressione lunga | 9–10 pianeti (il decimo aggiunto il 6 novembre 2025); obiettivi del pianeta (2024, 2026); missioni giornaliere; pass |
+| C9 Primi minuti | pianeta spoglio, solo il piccone |
+| C10 Tema | avventura spaziale; minaccia nei luoghi, scelta dal giocatore; morte lieve (console: si rinasce tenendo le risorse, si perde una carta bonus); carta "Pacifista": i mostri non attaccano per primi |
 
 ## Fonti della scheda
 

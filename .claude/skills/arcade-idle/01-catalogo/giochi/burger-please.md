@@ -42,20 +42,20 @@ Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su
 
 ## Contenuto (fase 3)
 
-Codici dei campi in `../../03-contenuto/README.md`.
+Codici dei campi in `../../03-contenuto/README.md`. Fonti con indirizzo in `../../03-contenuto/fonti/` (ricerca del 29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| C1 Ciclo di gioco | da compilare |
-| C2 Stazioni e filiera | da compilare |
-| C3 Pila | da compilare |
-| C4 Sblocchi ed espansione | da compilare |
-| C5 Lavoratori e automazione | da compilare |
-| C6 Clienti | da compilare |
-| C7 Economia e ritmo | da compilare |
-| C8 Progressione lunga | da compilare |
-| C9 Primi minuti | da compilare |
-| C10 Tema | da compilare |
+| C1 Ciclo di gioco | come Pizza Ready: piastra → pila → cassa → soldi → sblocchi |
+| C2 Stazioni e filiera | piastra → hamburger → cassa → drive-in; poi patatine, bibite e pizza; tavoli da pulire |
+| C3 Pila | pila verticale sulla schiena; capacità potenziabile e venduta (pacchetto da 12,99 $ con 2× capacità); valori non trovato nelle fonti pubbliche |
+| C4 Sblocchi ed espansione | quadrotti a terra con prezzo; "nuovi cibi portano nuovi livelli e nuovi clienti"; costi non trovato nelle fonti pubbliche |
+| C5 Lavoratori e automazione | aiutante e drive-in nella seconda parte delle videoguide; il personale porta, serve, pulisce e gestisce il drive-in; con le pubblicità le assunzioni sono così facili che "l'avatar resta con poco da fare" |
+| C6 Clienti | in fila alla cassa e al drive-in; nuovi tipi di cliente con i cibi nuovi |
+| C7 Economia e ritmo | ufficio del personale come Pizza Ready; pubblicità facoltative per soldi; pacchetto premium 12,99 $; prezzi non trovato nelle fonti pubbliche |
+| C8 Progressione lunga | nuovi cibi e livelli; pass stagionale dalla versione 1.6.0 (gennaio 2024); eventi |
+| C9 Primi minuti | frecce rosse; pubblicità facoltative presentate già nel tutorial |
+| C10 Tema | fast food; critica principale: ripetitivo, senza strati di medio periodo |
 
 ## Fonti della scheda
 

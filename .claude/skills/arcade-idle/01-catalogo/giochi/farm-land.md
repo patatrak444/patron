@@ -42,20 +42,20 @@ Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su
 
 ## Contenuto (fase 3)
 
-Codici dei campi in `../../03-contenuto/README.md`.
+Codici dei campi in `../../03-contenuto/README.md`. Fonti con indirizzo in `../../03-contenuto/fonti/` (ricerca del 29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| C1 Ciclo di gioco | da compilare |
-| C2 Stazioni e filiera | da compilare |
-| C3 Pila | da compilare |
-| C4 Sblocchi ed espansione | da compilare |
-| C5 Lavoratori e automazione | da compilare |
-| C6 Clienti | da compilare |
-| C7 Economia e ritmo | da compilare |
-| C8 Progressione lunga | da compilare |
-| C9 Primi minuti | da compilare |
-| C10 Tema | da compilare |
+| C1 Ciclo di gioco | si semina, si annaffia, si raccoglie, si mette nel granaio e si vende al mercato |
+| C2 Stazioni e filiera | campi (36 quadri: la semina copre 3 quadri per passata, l'acqua 6) → granaio → mercato; animali, alberi e pesca come mini-giochi a gesti; nessuna trasformazione |
+| C3 Pila | granaio da 100 unità per coltura; i lavoratori si fermano a granaio pieno; pila del giocatore non trovato nelle fonti pubbliche |
+| C4 Sblocchi ed espansione | si parte con 7 monete = prezzo del primo terreno; il secondo costa 20 |
+| C5 Lavoratori e automazione | primo lavoratore 60 monete; i lavoratori immagazzinano ma non vendono; aiutanti a gemme per vendere e svuotare |
+| C6 Clienti | nessun cliente con richieste: mercanti che comprano sempre |
+| C7 Economia e ritmo | mais 3, pomodoro 4, mela 20 monete; abbonamento VIP (5,99 $ a settimana fino a 99,99 $ l'anno: bici, pappagallo, +50% granaio, niente pubblicità); pubblicità durante la "pioggia" |
+| C8 Progressione lunga | 4 mappe, ognuna con granaio, collegate da una nave; nessun evento visibile; note di versione solo "correzione bug" |
+| C9 Primi minuti | tutorial di circa 1 minuto; il mais cresce in pochi secondi e dà più di 30 pannocchie |
+| C10 Tema | fattoria; il più debole per contenuto: niente trasformazione, niente clienti, niente eventi |
 
 ## Fonti della scheda
 

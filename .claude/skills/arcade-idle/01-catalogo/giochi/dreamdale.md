@@ -42,20 +42,20 @@ Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su
 
 ## Contenuto (fase 3)
 
-Codici dei campi in `../../03-contenuto/README.md`.
+Codici dei campi in `../../03-contenuto/README.md`. Fonti con indirizzo in `../../03-contenuto/fonti/` (ricerca del 29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| C1 Ciclo di gioco | da compilare |
-| C2 Stazioni e filiera | da compilare |
-| C3 Pila | da compilare |
-| C4 Sblocchi ed espansione | da compilare |
-| C5 Lavoratori e automazione | da compilare |
-| C6 Clienti | da compilare |
-| C7 Economia e ritmo | da compilare |
-| C8 Progressione lunga | da compilare |
-| C9 Primi minuti | da compilare |
-| C10 Tema | da compilare |
+| C1 Ciclo di gioco | taglialegna con zaino vuoto e ascia: si taglia, si scava, si pesca, si vende al mercato |
+| C2 Stazioni e filiera | nodi di risorse → mercato e costruzioni; ogni materiale chiede l'attrezzo giusto |
+| C3 Pila | zaino; capacità non trovato nelle fonti pubbliche |
+| C4 Sblocchi ed espansione | costruzioni e isole nuove in barca; 5 isole iniziali più almeno 5 aggiunte tra marzo 2025 e marzo 2026 |
+| C5 Lavoratori e automazione | abitanti reclutati che coltivano, pescano e scavano al posto del giocatore |
+| C6 Clienti | abitanti; 8 grotte con mostri e boss |
+| C7 Economia e ritmo | i materiali ricrescono in 30–45 s; pubblicità che accelerano i timer; missioni che danno esperienza e livelli |
+| C8 Progressione lunga | isole, livelli del giocatore, attrezzi |
+| C9 Primi minuti | missione "Build town hall 0/1" e freccia gialla |
+| C10 Tema | fiaba; zone grigie da riportare al colore; pericolo solo nelle grotte |
 
 ## Fonti della scheda
 

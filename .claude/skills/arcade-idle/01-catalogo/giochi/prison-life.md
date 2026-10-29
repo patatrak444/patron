@@ -42,20 +42,20 @@ Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su
 
 ## Contenuto (fase 3)
 
-Codici dei campi in `../../03-contenuto/README.md`.
+Codici dei campi in `../../03-contenuto/README.md`. Fonti con indirizzo in `../../03-contenuto/fonti/` (ricerca del 29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| C1 Ciclo di gioco | da compilare |
-| C2 Stazioni e filiera | da compilare |
-| C3 Pila | da compilare |
-| C4 Sblocchi ed espansione | da compilare |
-| C5 Lavoratori e automazione | da compilare |
-| C6 Clienti | da compilare |
-| C7 Economia e ritmo | da compilare |
-| C8 Progressione lunga | da compilare |
-| C9 Primi minuti | da compilare |
-| C10 Tema | da compilare |
+| C1 Ciclo di gioco | si gestisce la prigione dall'ingresso al rilascio; si portano divise, manette, cibo; si incassano i soldi delle visite |
+| C2 Stazioni e filiera | cucina, palestra, miniera (pietre → nastro → manette), lavanderia, sala visite, sala telefono, bagni, celle |
+| C3 Pila | torri di divise e manette; valori non trovato nelle fonti pubbliche |
+| C4 Sblocchi ed espansione | il rango della prigione sblocca nuove strutture; celle con 3 modelli (uno a pagamento); costi non trovato nelle fonti pubbliche |
+| C5 Lavoratori e automazione | personale assunto; dettagli non trovato nelle fonti pubbliche |
+| C6 Clienti | detenuti con bisogni (cibo, igiene, svago) e visitatori; se si resta fermi i detenuti intasano i bagni e sporcano le celle |
+| C7 Economia e ritmo | acquisti e pubblicità; "togli pubblicità" 3,99 $; pubblicità "migliorate" a gennaio 2026 |
+| C8 Progressione lunga | livello o rango più stelle (date dai detenuti in cortile); mondi a tema: Alcatraz, prigione sovietica dal livello 20, Wasteland, Top Secret; almeno 5 prigioni |
+| C9 Primi minuti | non trovato nelle fonti pubbliche |
+| C10 Tema | prigione: il parente più vicino a PATRÓN; lo slogan promette "prevenire evasioni e disordini" ma nessuna fonte conferma evasioni: l'unica minaccia è il disordine visibile |
 
 ## Fonti della scheda
 

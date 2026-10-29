@@ -42,20 +42,20 @@ Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su
 
 ## Contenuto (fase 3)
 
-Codici dei campi in `../../03-contenuto/README.md`.
+Codici dei campi in `../../03-contenuto/README.md`. Fonti con indirizzo in `../../03-contenuto/fonti/` (ricerca del 29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| C1 Ciclo di gioco | da compilare |
-| C2 Stazioni e filiera | da compilare |
-| C3 Pila | da compilare |
-| C4 Sblocchi ed espansione | da compilare |
-| C5 Lavoratori e automazione | da compilare |
-| C6 Clienti | da compilare |
-| C7 Economia e ritmo | da compilare |
-| C8 Progressione lunga | da compilare |
-| C9 Primi minuti | da compilare |
-| C10 Tema | da compilare |
+| C1 Ciclo di gioco | si coltiva o si raccoglie, si riempiono gli scaffali, si incassa; le prime camminate durano meno di 2 s |
+| C2 Stazioni e filiera | prima mappa con 9 postazioni in quest'ordine: aiuola di pomodori → cassa → banco pomodori → vivaio → pollaio → banco uova → scaffale passata → frullatore → cestino; circa 3 prodotti per mappa; gli animali vogliono un ingresso (orzo per il latte); scaffale pieno blocca il rifornimento |
+| C3 Pila | pila sulla schiena; capacità venduta anche con soldi veri ("Super Stack"); valori non trovato nelle fonti pubbliche |
+| C4 Sblocchi ed espansione | piazzole grigie con LEVEL e prezzo; la cassa arriva prima dello scaffale così i soldi entrano dal primo giro; costi non trovato nelle fonti pubbliche |
+| C5 Lavoratori e automazione | si assume con il pulsante "Add" e un prezzo; il negozio finisce automatizzato; minuto della prima assunzione non trovato nelle fonti pubbliche |
+| C6 Clienti | clienti con carrello che prendono dagli scaffali e pagano alla cassa; ladri che rubano i soldi dal bancone e vanno presi con una rete |
+| C7 Economia e ritmo | pubblicità forzate frequenti (ridotte negli aggiornamenti di marzo e giugno 2026); prezzi non trovato nelle fonti pubbliche |
+| C8 Progressione lunga | un mercato nuovo ogni 30–40 minuti circa (es. "Sushi Mart"); dal banco vuoto all'ipermercato con mucca e forno per pizza |
+| C9 Primi minuti | tutorial senza testo: le frecce guidano il primo ciclo in 20–30 s; i cartellini del prezzo segnano il compito successivo; la camera indica gli eventi; eventi a copione (rapina, dipendente che se ne va, grossista) |
+| C10 Tema | minimarket con fattoria; il lavoretto del tema è buttare l'eccesso nel cestino |
 
 ## Fonti della scheda
 

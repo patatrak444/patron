@@ -42,20 +42,20 @@ Una riga per campo; codici dei campi in `../../02-forma/README.md`. Osservato su
 
 ## Contenuto (fase 3)
 
-Codici dei campi in `../../03-contenuto/README.md`.
+Codici dei campi in `../../03-contenuto/README.md`. Fonti con indirizzo in `../../03-contenuto/fonti/` (ricerca del 29 ottobre 2026).
 
 | Campo | Osservazione |
 | --- | --- |
-| C1 Ciclo di gioco | da compilare |
-| C2 Stazioni e filiera | da compilare |
-| C3 Pila | da compilare |
-| C4 Sblocchi ed espansione | da compilare |
-| C5 Lavoratori e automazione | da compilare |
-| C6 Clienti | da compilare |
-| C7 Economia e ritmo | da compilare |
-| C8 Progressione lunga | da compilare |
-| C9 Primi minuti | da compilare |
-| C10 Tema | da compilare |
+| C1 Ciclo di gioco | si aspira la sabbia per scoprire terreno e rottami, con cui si riparano ponti e si costruiscono case |
+| C2 Stazioni e filiera | sabbia → rottami e risorse → riparazioni e insediamenti; campi da coltivare |
+| C3 Pila | capacità non trovato nelle fonti pubbliche |
+| C4 Sblocchi ed espansione | missioni a luoghi (Porto, Fiera, Diga, Fogne) con progetti; nuove zone circa ogni mese da aprile 2025 |
+| C5 Lavoratori e automazione | abitanti salvati al posto dei lavoratori |
+| C6 Clienti | persone da salvare con un'icona sopra |
+| C7 Economia e ritmo | energia per le spedizioni (49/50 in una schermata; tetto e ricarica non trovato nelle fonti pubbliche); attrezzi d'oro a pagamento (Golden Vacuum 2 a 7,99 $) |
+| C8 Progressione lunga | missioni e luoghi aggiunti ogni mese circa fino a ottobre 2026; missioni giornaliere dal 17 dicembre 2025 |
+| C9 Primi minuti | missione "salva l'abitante" come primo obiettivo |
+| C10 Tema | deserto post-apocalittico; minacce ambientali senza combattimento (nebbia, gas, caldo, gelo), ognuna con il suo attrezzo (dissipatore, maschera antigas, pistola termica, piccozza) |
 
 ## Fonti della scheda
 
