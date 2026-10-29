@@ -1,16 +1,27 @@
 import * as THREE from 'three';
 import { BALANCE } from '../config/balance';
-import { createLights } from './lights';
+import type { Assets } from './assets';
+import { createLights, type SceneLights } from './lights';
 import { createValley } from './map';
 import { PALETTE } from './palette';
+import type { Quality } from './render';
 
-export function createScene(): THREE.Scene {
+export interface GameScene {
+  readonly scene: THREE.Scene;
+  readonly lights: SceneLights;
+  readonly occluders: readonly THREE.Object3D[];
+}
+
+export function createScene(assets: Assets, quality: Quality): GameScene {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(PALETTE.sky);
-  scene.fog = new THREE.Fog(PALETTE.sky, 45, 110);
-  createLights(scene, BALANCE.render.shadowMapSize.high);
-  scene.add(createValley());
-  return scene;
+  // Nebbia calda che sfuma la giungla lontana nel colore del cielo (GDD sezione 10).
+  scene.fog = new THREE.Fog(PALETTE.sky, 38, 95);
+  const shadowSize = quality === 'high' ? BALANCE.render.shadowMapSize.high : BALANCE.render.shadowMapSize.medium;
+  const lights = createLights(scene, shadowSize);
+  const valley = createValley(assets);
+  scene.add(valley.root);
+  return { scene, lights, occluders: valley.occluders };
 }
 
 /** Rapporto pixel che rispetta il tetto di risoluzione interna (GDD sezione 10). */

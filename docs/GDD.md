@@ -551,6 +551,8 @@ Stile low-poly a colori pieni, luce calda da tardo pomeriggio, e una sola cosa c
 - Pacchetto di riferimento: **Kenney** (kenney.nl), licenza CC0: si possono usare, modificare e pubblicare senza obbligo di citazione. Li citiamo comunque nei Crediti.
 - Da un solo autore per tutto (personaggi, natura, villaggio), così lo stile resta coerente. Un secondo pacchetto (Quaternius, anch'esso CC0) si usa solo per ciò che manca, ad esempio piante tropicali, e solo se si accorda nei colori.
 - I modelli stanno in `public/models/` in formato glTF (`.glb`) e si caricano con il GLTFLoader di Three.js (incluso in Three.js, non è un framework in più). I colori dei modelli si riportano alla palette di questa sezione.
+- Pacchetti usati nella Beta: Kenney **Nature Kit** (alberi, palme, cespugli, rocce, ceppi, tronchi, fiori, staccionata), **Car Kit** (camion di El Gordo, `truck_flat`) e **Mini Characters** (personaggi animati, 32 animazioni). I file vengono dalla raccolta `@netforge/asset-library-files` su npm, che contiene copie ottimizzate (compressione meshopt) dei pacchetti originali con la licenza verificata per ciascuno: scaricarli da npm funziona anche dalle sessioni cloud, dove kenney.nl non è raggiungibile. L'elenco dei file e la provenienza sono in `public/models/CREDITS.md`.
+- I materiali "non illuminati" del Nature Kit diventano Lambert con ombreggiatura piatta, così ricevono luce e ombre. Le rocce si ricolorano in grigio pietra.
 - Le stazioni (Pressa, Laboratorio, Banco, bancone della Plaza) si costruiscono da codice con le stesse regole dei pacchetti: forme semplici smussate, colori pieni, nessuna texture fotografica.
 
 **Luce e atmosfera.**
@@ -558,7 +560,7 @@ Stile low-poly a colori pieni, luce calda da tardo pomeriggio, e una sola cosa c
 - Sempre tardo pomeriggio, niente ciclo giorno-notte. Sole basso da sud-ovest (circa 35° di elevazione) di colore oro caldo, ombre lunghe e morbide; luce emisferica con cielo arancio tenue e suolo verde.
 - Nebbia calda che sfuma la giungla lontana nel colore del cielo.
 - Materiali Lambert con ombreggiatura piatta: le facce dei poligoni si vedono, ed è lo stile.
-- Ombre vere dalla luce direzionale (mappa d'ombra da 2048 px, bordi morbidi) su personaggi, stazioni e alberi vicini; in qualità Media scendono a 1024 px. La mappa d'ombra segue il giocatore invece di coprire tutta la valle, così resta nitida.
+- Ombre vere dalla luce direzionale (mappa d'ombra da 2048 px, bordi morbidi) su personaggi, stazioni e alberi vicini; in qualità Media scendono a 1024 px. La mappa d'ombra segue il giocatore invece di coprire tutta la valle, così resta nitida. Si usa il filtro PCF con raggio di sfumatura: le ombre VSM sarebbero più morbide, ma disegnano nella mappa d'ombra anche gli oggetti che le ricevono (terreno, erba) e all'avvio aggiungono circa 27.000 triangoli. Il riquadro d'ombra è largo 44 m di lato e si estende 17 m verso il sole e 9 m dalla parte opposta: copre gli angoli dell'inquadratura senza raccogliere alberi le cui ombre cadono fuori vista. Oltre il bordo della valle fanno ombra solo gli alberi entro 3 m; nel muro di giungla a nord solo i primi 4 m.
 - Terreno vivo: il verde varia a chiazze tra i tre toni della giungla, con ciuffi d'erba sparsi (una sola geometria disegnata molte volte).
 - Sentieri e campi con bordi morbidi e irregolari che sfumano nell'erba, niente rettangoli netti.
 - Bloom (UnrealBloomPass) solo sulle cose che brillano: Lumina, lampade, finestre del Laboratorio. Si disattiva in qualità Media.
@@ -579,7 +581,7 @@ Stile low-poly a colori pieni, luce calda da tardo pomeriggio, e una sola cosa c
 **Visibilità del personaggio.**
 
 - Gli oggetti che stanno tra la camera e il giocatore (alberi, tetti, stazioni) diventano trasparenti al 30% in 0,15 s e tornano pieni quando il giocatore si allontana. Il giocatore non è mai nascosto.
-- Inquadratura di partenza: il giocatore davanti alla capanna, nel terzo centrale dello schermo, con il Campo 1 in vista; niente di più alto delle ginocchia tra la camera e lui, e nessun oggetto che copra più di un quinto dello schermo.
+- Inquadratura di partenza: il giocatore davanti alla capanna, nel terzo centrale dello schermo, con il Campo 1 in vista; niente di più alto delle ginocchia tra la camera e lui, e nessun oggetto che copra più di un quinto dello schermo. Per rispettarlo il punto di partenza è a (20; 5,2): più a sud, la gronda nord della capanna (alta 2,4 m) coprirebbe i piedi del giocatore visti dalla camera a 55°. L'ingombro della capanna è 5,2 × 4,6 m, centrato a (20; 0,9), e comprende la panca e le cassette davanti alla porta.
 
 **Modelli.**
 
@@ -616,7 +618,7 @@ Stile low-poly a colori pieni, luce calda da tardo pomeriggio, e una sola cosa c
 
 La vibrazione della camera si usa solo per sblocchi e retate, mai per azioni ripetute.
 
-**Obiettivi di prestazione.** 60 fotogrammi al secondo su un portatile recente di fascia media in qualità Alta, e almeno 50 sul tuo iMac 2015; meno di 150 chiamate di disegno e meno di 150.000 triangoli in scena. Nella zona di partenza (capanna e Campo 1) il limite è 60.000 triangoli. I conteggi sono quelli del pannello debug, ombre comprese. Gli alberi della giungla lontana sono versioni semplificate, senza ombre. Per oggetti ripetuti (piante, pile, mazzette, clienti) si usa una sola geometria disegnata più volte. Risoluzione interna limitata a 2560 × 1440, anche sugli schermi 5K. Le impostazioni offrono Qualità grafica Alta o Media.
+**Obiettivi di prestazione.** 60 fotogrammi al secondo su un portatile recente di fascia media in qualità Alta, e almeno 50 sul tuo iMac 2015; meno di 150 chiamate di disegno e meno di 150.000 triangoli in scena. Nella zona di partenza (capanna e Campo 1) il limite è 60.000 triangoli. I conteggi sono quelli del pannello debug, ombre comprese. Gli alberi della giungla lontana sono versioni semplificate, senza ombre. Per oggetti ripetuti (piante, pile, mazzette, clienti) si usa una sola geometria disegnata più volte. Gli oggetti statici (vegetazione, capanna, stazioni) si fondono in poche geometrie: tutti i materiali con un solo colore pieno diventano un unico materiale con il colore nei vertici, e la vegetazione si divide in blocchi di 12 m che si scartano quando sono fuori inquadratura. Risoluzione interna limitata a 2560 × 1440, anche sugli schermi 5K. Le impostazioni offrono Qualità grafica Alta o Media.
 
 ## 11. Audio
 
@@ -804,6 +806,8 @@ La Beta si costruisce in 10 tappe, una per sessione di Claude Code, e ognuna fin
 4.  A fine tappa: test automatici verdi, prova nel browser, commit su Git. Se qualcosa non va, descrivi cosa vedi, non come correggerlo.
 
 5.  Quando cambi idea su una regola, aggiorna prima questo documento, poi chiedi la modifica citando la sezione.
+
+6.  Ogni tappa che tocca la grafica si chiude con gli screenshot automatici: `npm run shot` fotografa sei inquadrature fisse (partenza, Campo 1, Pressa e camion, Ufficio, zoom lontano, zoom vicino) e salva in `artifacts/report.json` disegni e triangoli di ciascuna, con la ripartizione per gruppo di oggetti. Lo stesso controllo gira su GitHub a ogni pull request (workflow `screenshots.yml`) e allega le immagini. Gli screenshot mostrano l'aspetto, non la fluidità: i fotogrammi al secondo si misurano solo sull'iMac, con il pannello debug.
 
 **Le tappe.**
 

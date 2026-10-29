@@ -39,12 +39,23 @@ export interface NavConfig {
   readonly pad: number;
 }
 
+export interface BloomConfig {
+  /** Luminanza minima per brillare: la superano solo i materiali emissivi. */
+  readonly threshold: number;
+  readonly strength: number;
+  readonly radius: number;
+}
+
 export interface RenderConfig {
   /** Risoluzione interna massima (GDD sezione 10). */
   readonly maxInternalWidth: number;
   readonly maxInternalHeight: number;
   /** Lato della mappa d'ombra in qualità Alta e Media. */
   readonly shadowMapSize: { readonly high: number; readonly medium: number };
+  /** Bloom (UnrealBloomPass) in qualità Alta (GDD sezione 10). */
+  readonly bloom: BloomConfig;
+  /** Esposizione della mappatura dei toni. */
+  readonly exposure: number;
 }
 
 export interface ScreenConfig {
@@ -88,6 +99,8 @@ export const BALANCE: Balance = {
     maxInternalWidth: 2560,
     maxInternalHeight: 1440,
     shadowMapSize: { high: 2048, medium: 1024 },
+    bloom: { threshold: 0.92, strength: 0.7, radius: 0.45 },
+    exposure: 1.05,
   },
   screen: {
     minWidth: 1280,

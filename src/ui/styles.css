@@ -178,3 +178,14 @@ body {
 .pause-badge.is-visible {
   display: block;
 }
+
+.loading {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  background: var(--ink);
+}

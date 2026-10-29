@@ -7,6 +7,7 @@ import { fromWorld, toWorld } from './config/map';
 import { createBus, type GameEvents } from './core/bus';
 import { installInput } from './core/input';
 import { createFixedStepper, startLoop } from './core/loop';
+import { budget } from './debug/budget';
 import { createDebugPanel, isDebugEnabled } from './debug/debugPanel';
 import { NavOverlay } from './debug/navOverlay';
 import { angleDelta, commandMoveTo } from './sim/player';
@@ -14,11 +15,17 @@ import { createInitialState, createMoveContext, stepSim } from './sim/state';
 import { hasWebGL2, installMinSizeNotice, isTouchOnlyDevice, showBlockingMessage } from './ui/deviceGate';
 import { createHud } from './ui/hud';
 import { GameCamera } from './world/camera';
+import { loadAssets, type Assets } from './world/assets';
+import { OccluderFader } from './world/fade';
 import { DestinationMarker } from './world/marker';
-import { Character, PLAYER_LOOK_RAGGED } from './world/models/character';
+import { Character } from './world/models/character';
+import { createFrame, qualityFromUrl } from './world/render';
 import { cappedPixelRatio, createScene } from './world/scene';
 
-function boot(root: HTMLElement): void {
+/** Modello del giocatore nella prima fase; gli abiti per fase arrivano in M7 (GDD sezione 9). */
+const PLAYER_MODEL = 'mini_male_a';
+
+async function boot(root: HTMLElement): Promise<void> {
   if (isTouchOnlyDevice()) {
     showBlockingMessage(root, 'PATRÓN si gioca da computer', 'Apri questo link da un computer con Chrome.', true);
     return;
@@ -33,31 +40,55 @@ function boot(root: HTMLElement): void {
     return;
   }
 
+  const loading = document.createElement('div');
+  loading.className = 'loading';
+  loading.textContent = 'Caricamento…';
+  root.append(loading);
+  let assets: Assets;
+  try {
+    assets = await loadAssets();
+  } catch (err) {
+    console.error(err);
+    loading.remove();
+    showBlockingMessage(root, 'Non riesco a caricare il gioco', 'Controlla la connessione e ricarica la pagina.', true);
+    return;
+  }
+  loading.remove();
+
+  const quality = qualityFromUrl(location.search);
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  // PCF con raggio di sfumatura: bordi morbidi (GDD sezione 10). Le ombre VSM sarebbero più morbide
+  // ma disegnano nella mappa d'ombra anche chi le riceve (terreno, erba): +27.000 triangoli all'avvio.
+  renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = BALANCE.render.exposure;
+  // Conteggio di disegni e triangoli su tutto il fotogramma: ombre e bloom compresi (GDD sezione 10).
+  renderer.info.autoReset = false;
   root.append(renderer.domElement);
 
-  const scene = createScene();
+  const { scene, lights, occluders } = createScene(assets, quality);
+  const fader = new OccluderFader();
+  for (const o of occluders) fader.add(o);
   const bus = createBus<GameEvents>();
   const state = createInitialState(Date.now());
   const moveCtx = createMoveContext();
 
-  const player = new Character(PLAYER_LOOK_RAGGED);
+  const player = new Character(assets.characters[PLAYER_MODEL]);
   const marker = new DestinationMarker();
   const navOverlay = new NavOverlay(moveCtx.grid);
   scene.add(player.root, marker.mesh, navOverlay.root);
 
   const camera = new GameCamera(BALANCE.camera, innerWidth / innerHeight);
+  const frame = createFrame(renderer, scene, camera.camera, quality, BALANCE.render.bloom);
   const spawn = toWorld(state.player);
   camera.follow(spawn.x, spawn.z, true);
 
   const resize = (): void => {
     const w = innerWidth;
     const h = innerHeight;
-    renderer.setPixelRatio(cappedPixelRatio(w, h, devicePixelRatio));
-    renderer.setSize(w, h);
+    frame.setSize(w, h, cappedPixelRatio(w, h, devicePixelRatio));
     camera.setAspect(w / h);
   };
   addEventListener('resize', resize);
@@ -95,6 +126,23 @@ function boot(root: HTMLElement): void {
     },
   });
 
+  if (isDebugEnabled()) {
+    // Gancio per gli screenshot automatici (scripts/shot.mjs): solo con ?debug=1.
+    Object.assign(window, {
+      __patron: {
+        scene,
+        camera: camera.camera,
+        setPlayer(x: number, y: number) {
+          Object.assign(state.player, { x, y, prevX: x, prevY: y, vx: 0, vy: 0, path: [] });
+          const w = toWorld({ x, y });
+          camera.follow(w.x, w.z, true);
+        },
+        zoom: (step: number) => camera.zoom(step),
+        budget: () => ({ view: budget(scene, camera.camera), shadow: budget(scene, lights.sun.shadow.camera, true) }),
+      },
+    });
+  }
+
   const debug = isDebugEnabled()
     ? createDebugPanel(root, stepper, state, {
         toggleNavGrid: () => navOverlay.toggle(),
@@ -118,9 +166,12 @@ function boot(root: HTMLElement): void {
 
     camera.follow(w.x, w.z);
     camera.update(frameSeconds);
-    renderer.render(scene, camera.camera);
+    lights.follow(w.x, w.z);
+    fader.update(camera.camera, player.root.position, frameSeconds);
+    renderer.info.reset();
+    frame.render();
     debug?.frame(frameSeconds);
   });
 }
 
-boot(document.getElementById('app')!);
+void boot(document.getElementById('app')!);

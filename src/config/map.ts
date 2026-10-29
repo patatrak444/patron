@@ -36,8 +36,12 @@ export interface PathStrip {
 
 export const VALLEY_CENTER: MapPoint = { x: VALLEY.width / 2, y: VALLEY.depth / 2 };
 
-/** Punto di partenza del giocatore, davanti alla capanna. */
-export const PLAYER_SPAWN: MapPoint = { x: 20, y: 4 };
+/**
+ * Punto di partenza del giocatore, davanti alla capanna. A y = 5,2 la gronda nord (alta 2,4 m, a y = 3,05)
+ * non copre i piedi vista dalla camera a 55°: tra camera e giocatore non c'è nulla più alto delle
+ * ginocchia (GDD sezione 10, inquadratura di partenza).
+ */
+export const PLAYER_SPAWN: MapPoint = { x: 20, y: 5.2 };
 
 /** I sei appezzamenti 4 × 4 m, due file da tre tra (8, 10) e (32, 18). Il Campo 1 è quello davanti alla capanna. */
 export const FIELD_PLOTS: readonly (MapPoint & { readonly id: string })[] = [
@@ -52,8 +56,9 @@ export const FIELD_SIZE = 4;
 
 /** Ingombri fissi già presenti dall'inizio. In M1 le stazioni sono segnaposto. */
 export const OBSTACLES: readonly Obstacle[] = [
-  // La capanna sta a cavallo del bordo sud: così il tetto non copre il punto di partenza visto dalla camera.
-  { id: 'hut', shape: { kind: 'rect', x: 20, y: 0.6, w: 4.4, h: 3 } },
+  // La capanna (5 × 4 m, centro a y = 0,6) sta a cavallo del bordo sud: così il tetto non copre il punto
+  // di partenza visto dalla camera. L'ingombro comprende la panca e le cassette davanti alla porta.
+  { id: 'hut', shape: { kind: 'rect', x: 20, y: 0.9, w: 5.2, h: 4.6 } },
   { id: 'press1', shape: { kind: 'rect', x: 14, y: 26, w: 2.4, h: 2.4 } },
   { id: 'truck', shape: { kind: 'rect', x: 3, y: 26, w: 2.4, h: 5.5 } },
   { id: 'officeDesk', shape: { kind: 'rect', x: 28, y: 26.4, w: 2, h: 1 } },
@@ -77,7 +82,7 @@ export const LOCKED_AREAS: readonly LockedArea[] = [
 /** Strada di El Gordo e sentieri, solo grafica. */
 export const ROAD: PathStrip = { from: { x: 3, y: 0 }, to: { x: 3, y: 60 }, width: 4 };
 export const PATHS: readonly PathStrip[] = [
-  { from: { x: 20, y: 2.1 }, to: { x: 20, y: 8 }, width: 2 },
+  { from: { x: 20, y: 2.6 }, to: { x: 20, y: 8 }, width: 2 },
   { from: { x: 14, y: 8 }, to: { x: 26, y: 8 }, width: 2 },
   { from: { x: 15, y: 8 }, to: { x: 15, y: 22 }, width: 2 },
   { from: { x: 25, y: 8 }, to: { x: 25, y: 22 }, width: 2 },
