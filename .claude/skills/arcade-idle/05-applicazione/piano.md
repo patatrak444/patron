@@ -1,57 +1,104 @@
 # Piano delle modifiche
 
-Fase 5. Viene da `confronto.md`. Ogni voce dice cosa cambia, quale regola la giustifica, in quale sezione del GDD va scritta e in quale tappa entra nel codice. Niente si tocca prima che Luca abbia approvato la voce: si aggiorna il GDD, poi il codice (CLAUDE.md).
+Fase 5. È la lista di cose da fare per portare PATRÓN alla fedeltà con il genere. Viene da `confronto.md` (parti A, B e C). Tutte le decisioni sono già scritte nel GDD (29 ottobre 2026); qui sono ordinate per tappa, così ogni sessione sa cosa costruire e come verificarlo.
 
-La prossima tappa è **M2 · Fase 1 a mano**. Quasi tutte le correzioni di forma possono entrare lì, perché M2 costruisce proprio ciò che oggi manca: merci, soldi, tappetini e numeri nel mondo.
+**Principio (Luca, 29 ottobre 2026).** Massima fedeltà ai giochi esistenti: chi cerca un arcade idle deve trovare in PATRÓN la stessa forma e lo stesso modo di giocare, senza differenze che si notino. In dubbio si segue il pattern più frequente del catalogo; ogni scarto ha un motivo scritto in `confronto.md`.
 
-## 1. Correzioni di forma
+## Decisioni prese
 
-Non cambiano le regole del gioco, solo come si vede. Non aggiungono sistemi nuovi.
+| N. | Decisione | Regola o fonte | GDD |
+| --- | --- | --- | --- |
+| D1 | Regalo di El Gordo: $20 davanti alla capanna, Campo 2 come primo acquisto | RC4 | 4, 5, 8 |
+| D2 | Rispetto: +4 stelle per sblocco, +1 per livello di potenziamento; soglie 15, 24, 39, 60, 81…; Laboratorio con Rispetto 3, Plaza con Rispetto 4 | RC12 | 5, 9, 12 |
+| D3 | Scarti della Pressa (1 ogni 2 Paste, cassone 0/6) da portare al Falò; poi li portano i Raccoglitori | RC16 | 4, 6 |
+| D4 | Solo il giocatore raccoglie le mazzette, fino alla fine | RC9 | 6 |
+| D5 | Camion con cassone "n/max" da 10, parte pieno e torna dopo 20 s; potenziamento Cassone fino a 40 | RC13 e Luca | 4, 5 |
+| D6 | Livelli di Zaino e Scarpe da rivedere in M8 | RC10, RC11 | 5 |
+| D7 | Ordine speciale completato: 60 s di velocità doppia | RC18 | 7 |
+| D8 | Raccoglitori in M2 | RC8 | 15 |
+| D9 | Niente stipendi: l'assunzione si paga una volta; i lavoratori si addormentano e si svegliano al passaggio del giocatore | confronto C | 6, 13 |
+| D10 | Ufficio solo a piedi, niente tasto U | confronto C | 3, 12 |
+| D11 | Interfaccia del genere: ingranaggio a sinistra, Rispetto e frase dell'obiettivo al centro, contante a destra; potenziamenti a schede | RF19, confronto C | 9, 12 |
+| D12 | Istruzioni di 4 parole al massimo | RC21 | 8 |
+| D13 | Tappetini con icona e prezzo; mazzette in blocchi 2 × 3 | RF16, confronto C | 10 |
+| D14 | Icona "180%" raccoglibile ogni 3–5 minuti | RC18 | 7 |
+| D15 | Clienti che non se ne vanno mai; fila fino a 12 | confronto C | 4, 5 |
+| D16 | Tre missioni sempre attive, senza timer | RC20 | 9 |
+| F1–F7 | Soldi verde acceso, colori di marca, stazioni-macchina con il prodotto-insegna, merci grandi, capanna sotto un quinto dello schermo, contante a destra, formato dell'informazione nel mondo | RF7, RF9, RF12, RF14, RF16–RF19 | 3, 4, 10, 12 |
 
-| N. | Cosa cambia | Regola | GDD | Tappa |
-| --- | --- | --- | --- | --- |
-| F1 | **Soldi che si staccano dal prato.** Mazzette verde acceso e saturo con un bordo chiaro, ben diverse dal verde pastello del terreno; nessun altro oggetto di quel verde | RF9 | 10 (palette) | M2 |
-| F2 | **Due colori di marca.** Proposta: l'azzurro della Lumina (#5CE1E6) e il giallo anni '80 dell'interfaccia (#FFC94A), ripetuti su tutte le stazioni, i tappetini e le insegne, così la filiera si riconosce come una cosa sola | RF7 | 10 (palette, modelli) | M2 |
-| F3 | **Stazioni che sembrano macchine.** Pressa più grande e colorata, con la merce prodotta impilata in vista sull'uscita; sopra ogni stazione il suo prodotto in grande, come la pizza gigante del forno di Pizza Ready | RF12 | 10 (modelli, proporzioni) | M2 |
-| F4 | **Merci fuori scala.** Foglia, Pasta e Cristallo grandi quanto la testa del personaggio; la pila sulla schiena come torre | RF12 | 4 (merci), 10 | M2 |
-| F5 | **Capanna alla partenza.** Il tetto non deve superare un quinto dello schermo: si sposta il punto di partenza o si abbassa la capanna | RF14 | 10 (visibilità) | M2 |
-| F6 | **Contante in alto a destra**, in una pillola con icona; impostazioni in alto a sinistra | RF19 | 12 | M2 |
-| F7 | **Formato dell'informazione nel mondo** (già previsto da M2, qui si fissa la forma): contatori "n/max" sulle stazioni, MAX a stazione piena, prezzo grande sui tappetini, fumetti con un'icona e un numero, freccia gialla 3D sopra il prossimo tappetino e un anello a terra | RF16, RF17, RF18 | 3, 12 | M2 |
+## Da fare, tappa per tappa
 
-## 2. Domande di design per Luca
+Ogni voce si spunta solo quando la verifica indicata è passata.
 
-Ognuna cambia una regola del gioco: serve una decisione prima di scriverla nel GDD.
+### M2 · Fase 1 a mano (prossima)
 
-| N. | Domanda | Perché (regola) | Proposta | Se sì: GDD e tappa |
-| --- | --- | --- | --- | --- |
-| D1 | **Partire con un regalo?** Una pila di soldi davanti alla capanna, un primo tappetino quasi gratis subito, il secondo che costa quanto hai | RC4: in Pizza Ready il primo sblocco arriva al secondo 18; in PATRÓN al minuto 1:30 | Sì: "El Gordo ti anticipa $20". Campo 2 resta a $15 ma diventa il primo acquisto dopo 20 s; si ritarano i minuti obiettivo | sez. 5 e 8 · M2 |
-| D2 | **Un livello del locale?** Un "Rispetto" che sale con stelle guadagnate costruendo e potenziando, con soglie che si allungano (15, 24, 39, 60…), e che apre le zone grandi come in Prison Life | RC12: 10 giochi su 11 | Sì, ma leggero: sostituisce la barra dell'obiettivo come segno di progresso, senza toccare la sequenza degli sblocchi | sez. 5, 9, 12 · M3 |
-| D3 | **Un "lavoretto" del tema?** Un compito che non produce ma va fatto, come la spazzatura in pizzeria | RC16: 6 giochi su 11 | Gli scarti della Pressa (sacchi di foglie secche) da portare al falò: se il cassone è pieno la Pressa si ferma. Più avanti un lavoratore se ne occupa | sez. 4 e 6 · M2 |
-| D4 | **Il giocatore resta indispensabile fino alla fine?** Oggi i capi squadra incassano al posto tuo | RC9: in Pizza Ready solo il giocatore raccoglie i soldi | Le mazzette della Plaza restano da raccogliere a mano; i capi squadra danno solo la velocità in più | sez. 6 · M5 |
-| D5 | **Domanda prima della Plaza?** Per 25 minuti si vende al camion, che compra tutto all'istante | RC13: 7 giochi su 11 hanno clienti dal primo secondo | Il camion ha un cassone con capienza "n/max" e parte quando è pieno, poi torna dopo qualche secondo: una piccola attesa che dà ritmo. In alternativa si lascia com'è (modello Farm Land) | sez. 4 · M2 |
-| D6 | **Zaino più corto e più ripido?** | RC10, RC11: il genere usa 4–5 livelli ripidi, il GDD 8 dolci (× 1,15) | Decidere in M8 con le partite di prova, non prima | sez. 5 · M8 |
-| D7 | **Spinte a tempo come premio?** | RC18: 8 giochi su 11, quasi sempre dietro pubblicità | Ogni ordine speciale completato dà 60 s di velocità doppia | sez. 7 · M4 |
+**Logica di gioco** (`src/sim/`, con test)
+- [ ] Pila: 4 posti, merci miste, scarico per tipo, MAX a pila piena (GDD 3)
+- [ ] Zone a terra: raggio 1,2 m, un oggetto ogni 0,08 s; tappetini di sblocco pagati a scatti in 1,5 s (GDD 3)
+- [ ] Campo: 1 Foglia ogni 3 s, uscita 8 (GDD 4)
+- [ ] Pressa: 3 Foglie → 1 Pasta in 4 s, buffer 12/10; 1 sacco di Scarti ogni 2 Paste, cassone 6, ferma a cassone pieno (D3)
+- [ ] Falò: accetta Scarti, li brucia (D3)
+- [ ] Camion: paga $5 a Pasta subito; cassone 10; pieno → parte e torna dopo 20 s (D5)
+- [ ] Mazzette a terra raccolte solo dal giocatore (D4)
+- [ ] Regalo iniziale di $20 (D1)
+- [ ] Sequenza degli sblocchi 1–5 con i prezzi della tabella (GDD 5)
+- [ ] Rispetto: stelle, soglie, premio $20 × livello (D2)
+- [ ] Raccoglitori: macchina a stati, percorsi A*, priorità agli Scarti con cassone pieno per metà, sonno ogni 90–150 s e risveglio entro 1,5 m (D8, D9)
 
-## 3. Controllo del Calore
+**Mondo** (`src/world/`)
+- [ ] Merci larghe quanto la testa; pila a torre con ritardo a molla (F4, GDD 10)
+- [ ] Stazioni ridisegnate: colori di marca azzurro e giallo, prodotto-insegna sopra, merce impilata sull'uscita (F2, F3)
+- [ ] Mazzette verde acceso #2ECC52 con bordo #E9FFD9, in blocchi 2 × 3 (F1, D13)
+- [ ] Tappetini con icona, prezzo grande e anello di pagamento (D13)
+- [ ] Contatori "n/max" su Campi, Pressa, cassone e camion; MAX a stazione piena; fumetti con un'icona e un numero (F7)
+- [ ] Freccia gialla 3D sul prossimo tappetino e anello a terra; freccia al bordo se fuori schermo (F7)
+- [ ] Camion che parte, sparisce lungo la strada e torna; cerchio con il conto alla rovescia (D5)
+- [ ] Falò con fiammata a ogni sacco (D3)
+- [ ] Raccoglitori con cappello di paglia; "zzz" grande e oscillante quando dormono (D9)
+- [ ] Capanna alla partenza sotto un quinto dello schermo (F5)
 
-Non cambia il design, aggiunge una verifica. Il Calore non ha precedenti nel genere (0/11) e il rischio è punire chi produce bene.
+**Interfaccia** (HTML/CSS)
+- [ ] Ingranaggio in alto a sinistra; Rispetto (stella e barra "n/max") in alto al centro; frase dell'obiettivo sotto; contante in pillola in alto a destra (D11)
+- [ ] Istruzioni dei primi minuti da 4 parole, sequenza 0:05–0:55 della sezione 8 (D12)
 
-- **Cosa:** un test automatico in `tests/` che simula un'ora di gioco con e senza Plaza, a ogni livello di Purezza e di Quota. Deve verificare che vendere in Plaza renda sempre più che vendere a El Gordo, anche sottraendo le perdite attese degli eventi.
-- **Dove:** GDD sezione 7 (una riga: "produrre di più conviene sempre, anche con il Calore") e sezione 15 (criterio di M5).
-- **Quando:** M4 per il Laboratorio, M5 per la Plaza.
+**Verifica di chiusura**
+- [ ] `npm test` verde
+- [ ] `npm run shot` con scatti nuovi: pila piena, camion in viaggio, tappetino in pagamento, Raccoglitore addormentato
+- [ ] Ogni scatto passato per la parte A di `../04-sintesi/checklist.md`, con l'esito scritto
+- [ ] Partenza sotto 60.000 triangoli, ovunque sotto 150.000 e 150 disegni
+- [ ] Sull'iMac: almeno 50 fps con `?debug=1`; dal minuto 0 alla Pressa 2 senza aiuto
 
-## 4. Cosa non cambia, apposta
+### M3 · Ufficio e Cargador
+- [ ] Pannello Ufficio a schede grandi (immagine, tacche, prima → dopo, prezzo), aperto solo stando sul tappetino viola (D10, D11)
+- [ ] Potenziamenti della tabella, Cassone compreso (D5)
+- [ ] Cargador di El Gordo e il suo tappetino (5b)
+- [ ] Lavoratori extra dall'Ufficio, prezzo × 1,6
+- [ ] Icona "180%" raccoglibile ogni 3–5 minuti (D14)
+- [ ] Verifica: la Fase 1 gira da sola; i numeri dei potenziamenti corrispondono alla tabella; parte B della lista di controllo
 
-- **Una sola valuta** (RC19): nel genere la seconda valuta serve alla monetizzazione, che la Beta non ha.
-- **Bordo di giungla:** è sotto soglia (nessun gioco lo usa, ma nemmeno l'isola sull'acqua è una regola). Resta, pulito e ordinato come oggi.
-- **Primo lavoratore a 3 minuti** invece di 5: più veloce del genere, scelta del GDD per mostrare subito l'automazione.
+### M4 · Fase 2
+- [ ] Laboratorio con lucchetto "Rispetto 3" (D2)
+- [ ] Corriere A, barra del Calore, Purezza
+- [ ] Ordini speciali e spinta ×2 per 60 s (D7)
+- [ ] Test "produrre di più conviene sempre" per il Laboratorio (GDD 7, 14)
 
-## Decisioni (29 ottobre 2026)
+### M5 · Fase 3
+- [ ] Banco e Plaza con lucchetto "Rispetto 4" (D2)
+- [ ] Clienti che non se ne vanno, fila fino a 12, faccina scontenta oltre 25 s (D15)
+- [ ] Spacciatore, Corriere B, Guardia, capi squadra senza incasso (D4)
+- [ ] Quota pagata ogni 60 s, posti di blocco, perquisizioni, retate, rivale
+- [ ] Test "produrre di più conviene sempre" con la Plaza
 
-Luca ha approvato D1–D7. D5 con un'aggiunta: la capienza del camion si allarga con un potenziamento (Cassone, da 10 a 40). D6 resta da decidere in M8. Tutte le voci, F1–F7 comprese, sono scritte nel GDD (sezioni 3–15).
+### M6 · Salvataggio e offline
+- [ ] Salvataggio con stelle del Rispetto e carico del camion
+- [ ] Offline: rendimento dei lavoratori × 0,8, Presse solo con gli Scarti gestiti, camion un cassone ogni (riempimento + 20 s) (GDD 13)
 
-## Ordine proposto
+### M7 · Game feel e onboarding
+- [ ] Tre missioni sempre attive (D16)
+- [ ] Effetti di abbondanza: pioggia di mazzette ai livelli di Rispetto, montagne di merce (RF20, RF21)
+- [ ] Spiegazioni al momento giusto: Scarti, camion pieno, primo livello, primo lavoratore addormentato (GDD 8)
 
-1. Luca risponde alle domande D1–D7.
-2. Si aggiorna il GDD: sezioni 4, 5, 8, 10, 12 con F1–F7 e le D approvate.
-3. Tappa M2 con le correzioni di forma e le D di M2. Chiusura con gli screenshot passati per la lista di controllo, parte A.
+### M8 · Bilanciamento
+- [ ] Ritmo misurato contro il genere: primo ciclo entro 1 minuto, primo lavoratore a 3 minuti, livelli che si allungano di circa 1,3 volte (RC5, RC8, RC12)
+- [ ] Zaino e Scarpe: 4–5 livelli più ripidi oppure gli 8 attuali, decisione con le partite di prova (D6)
+- [ ] Prima sessione di almeno 20–25 minuti di cose nuove

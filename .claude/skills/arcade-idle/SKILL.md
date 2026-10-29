@@ -23,7 +23,9 @@ Raccolta organizzata di ciò che fanno, nella forma e nel contenuto, i giochi ar
 - `docs/GDD.md` resta la fonte di verità di PATRÓN. Quando una regola della sintesi cambia il gioco, si aggiorna prima il GDD.
 - Una regola entra in `04-sintesi/` solo se è osservata in almeno metà dei giochi del catalogo, e il file dice in quali.
 - Ogni osservazione cita la scheda del gioco da cui viene (es. `[pizza-ready]`).
+- **Principio di fedeltà** (Luca, 29 ottobre 2026): PATRÓN segue il più possibile i giochi esistenti. In dubbio vince il pattern più frequente del catalogo; ogni scarto dal genere ha un motivo scritto in `05-applicazione/confronto.md`.
+- `05-applicazione/piano.md` è la lista di cose da fare tappa per tappa: si legge all'inizio di ogni tappa e si spunta a fine tappa.
 
 ## Stato
 
-Fase 1 (censimento) completata: 11 giochi tenuti, con voti di contenuto e forma in `01-catalogo/classifica.md`. Fase 2 (forma) completata: campi F1–F9 nelle schede e un file per campo in `02-forma/`. Fase 3 (contenuto) completata: campi C1–C10 nelle schede e un file per campo in `03-contenuto/`. Fase 4 (sintesi) completata: 21 regole di forma, 21 di contenuto e la lista di controllo in `04-sintesi/`. Fase 5 (applicazione) completata: confronto e piano in `05-applicazione/`, in attesa delle decisioni di Luca sulle domande D1–D7.
+Fase 1 (censimento) completata: 11 giochi tenuti, con voti di contenuto e forma in `01-catalogo/classifica.md`. Fase 2 (forma) completata: campi F1–F9 nelle schede e un file per campo in `02-forma/`. Fase 3 (contenuto) completata: campi C1–C10 nelle schede e un file per campo in `03-contenuto/`. Fase 4 (sintesi) completata: 21 regole di forma, 21 di contenuto e la lista di controllo in `04-sintesi/`. Fase 5 (applicazione) completata: confronto e piano in `05-applicazione/`, decisioni D1–D16 approvate e scritte nel GDD; la lista di cose da fare per M2–M8 è in `piano.md`.

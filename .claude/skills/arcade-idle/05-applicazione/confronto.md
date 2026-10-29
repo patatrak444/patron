@@ -66,3 +66,33 @@ Esiti: **sì** = rispetta la regola · **in parte** · **no** · **previsto** = 
 - gli eventi non tolgono mai progresso.
 
 Il rischio che resta è quello indicato dalla ricerca: punire chi gioca bene. Il GDD non ha ancora un controllo numerico che dica che vendere in Plaza conviene sempre, anche contando le perdite degli eventi.
+
+## C. Seconda lettura del GDD: fedeltà al genere
+
+Dopo la prima versione del confronto, Luca ha fissato il principio (29 ottobre 2026): PATRÓN deve essere **il più fedele possibile ai giochi esistenti**, così che chi cerca un arcade idle non trovi differenze sostanziali. Ogni scarto dal genere deve avere un motivo scritto. Rileggendo il GDD con questo criterio sono emersi altri scarti, non coperti dalla lista di controllo:
+
+| Scarto | Cosa fa il genere | Esito | Decisione |
+| --- | --- | --- | --- |
+| Stipendi ogni minuto e sciopero se mancano i soldi | Nessuno degli 11 giochi ha stipendi: l'assunzione si paga una volta (PR), la prima è gratis (BP); i lavoratori si addormentano e vanno svegliati (MM, PR) | **no** | Niente stipendi; lavoratori che si addormentano ogni 90–150 s e si svegliano quando il giocatore passa vicino (GDD 6) |
+| Tasto U che apre l'Ufficio da qualunque punto | Agli uffici si va a piedi (PR, BP) | **no** | Tolto il tasto: l'Ufficio si apre solo a piedi (GDD 3, 12) |
+| Barra dell'obiettivo con nome, costo e riempimento | Una frase di 3–4 parole in alto al centro ("Create a table!") e una freccia sul riquadro (PR, BP, MMM) | **no** | Frase dell'obiettivo di 4 parole al massimo sotto il Rispetto (GDD 8, 9, 12) |
+| Livello in alto a sinistra | Stella del livello con barra al centro in alto, ingranaggio a sinistra, soldi a destra (PR, BP) | **no** | Stessa disposizione (GDD 12) |
+| Potenziamenti come righe di un elenco | Schede grandi con l'immagine della macchina, le tacche dei livelli e il prezzo (PR, BP) | **no** | Schede (GDD 12) |
+| Tappetini con solo il prezzo | Icona di ciò che si sblocca e prezzo ("NEW ZONE 100") | **in parte** | Icona più prezzo (GDD 10) |
+| Clienti che se ne vanno dopo 25 s | Nei video nessun cliente se ne va: la fila aspetta sempre, con un fumetto "No Seat!" se manca qualcosa (PR, BP) | **no** | I clienti non se ne vanno mai; chi aspetta oltre 25 s fa scendere la Fama (GDD 4, 5) |
+| Fila massima di 6 | Code di 10–15 persone (PR, BP) | **no** | Fila fino a 12 (GDD 4) |
+| Nessuna spinta raccoglibile | Icone "180%" galleggianti da prendere camminando, dietro pubblicità (PR, BP); spinte a tempo in 8 giochi su 11 | **no** | Icona "180%" gratis ogni 3–5 minuti, 60 s di velocità (GDD 7) |
+| Nessuna missione | Missioni giornaliere in 6 giochi su 11 (5 in Monkey Mart) | **no** | Tre missioni sempre attive, senza timer, per non punire chi salta un giorno (GDD 9) |
+| Raccoglitori rinviati a M3 | Il primo lavoratore arriva nel primo ciclo di gioco, a 3–5 minuti (PR) | **no** | I Raccoglitori entrano in M2, con percorsi e sonno (GDD 15) |
+| Istruzioni fino a 6 parole | 3–4 parole (PR, BP) | **in parte** | 4 parole al massimo (GDD 8) |
+
+**Scarti che restano, con il motivo**
+
+| Scarto | Motivo |
+| --- | --- |
+| Tastiera e clic invece del joystick | PATRÓN è per computer; anche Outlets Rush sul web usa WASD e mouse |
+| Schermo orizzontale | Stesso motivo; la scala del personaggio sul lato corto è quella del genere (sezione A, punto 2) |
+| Pila che parte da 4 invece che da 1 | La Pressa vuole 3 foglie per volta: con 1 il primo minuto sarebbe solo camminare. Si rivede in M8 (D6) |
+| Una sola valuta | La seconda valuta del genere serve alla monetizzazione, che la Beta non ha |
+| Potenziamenti delle stazioni nell'Ufficio invece che accanto alla macchina | Sotto soglia: le schede accanto alla macchina sono documentate solo in 2 giochi su 11 |
+| Calore che cresce con la produzione | È l'idea originale di PATRÓN; resta, con la regola "produrre di più conviene sempre" e il suo test (GDD 7, 14) |
