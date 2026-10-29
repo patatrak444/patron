@@ -43,6 +43,9 @@ export const VALLEY_CENTER: MapPoint = { x: VALLEY.width / 2, y: VALLEY.depth / 
  */
 export const PLAYER_SPAWN: MapPoint = { x: 20, y: 5.2 };
 
+/** Il regalo di El Gordo: $20 in mazzette sul sentiero davanti alla capanna (GDD sezione 5). */
+export const GIFT_SPOT: MapPoint = { x: 20.8, y: 6.9 };
+
 /** I sei appezzamenti 4 × 4 m, due file da tre tra (8, 10) e (32, 18). Il Campo 1 è quello davanti alla capanna. */
 export const FIELD_PLOTS: readonly (MapPoint & { readonly id: string })[] = [
   { id: 'field1', x: 20, y: 12 },
@@ -78,6 +81,38 @@ export const LOCKED_AREAS: readonly LockedArea[] = [
   // Laboratorio, Banco e Plaza: tutto il nord della valle.
   { id: 'north', cover: 'jungle', shape: { kind: 'rect', x: 20, y: 47, w: 40, h: 26 } },
 ];
+
+/**
+ * Tappetini della Fase 1 (GDD sezioni 3 e 4). Ogni stazione ha le sue zone attorno all'ingombro:
+ * il ritiro dei Campi sta sul sentiero davanti all'appezzamento; la Pressa riceve le Foglie a sud,
+ * dà la Pasta a nord e ha il cassone degli Scarti a ovest; il camion riceve sul lato est.
+ */
+export const FIELD_MAT_OFFSET = 2.7;
+export interface PressLayout {
+  readonly id: 'press1' | 'press2';
+  readonly x: number;
+  readonly y: number;
+  readonly deposit: MapPoint;
+  readonly output: MapPoint;
+  readonly scrap: MapPoint;
+}
+export const PRESSES: readonly PressLayout[] = [
+  { id: 'press1', x: 14, y: 26, deposit: { x: 14, y: 24.1 }, output: { x: 14, y: 27.9 }, scrap: { x: 11.9, y: 26 } },
+  { id: 'press2', x: 20, y: 26, deposit: { x: 20, y: 24.1 }, output: { x: 20, y: 27.9 }, scrap: { x: 17.9, y: 26 } },
+];
+export const PRESS_SIZE = 2.4;
+/** Falò per gli Scarti, fra le due Presse (GDD sezione 4). */
+export const BONFIRE: MapPoint & { readonly r: number; readonly mat: MapPoint } = { x: 17, y: 30.4, r: 0.8, mat: { x: 17, y: 29 } };
+/** Camion di El Gordo: carico sul lato est, mazzette sul sentiero a sud-est. */
+export const TRUCK = { x: 3, y: 26, deposit: { x: 5.5, y: 26 }, cash: { x: 6.4, y: 22.6 } } as const;
+/** Tappetini di sblocco della Fase 1, nell'ordine della sequenza. */
+export const UNLOCK_PADS: Readonly<Record<'field2' | 'picker1' | 'field3' | 'picker2' | 'press2', MapPoint>> = {
+  field2: { x: 10, y: 9.3 },
+  picker1: { x: 24, y: 7.4 },
+  field3: { x: 30, y: 9.3 },
+  picker2: { x: 16, y: 7.4 },
+  press2: { x: 20, y: 24.1 },
+};
 
 /** Strada di El Gordo e sentieri, solo grafica. */
 export const ROAD: PathStrip = { from: { x: 3, y: 0 }, to: { x: 3, y: 60 }, width: 4 };

@@ -4,6 +4,17 @@
 /** Catalogo degli eventi di gioco. Ogni tappa aggiunge i suoi. */
 export interface GameEvents {
   'sim:step': { time: number };
+  // Fase 1 (M2)
+  'press:paste': { press: string };
+  'bonfire:burn': Record<string, never>;
+  'truck:sale': { amount: number };
+  'truck:depart': Record<string, never>;
+  'truck:return': Record<string, never>;
+  'cash:collect': { amount: number; pile: string };
+  unlock: { id: string };
+  'respect:level': { level: number };
+  'worker:sleep': { id: string };
+  'worker:wake': { id: string };
 }
 
 type Handler<T> = (payload: T) => void;

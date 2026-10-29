@@ -25,8 +25,8 @@ export interface MoveContext {
   readonly cfg: PlayerConfig;
   readonly width: number;
   readonly depth: number;
-  readonly shapes: readonly Shape[];
-  readonly grid: NavGrid;
+  shapes: readonly Shape[];
+  grid: NavGrid;
 }
 
 export function createPlayer(spawn: MapPoint): PlayerState {
