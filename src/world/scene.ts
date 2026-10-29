@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { BALANCE } from '../config/balance';
 import type { Assets } from './assets';
 import { createLights, type SceneLights } from './lights';
-import { createValley } from './map';
+import { createValley, type Valley } from './map';
 import { PALETTE } from './palette';
 import type { Quality } from './render';
 
@@ -10,6 +10,7 @@ export interface GameScene {
   readonly scene: THREE.Scene;
   readonly lights: SceneLights;
   readonly occluders: readonly THREE.Object3D[];
+  readonly valley: Valley;
 }
 
 export function createScene(assets: Assets, quality: Quality): GameScene {
@@ -20,7 +21,7 @@ export function createScene(assets: Assets, quality: Quality): GameScene {
   const lights = createLights(scene, shadowSize);
   const valley = createValley(assets);
   scene.add(valley.root);
-  return { scene, lights, occluders: valley.occluders };
+  return { scene, lights, occluders: valley.occluders, valley };
 }
 
 /** Rapporto pixel che rispetta il tetto di risoluzione interna (GDD sezione 10). */

@@ -189,3 +189,170 @@ body {
   color: var(--gold);
   background: var(--ink);
 }
+
+/* HUD di gioco (GDD sezione 12): carattere tondo in grassetto con contorno scuro */
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: 'Baloo 2', 'Trebuchet MS', sans-serif;
+  font-weight: 800;
+  --outline: 0 2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 -2px 0 var(--ink), 0 4px 0 rgba(27, 27, 47, 0.45);
+}
+
+.hud__gear {
+  position: absolute;
+  top: 16px;
+  left: 18px;
+  width: 52px;
+  height: 52px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 0 rgba(27, 27, 47, 0.3);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.hud__center {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.hud__respect {
+  display: flex;
+  align-items: center;
+}
+
+.hud__star {
+  position: relative;
+  z-index: 1;
+  width: 58px;
+  height: 58px;
+  margin-right: -18px;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  color: var(--ink);
+  background: var(--gold);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  filter: drop-shadow(0 3px 0 rgba(27, 27, 47, 0.5));
+  padding-top: 6px;
+}
+
+.hud__bar {
+  position: relative;
+  width: 190px;
+  height: 28px;
+  border-radius: 14px;
+  background: rgba(27, 27, 47, 0.72);
+  overflow: hidden;
+  box-shadow: 0 3px 0 rgba(27, 27, 47, 0.35);
+}
+
+.hud__bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(#7ee36a, #3fb84a);
+  transition: width 0.25s ease-out;
+}
+
+.hud__bar-text {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  color: var(--white);
+  text-shadow: var(--outline);
+  padding-left: 10px;
+}
+
+.hud__goal {
+  font-size: 30px;
+  color: var(--white);
+  text-shadow: var(--outline);
+  white-space: nowrap;
+}
+
+.hud__goal.is-new {
+  animation: goal-in 0.35s ease-out;
+}
+
+@keyframes goal-in {
+  from {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.hud__cash {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 22px 4px 8px;
+  min-width: 150px;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--ink);
+  font-size: 28px;
+  box-shadow: 0 4px 0 rgba(27, 27, 47, 0.3);
+}
+
+.hud__cash.is-bump {
+  animation: cash-bump 0.22s ease-out;
+}
+
+@keyframes cash-bump {
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+.hud__bill {
+  width: 44px;
+  height: 28px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #2ecc52 0 38%, #e9ffd9 38% 62%, #2ecc52 62%);
+  box-shadow: 0 0 0 3px var(--ink) inset;
+  transform: rotate(-12deg);
+}
+
+.hud__cash-text {
+  margin-left: auto;
+}
+
+.hud__edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  display: none;
+}
+
+.hud__edge.is-visible {
+  display: block;
+  animation: edge-pulse 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes edge-pulse {
+  to {
+    opacity: 0.6;
+  }
+}
