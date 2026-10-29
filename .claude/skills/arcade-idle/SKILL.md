@@ -17,6 +17,7 @@ Raccolta organizzata di ciò che fanno, nella forma e nel contenuto, i giochi ar
 | `03-contenuto/` | Un file per aspetto di gioco: ciclo, stazioni, pila, sblocchi, lavoratori, clienti, economia, progressione, primi minuti, temi | Prima di lavorare su meccaniche e bilanciamento |
 | `04-sintesi/` | Le regole ricorrenti, con quanti giochi le rispettano e gli intervalli numerici | Per decidere: è la parte normativa |
 | `05-applicazione/` | Confronto di PATRÓN con le regole e piano delle modifiche | Prima di ogni tappa |
+| `06-prima-sessione/` | I primi minuti di Pizza Ready, Monkey Mart e My Mini Mart secondo per secondo, e le regole PS1–PS20 su apertura, spazio, sblocchi, soldi e camera | Prima di toccare mondo, camera, apertura o sblocchi |
 
 ## Regole d'uso
 
@@ -29,3 +30,5 @@ Raccolta organizzata di ciò che fanno, nella forma e nel contenuto, i giochi ar
 ## Stato
 
 Fase 1 (censimento) completata: 11 giochi tenuti, con voti di contenuto e forma in `01-catalogo/classifica.md`. Fase 2 (forma) completata: campi F1–F9 nelle schede e un file per campo in `02-forma/`. Fase 3 (contenuto) completata: campi C1–C10 nelle schede e un file per campo in `03-contenuto/`. Fase 4 (sintesi) completata: 21 regole di forma, 21 di contenuto e la lista di controllo in `04-sintesi/`. Fase 5 (applicazione) completata: confronto e piano in `05-applicazione/`, decisioni D1–D16 approvate e scritte nel GDD; la lista di cose da fare per M2–M8 è in `piano.md`.
+
+Fase 6 (prima sessione) aggiunta il 30 ottobre 2026: regole PS1–PS20 in `06-prima-sessione/regole.md`.
