@@ -11,7 +11,8 @@ import { createMoveContext, type GameState } from '../sim/state';
 export type Scenario = 'pila' | 'camion' | 'pagamento' | 'raccoglitore' | 'avanzato';
 
 function place(state: GameState, x: number, y: number): void {
-  Object.assign(state.player, { x, y, prevX: x, prevY: y, vx: 0, vy: 0, path: [] });
+  const facing = (-3 * Math.PI) / 4;
+  Object.assign(state.player, { x, y, prevX: x, prevY: y, vx: 0, vy: 0, path: [], facing, prevFacing: facing });
 }
 
 /** Paga gli sblocchi fino all'indice `upTo` (escluso), come se il giocatore li avesse comprati. */

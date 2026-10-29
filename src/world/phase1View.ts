@@ -7,7 +7,7 @@ import { FIELD_PLOTS, PRESSES, TRUCK, UNLOCK_PADS, toWorld, type MapPoint } from
 import type { Bus, GameEvents } from '../core/bus';
 import { activeZones, nextUnlockDef, objective, pressBlocked, pressCanWork, type Phase1State, type WorkerState } from '../sim/phase1';
 import type { Assets, CharacterId } from './assets';
-import { addMoneyPile, ITEM_HEIGHT, ItemBatch, type VisualItem } from './items';
+import { addMoneyPile, ITEM_HEIGHT, ITEM_SCALE as S, ItemBatch, type VisualItem } from './items';
 import { Label } from './labels';
 import type { Valley } from './map';
 import { Character } from './models/character';
@@ -40,7 +40,7 @@ class StackSway {
   }
 }
 
-function drawStack(batch: ItemBatch, items: readonly VisualItem[], pose: Pose, sway: { x: number; z: number }, front = 0.5, base = 0.72): void {
+function drawStack(batch: ItemBatch, items: readonly VisualItem[], pose: Pose, sway: { x: number; z: number }, front = 0.62, base = 0.9): void {
   // Davanti al petto, tra le braccia: +z locale del modello.
   const bx = pose.x + Math.sin(pose.rotY) * front;
   const bz = pose.z + Math.cos(pose.rotY) * front;
@@ -234,13 +234,13 @@ export class Phase1View {
         plate.position.y = working ? 1.1 - 0.26 * (0.5 - 0.5 * Math.cos(phase)) : 1.1;
       }
       for (let i = 0; i < Math.min(p.leaves, 6); i++) {
-        this.batch.add('leaf', c.x + 0.25 + ((i % 2) - 0.5) * 0.4, 0.82 + Math.floor(i / 2) * ITEM_HEIGHT.leaf, c.z + 0.75, Math.PI / 2);
+        this.batch.add('leaf', c.x + 0.25 + ((i % 2) - 0.5) * 0.4 * S, 0.82 + Math.floor(i / 2) * ITEM_HEIGHT.leaf, c.z + 0.75, Math.PI / 2);
       }
       for (let i = 0; i < p.pastes; i++) {
-        this.batch.add('paste', c.x + 0.25 + ((i % 2) - 0.5) * 0.46, 0.77 + Math.floor(i / 2) * ITEM_HEIGHT.paste, c.z - 1.0);
+        this.batch.add('paste', c.x + 0.25 + ((i % 2) - 0.5) * 0.46 * S, 0.77 + Math.floor(i / 2) * ITEM_HEIGHT.paste, c.z - 1.0);
       }
       for (let i = 0; i < p.scraps; i++) {
-        this.batch.add('scrap', c.x - 0.85 + ((i % 2) - 0.5) * 0.3, 0.08 + Math.floor(i / 6) * 0.2, c.z + (Math.floor(i / 2) % 3 - 1) * 0.36, i);
+        this.batch.add('scrap', c.x - 0.85 + ((i % 2) - 0.5) * 0.3, 0.08 + Math.floor(i / 6) * 0.25, c.z + (Math.floor(i / 2) % 3 - 1) * 0.36, i, 0.85);
       }
       out.set(p.pastes >= cfg.press.outCap ? 'MAX' : `${p.pastes}/${cfg.press.outCap}`, p.pastes >= cfg.press.outCap ? 'max' : 'pill');
       scrap.set(p.scraps >= cfg.press.scrapCap ? 'MAX' : `${p.scraps}/${cfg.press.scrapCap}`, p.scraps >= cfg.press.scrapCap ? 'max' : 'pill');
@@ -266,7 +266,7 @@ export class Phase1View {
         const col = i % 2;
         const row = Math.floor(i / 2) % 5;
         const layer = Math.floor(i / 10);
-        this.batch.add('paste', tw.x + (col - 0.5) * 0.5, 1.05 + layer * ITEM_HEIGHT.paste, tw.z + 0.3 + row * 0.4);
+        this.batch.add('paste', tw.x + (col - 0.5) * 0.5 * S, 1.05 + layer * ITEM_HEIGHT.paste, tw.z + 0.3 + row * 0.4 * S);
       }
       const full = t.load >= t.capacity;
       this.truckLabel.set(full ? 'MAX' : `${t.load}/${t.capacity}`, full ? 'max' : 'pill');
@@ -291,7 +291,7 @@ export class Phase1View {
       v.character.update(pos.x, pos.z, w.facing, w.asleep ? 0 : w.speed, cfg.picker.speed, w.asleep ? 0 : dt);
       const rotY = v.character.root.rotation.y;
       const vel = { x: Math.cos(w.facing) * w.speed, z: -Math.sin(w.facing) * w.speed };
-      drawStack(this.batch, w.stack.items, { x: pos.x, z: pos.z, rotY, vx: vel.x, vz: vel.z }, v.sway.update(vel.x, vel.z, dt), 0.45, 0.66);
+      drawStack(this.batch, w.stack.items, { x: pos.x, z: pos.z, rotY, vx: vel.x, vz: vel.z }, v.sway.update(vel.x, vel.z, dt), 0.55, 0.8);
       v.zzz.sprite.position.set(pos.x, 2.0 + (w.asleep ? Math.sin(this.time * 2) * 0.08 : 0), pos.z);
       v.zzz.set(w.asleep ? 'Zzz' : w.waiting ? 'zzz' : null, w.asleep ? 'zzzBig' : 'zzz');
     });
@@ -308,7 +308,8 @@ export class Phase1View {
     const goal = objective(s);
     const target = goal.target ? toWorld(goal.target) : null;
     const near = target && Math.hypot(target.x - player.x, target.z - player.z) < 1.0;
-    this.arrow.update(near ? null : target, 0, dt);
+    const onWorker = goal.target !== null && s.workers.some((w) => w === goal.target);
+    this.arrow.update(near ? null : target, onWorker ? 1.6 : 0, dt);
 
     // Falò: fiamme che tremano, fiammata a ogni sacco.
     this.flare = Math.max(0, this.flare - dt * 2.5);

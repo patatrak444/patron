@@ -10,12 +10,18 @@ import { PALETTE } from './palette';
 
 export type VisualItem = 'leaf' | 'paste' | 'scrap' | 'money';
 
+/**
+ * Scala delle merci: la testa dei personaggi è larga circa 0,6 m, e le merci devono esserlo quasi
+ * altrettanto (GDD sezione 10). Così la pila tra le braccia supera la sagoma del personaggio.
+ */
+export const ITEM_SCALE = 1.3;
+
 /** Altezza di un pezzo nella pila, in metri. */
 export const ITEM_HEIGHT: Readonly<Record<VisualItem, number>> = {
-  leaf: 0.17,
-  paste: 0.17,
-  scrap: 0.22,
-  money: 0.12,
+  leaf: 0.17 * ITEM_SCALE,
+  paste: 0.17 * ITEM_SCALE,
+  scrap: 0.22 * ITEM_SCALE,
+  money: 0.12 * ITEM_SCALE,
 };
 
 /** Colore pieno su tutti i vertici: le parti di un oggetto hanno colori diversi in un'unica geometria. */
@@ -109,6 +115,7 @@ export class ItemBatch {
     };
     this.meshes = {} as Record<VisualItem, THREE.InstancedMesh>;
     for (const k of Object.keys(geos) as VisualItem[]) {
+      geos[k].scale(ITEM_SCALE, ITEM_SCALE, ITEM_SCALE);
       const mesh = new THREE.InstancedMesh(geos[k], mat, MAX_PER_KIND);
       mesh.name = `merce:${k}`;
       mesh.castShadow = true;
@@ -155,6 +162,6 @@ export function addMoneyPile(batch: ItemBatch, value: number, x: number, z: numb
     const slot = i % 6;
     const col = slot % 2;
     const row = Math.floor(slot / 2);
-    batch.add('money', x + (col - 0.5) * 0.38, layer * ITEM_HEIGHT.money * pop, z + (row - 1) * 0.24, 0, pop);
+    batch.add('money', x + (col - 0.5) * 0.38 * ITEM_SCALE, layer * ITEM_HEIGHT.money * pop, z + (row - 1) * 0.24 * ITEM_SCALE, 0, pop);
   }
 }

@@ -30,7 +30,8 @@ export interface MoveContext {
 }
 
 export function createPlayer(spawn: MapPoint): PlayerState {
-  const facing = Math.PI / 2;
+  // Rivolto verso la camera (sud-ovest), come all'inizio di Pizza Ready: si vede la faccia e la pila.
+  const facing = (-3 * Math.PI) / 4;
   return { x: spawn.x, y: spawn.y, prevX: spawn.x, prevY: spawn.y, vx: 0, vy: 0, facing, prevFacing: facing, path: [] };
 }
 
