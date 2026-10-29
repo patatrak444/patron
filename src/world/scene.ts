@@ -14,9 +14,8 @@ export interface GameScene {
 
 export function createScene(assets: Assets, quality: Quality): GameScene {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(PALETTE.sky);
-  // Nebbia calda che sfuma la giungla lontana nel colore del cielo (GDD sezione 10).
-  scene.fog = new THREE.Fog(PALETTE.sky, 38, 95);
+  // Niente nebbia: oltre la cornice di giungla lo sfondo è un verde uniforme (GDD sezione 10).
+  scene.background = new THREE.Color(PALETTE.jungleFloor);
   const shadowSize = quality === 'high' ? BALANCE.render.shadowMapSize.high : BALANCE.render.shadowMapSize.medium;
   const lights = createLights(scene, shadowSize);
   const valley = createValley(assets);

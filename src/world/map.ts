@@ -4,51 +4,38 @@
 // si costruiscono da codice nello stesso stile.
 
 import * as THREE from 'three';
-import { FIELD_PLOTS, FIELD_SIZE, LOCKED_AREAS, VALLEY, toWorld, type MapPoint } from '../config/map';
+import { FIELD_PLOTS, LOCKED_AREAS, VALLEY, toWorld, type MapPoint } from '../config/map';
 import { createRng, type Rng } from '../core/rng';
 import type { Assets, PropId } from './assets';
-import { isInsideObstacle, isOnGroundFeature, createGround } from './ground';
+import { createGround } from './ground';
 import { bakeGroup, createBatches } from './batching';
 import { createSingle, type Placement } from './instancing';
 import { createDesk, createHut, createLuminaPlants, createPress } from './models/stations';
 
-/** Larghezza della fascia di giungla decorativa oltre i bordi: la camera non vede mai il vuoto. */
-const OUTER_JUNGLE = 30;
-/**
- * A sud la camera guarda verso nord: alberi alti lì coprirebbero il personaggio vicino al bordo.
- * In questa fascia ci sono solo cespugli; gli alberi cominciano più in là, fuori inquadratura.
- */
-const SOUTH_BUSH_BAND = 9;
-/** Solo gli alberi entro questa distanza dalla valle fanno ombra e hanno tutti i dettagli. */
-const NEAR_DISTANCE = 9;
-/** Gli alberi oltre il bordo fanno ombra solo fin qui: più in là l'ombra non cade mai nell'inquadratura. */
-const SHADOW_DISTANCE = 3;
+/** Profondità della cornice di giungla oltre i bordi della valle. */
+const FRAME_DEPTH = 9;
 
-/** Alberi della giungla, 4–8 m (GDD sezione 10): palme e alberi tropicali. */
-const JUNGLE_TREES: readonly { id: PropId; weight: number; h: [number, number] }[] = [
-  { id: 'tree_palm', weight: 3, h: [5.5, 8] },
-  { id: 'tree_oak', weight: 2, h: [4.5, 6.5] },
-  { id: 'tree_dark', weight: 2, h: [4, 6] },
-  { id: 'tree_fat', weight: 1, h: [4, 5.5] },
+/** Alberi della cornice (GDD sezione 10): tondi e regolari, con qualche palma per il tema tropicale. */
+const FRAME_TREES: readonly { id: PropId; weight: number; h: [number, number] }[] = [
+  { id: 'tree_fat', weight: 3, h: [4, 5] },
+  { id: 'tree_oak', weight: 2, h: [4.5, 5.5] },
+  { id: 'tree_palm', weight: 2, h: [5.5, 6.5] },
 ];
 
 interface Spot extends MapPoint {
   readonly jitter: number;
 }
 
-/** Punti su una griglia con scarto casuale, tenuti solo se `keep` è vero. */
-function scatter(
-  rng: Rng,
-  bounds: { x0: number; y0: number; x1: number; y1: number },
-  spacing: number,
-  keep: (x: number, y: number) => boolean,
-): Spot[] {
+/**
+ * Punti in file regolari sfalsate (a nido d'ape), con uno scarto minimo: l'ordine di un plastico,
+ * non la casualità di un bosco (GDD sezione 10).
+ */
+function rows(rng: Rng, bounds: { x0: number; y0: number; x1: number; y1: number }, spacing: number): Spot[] {
   const out: Spot[] = [];
-  for (let y = bounds.y0; y <= bounds.y1; y += spacing) {
-    for (let x = bounds.x0; x <= bounds.x1; x += spacing) {
-      const px = x + (rng.next() - 0.5) * spacing * 0.9;
-      const py = y + (rng.next() - 0.5) * spacing * 0.9;
-      if (keep(px, py)) out.push({ x: px, y: py, jitter: rng.next() });
+  let r = 0;
+  for (let y = bounds.y0; y <= bounds.y1 + 1e-6; y += spacing * 0.87, r++) {
+    for (let x = bounds.x0 + (r % 2 ? spacing / 2 : 0); x <= bounds.x1 + 1e-6; x += spacing) {
+      out.push({ x: x + (rng.next() - 0.5) * 0.15, y: y + (rng.next() - 0.5) * 0.15, jitter: rng.next() });
     }
   }
   return out;
@@ -115,63 +102,53 @@ export function createValley(assets: Assets): Valley {
   // Camion di El Gordo: 2,3 × 5,5 m, alto 2,6 m, muso verso nord.
   const truck = placeAt(createSingle(assets.props.truck_flat, 2.6), { x: 3, y: 26 }, Math.PI);
   const desk = placeAt(bakeGroup(createDesk()), { x: 28, y: 26.4 });
-  const officeTree = placeAt(createSingle(assets.props.tree_oak, 6.5, 0.6), { x: 30, y: 28 });
+  const officeTree = placeAt(createSingle(assets.props.tree_oak, 5.5, 0.6), { x: 30, y: 28 });
   root.add(hut, press, truck, desk, officeTree);
   occluders.push(hut, press, truck, officeTree);
 
-  // Campo 1: sedici piante di Lumina, alte 0,4–0,8 m (GDD sezione 10).
+  // Campo 1: sedici piante di Lumina in quattro file regolari, alte 0,7–1,0 m (GDD sezione 10).
   const f1 = FIELD_PLOTS[0]!;
   const plants: { x: number; z: number; h: number; r: number }[] = [];
   for (let i = 0; i < 4; i++) {
     for (let j = 0; j < 4; j++) {
-      const p = toWorld({ x: f1.x - 1.35 + i * 0.9 + (rng.next() - 0.5) * 0.2, y: f1.y - 1.35 + j * 0.9 + (rng.next() - 0.5) * 0.2 });
-      plants.push({ ...p, h: 0.5 + rng.next() * 0.35, r: rng.next() * Math.PI * 2 });
+      const p = toWorld({ x: f1.x - 1.44 + i * 0.96, y: f1.y - 1.5 + j * 1 });
+      plants.push({ ...p, h: 0.8 + ((i + j) % 3) * 0.1, r: (i * 4 + j) * 1.3 });
     }
   }
   root.add(createLuminaPlants(plants));
 
-  // Muri di vegetazione sulle aree chiuse.
+  // Muri di vegetazione sulle aree chiuse, in file ordinate.
   for (const area of LOCKED_AREAS) {
     if (area.shape.kind !== 'rect') continue;
     const { x, y, w, h } = area.shape;
-    const bounds = { x0: x - w / 2 + 0.5, y0: y - h / 2 + 0.5, x1: x + w / 2 - 0.4, y1: y + h / 2 - 0.4 };
+    const bounds = { x0: x - w / 2 + 0.6, y0: y - h / 2 + 0.6, x1: x + w / 2 - 0.6, y1: y + h / 2 - 0.6 };
     if (area.cover === 'jungle') {
-      for (const s of scatter(rng, bounds, 2.4, () => true)) {
-        const t = pickWeighted(rng, JUNGLE_TREES);
-        // Solo il margine del muro fa ombra sulla valle: dentro la giungla l'ombra non si vede.
-        P.add(t.id, s.y < bounds.y0 + 4, s, range(t.h), s.jitter * 6.3);
+      for (const s of rows(rng, bounds, 3)) {
+        const edge = s.y < bounds.y0 + 3.5;
+        // Sul margine sud alberi tondi bassi, dentro alberi e palme più alti.
+        const id: PropId = edge ? (s.jitter < 0.5 ? 'tree_fat' : 'tree_oak') : pickWeighted(rng, FRAME_TREES).id;
+        P.add(id, edge, s, edge ? 4.2 + s.jitter * 0.8 : 5 + s.jitter * 2, s.jitter * 6.3);
       }
-      // Sottobosco al margine sud della giungla: il muro sembra fitto anche da vicino.
-      for (const s of scatter(rng, { ...bounds, y1: bounds.y0 + 3 }, 1.2, () => true)) {
-        P.add(s.jitter < 0.5 ? 'bush_large' : 'bush', true, s, 0.8 + s.jitter * 0.7, s.jitter * 6.3);
-      }
+      for (const s of rows(rng, { ...bounds, y0: bounds.y0 - 0.4, y1: bounds.y0 + 0.6 }, 1.5)) P.add('bush_round', true, s, 1.1, s.jitter * 6.3);
     } else {
-      for (const s of scatter(rng, bounds, 1.1, () => true)) {
-        P.add(s.jitter < 0.4 ? 'bush_large' : 'bush', true, s, 0.6 + s.jitter * 0.6, s.jitter * 6.3, 0.9 + s.jitter * 0.2);
-      }
-      for (const s of scatter(rng, bounds, 1.6, () => rng.chance(0.35))) P.add('flower_red', false, s, 0.35, s.jitter * 6.3);
+      for (const s of rows(rng, bounds, 1.4)) P.add('bush_round', true, s, 1.05, s.jitter * 6.3);
     }
   }
 
-  // Giungla decorativa oltre i bordi.
-  const outside = (x: number, y: number): boolean => x < -0.6 || y < -0.6 || x > VALLEY.width + 0.6 || y > VALLEY.depth + 0.6;
-  const distanceFromValley = (x: number, y: number): number => Math.max(-x, x - VALLEY.width, -y, y - VALLEY.depth, 0);
-  const inSouthBand = (y: number): boolean => y < 0 && y > -SOUTH_BUSH_BAND;
-  const outer = { x0: -OUTER_JUNGLE, y0: -OUTER_JUNGLE, x1: VALLEY.width + OUTER_JUNGLE, y1: VALLEY.depth + OUTER_JUNGLE };
-  for (const s of scatter(rng, outer, 2.8, (x, y) => outside(x, y) && !inSouthBand(y))) {
-    const near = distanceFromValley(s.x, s.y) <= NEAR_DISTANCE;
-    if (near) {
-      const t = pickWeighted(rng, JUNGLE_TREES);
-      const shadow = distanceFromValley(s.x, s.y) <= SHADOW_DISTANCE;
-      P.add(t.id, shadow, s, range(t.h), s.jitter * 6.3, 0.85 + s.jitter * 0.25);
-    } else if (rng.chance(0.6)) {
-      // Lontano: la versione più semplice (50 triangoli), senza ombre.
-      P.add('tree_fat', false, s, 4 + s.jitter * 3, s.jitter * 6.3, 0.75 + s.jitter * 0.2);
+  // Cornice di giungla attorno alla valle: tre file di alberi tondi. Oltre, verde uniforme.
+  const frame = { x0: -FRAME_DEPTH, y0: -FRAME_DEPTH, x1: VALLEY.width + FRAME_DEPTH, y1: VALLEY.depth + FRAME_DEPTH };
+  const outside = (x: number, y: number): boolean => x < -0.9 || y < -0.9 || x > VALLEY.width + 0.9 || y > VALLEY.depth + 0.9;
+  for (const s of rows(rng, frame, 3)) {
+    if (!outside(s.x, s.y)) continue;
+    // Sud e ovest stanno tra la camera e la valle: lì solo cespugli e alberi bassi, per non coprire il giocatore.
+    const towardCamera = s.y < 0 || s.x < 0;
+    if (s.y < 0) {
+      // A sud basta una fila di cespugli: le file dietro restano fuori inquadratura.
+      if (s.y > -3) P.add('bush_round', true, s, 1.1 + s.jitter * 0.3, s.jitter * 6.3);
+      continue;
     }
-  }
-  // Fascia sud: solo cespugli bassi, così non coprono il giocatore.
-  for (const s of scatter(rng, { x0: -OUTER_JUNGLE, y0: -SOUTH_BUSH_BAND, x1: VALLEY.width + OUTER_JUNGLE, y1: -0.9 }, 2, (x, y) => inSouthBand(y) && !(Math.abs(x - 20) < 3.4 && y > -2))) {
-    P.add(s.jitter < 0.3 ? 'bush_large' : 'bush', s.y > -2.5, s, 0.55 + s.jitter * 0.55, s.jitter * 6.3, 0.85 + s.jitter * 0.25);
+    const t = towardCamera ? { id: 'tree_fat' as PropId, h: [3.6, 4.4] as [number, number] } : pickWeighted(rng, FRAME_TREES);
+    P.add(t.id, true, s, range(t.h), s.jitter * 6.3);
   }
   // Staccionata lungo il bordo sud, ai lati della capanna: misura la scala del mondo.
   for (let x = 6; x <= 34; x += 2) {
@@ -179,39 +156,6 @@ export function createValley(assets: Assets): Valley {
     P.add('fence', true, { x, y: -0.7 }, 1, 0, 1);
   }
 
-  // Dettagli dentro la valle: rocce, ceppi, tronchi e fiori fuori da sentieri, campi e stazioni.
-  const free = (x: number, y: number): boolean =>
-    x > 0.5 && x < VALLEY.width - 0.5 && y > 0.5 && y < 33 && !isOnGroundFeature({ x, y }, 0.6) && !isInsideObstacle({ x, y }, 1.2) && !nearLocked(x, y);
-  const details: [PropId, number, [number, number], boolean][] = [
-    ['rock_small', 22, [0.25, 0.45], true],
-    ['rock_large', 4, [0.45, 0.65], true],
-    ['stump', 5, [0.4, 0.6], true],
-    ['log', 3, [0.45, 0.55], true],
-    ['flower_red', 26, [0.3, 0.42], false],
-    ['bush', 14, [0.5, 0.8], true],
-  ];
-  for (const [id, count, h, shadow] of details) {
-    let placed = 0;
-    for (let tries = 0; placed < count && tries < count * 40; tries++) {
-      const x = rng.next() * VALLEY.width;
-      const y = rng.next() * 34;
-      if (!free(x, y)) continue;
-      // Le rocce grandi del pacchetto sono lastre larghe: si stringono per restare in scala.
-      P.add(id, shadow, { x, y }, range(h), rng.next() * 6.3, undefined, id === 'rock_large' ? 0.45 : 1);
-      placed++;
-    }
-  }
-
   P.build(assets, root);
   return { root, occluders };
-}
-
-function nearLocked(x: number, y: number): boolean {
-  for (const a of LOCKED_AREAS) {
-    if (a.shape.kind !== 'rect') continue;
-    const { x: cx, y: cy, w, h } = a.shape;
-    if (Math.abs(x - cx) < w / 2 + 0.8 && Math.abs(y - cy) < h / 2 + 0.8) return true;
-  }
-  const f = FIELD_PLOTS[0]!;
-  return Math.abs(x - f.x) < FIELD_SIZE / 2 + 0.8 && Math.abs(y - f.y) < FIELD_SIZE / 2 + 0.8;
 }

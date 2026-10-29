@@ -127,7 +127,7 @@ L'azione principale del gioco è muoversi: ogni azione parte da sola quando il p
 
 - Pila piena: un'etichetta "MAX" lampeggia sopra la testa.
 
-**Camera.** Prospettica, dall'alto e inclinata di circa 55° (la vista tipica del genere), con campo visivo di 35°. Segue il giocatore con smorzamento, senza rotazione: l'interpolazione equivale a 0,1 per fotogramma a 60 fps, ma è calcolata sul tempo trascorso, così la camera si muove allo stesso modo con qualunque frequenza dello schermo. Allo zoom medio mostra circa 24 m di mondo in larghezza; vicino 16 m, lontano 34 m. Lo zoom lontano serve a controllare l'intera catena quando è automatizzata. La camera non mostra mai il vuoto: oltre i bordi della valle il terreno continua come giungla decorativa, non calpestabile, che sfuma nella nebbia.
+**Camera.** Prospettica con campo visivo stretto (22°), così le linee restano quasi parallele come in una vista isometrica; inclinata di 50° sull'orizzonte e **ruotata di 45°**: guarda da sud-ovest verso nord-est, e il mondo appare in diagonale, a rombo, come in Pizza Ready e My Mini Mart. La rotazione è fissa: la camera segue il giocatore con smorzamento ma non gira mai. L'interpolazione equivale a 0,1 per fotogramma a 60 fps, ma è calcolata sul tempo trascorso, così la camera si muove allo stesso modo con qualunque frequenza dello schermo. Allo zoom medio mostra circa 20 m di mondo in larghezza; vicino 14 m, lontano 30 m: pochi oggetti grandi riempiono lo schermo. I tasti di movimento seguono lo schermo, non la mappa: W porta il personaggio verso l'alto dello schermo, cioè verso nord-est della mappa. Lo zoom lontano serve a controllare l'intera catena quando è automatizzata. La camera non mostra mai il vuoto: oltre i bordi della valle c'è una cornice di giungla non calpestabile e poi un verde uniforme.
 
 **Schermo.** Orizzontale, adattato a qualunque finestra da 1280 × 600 in su (16:9 è il formato di riferimento); ridimensionare la finestra non deforma la scena.
 
@@ -529,16 +529,29 @@ Il giocatore resta finché ha sempre un passo successivo chiaro, vicino e divers
 
 ## 10. Direzione artistica e game feel
 
-Stile low-poly a colori pieni, luce calda da tardo pomeriggio, e una sola cosa che brilla nel mondo: la Lumina. Personaggi, alberi, vegetazione e oggetti di villaggio vengono da pacchetti di modelli low-poly gratuiti con licenza CC0; le stazioni del gioco, che nei pacchetti non esistono, si costruiscono da codice nello stesso stile. È anche lo standard del genere: camera dall'alto leggermente inclinata e personaggi stilizzati o low-poly ([Homa](https://www.homagames.com/blog/arcade-idle-a-new-hybridcasual-genre-enters-the-game)).
+**Un diorama giocattolo, non un paesaggio.** Il riferimento visivo sono Pizza Ready e My Mini Mart: ogni cosa sullo schermo è un'informazione di gioco (una stazione, una merce, una pila di soldi, un cliente) e la grafica serve solo a renderla leggibile a colpo d'occhio. Niente realismo di luce, terreno o natura: luce piena, colori pastello, pavimenti puliti, oggetti grossi e ordinati, e una sola cosa che brilla nel mondo: la Lumina. Personaggi, alberi, vegetazione e oggetti di villaggio vengono da pacchetti di modelli low-poly gratuiti con licenza CC0; le stazioni del gioco, che nei pacchetti non esistono, si costruiscono da codice nello stesso stile. È anche lo standard del genere: camera dall'alto leggermente inclinata e personaggi stilizzati o low-poly ([Homa](https://www.homagames.com/blog/arcade-idle-a-new-hybridcasual-genre-enters-the-game)).
 
-**Tono visivo.** Giungla e villaggio sudamericano anni '80 con un tocco di "tramonto da serie TV": colori saturi ma caldi, nessun realismo. Le cose pericolose (polizia, rivali) si leggono dal colore, mai dal sangue.
+**Tono visivo.** Giungla e villaggio sudamericano anni '80 raccontati come un plastico: il tema viene dagli oggetti (capanna di tegole, camion, palme, Lumina), non dall'atmosfera. Le cose pericolose (polizia, rivali) si leggono dal colore, mai dal sangue.
+
+**Le regole del genere, osservate sui riferimenti.**
+
+| Regola | Come si applica in PATRÓN |
+|---|---|
+| Luce piena, quasi senza chiaroscuro | Luce ambiente forte e sole alto (65°): le facce in ombra restano chiare; ombre corte e leggere, solo "appoggi" sotto gli oggetti. Niente nebbia, niente mappatura dei toni cinematografica |
+| Pavimenti puliti a colori piatti | Erba di un solo verde chiaro; sentieri e campi con bordi netti e arrotondati e un filo più scuro sul contorno, come zone disegnate. Niente chiazze, ciuffi d'erba o sassi sparsi |
+| Pastello e chiaro | Lo sfondo è chiaro e gli oggetti hanno colori più saturi: risaltano sul pavimento |
+| Pochi oggetti, grossi | Camera vicina; merci e pile più grandi del vero (una pila di 8 oggetti arriva alla spalla del personaggio) |
+| Ordine da griglia | Stazioni allineate, alberi della cornice in file regolari, niente disposizione casuale dentro la valle |
+| Il giocatore si distingue | È l'unico personaggio con un colore acceso; i lavoratori e i clienti hanno colori più spenti |
+| Il gioco parla con oggetti nel mondo | Tappetini colorati con prezzo, mazzette verdi, scritte MAX e contatori sopra le stazioni (da M2) |
 
 **Palette.**
 
 | Uso                            | Colore                            |
 |--------------------------------|-----------------------------------|
-| Giungla scura / media / chiara | \#2F6B3A / \#4F9A4A / \#7CC46A    |
-| Terra dei campi / sentieri     | \#8B5E3C / \#C8A27A               |
+| Erba della valle / contorni    | \#A6DC7A / \#86C45E               |
+| Giungla della cornice          | \#5DB55A chiaro, \#3F9A4C scuro   |
+| Terra dei campi / sentieri     | \#C98D5C / \#F3E2BE               |
 | Muri del villaggio / tegole    | \#E8D9C0 / \#C4553B               |
 | Lumina (emissiva)              | \#5CE1E6                          |
 | Soldi                          | \#6FBF5A                          |
@@ -557,38 +570,38 @@ Stile low-poly a colori pieni, luce calda da tardo pomeriggio, e una sola cosa c
 
 **Luce e atmosfera.**
 
-- Sempre tardo pomeriggio, niente ciclo giorno-notte. Sole basso da sud-ovest (circa 35° di elevazione) di colore oro caldo, ombre lunghe e morbide; luce emisferica con cielo arancio tenue e suolo verde.
-- Nebbia calda che sfuma la giungla lontana nel colore del cielo.
+- Giorno pieno, niente ciclo giorno-notte. Luce emisferica forte, quasi bianca, che tiene chiare anche le facce in ombra; sole alto da sud-ovest (65° di elevazione), tenue e appena caldo. Ombre corte e leggere.
+- Niente nebbia e niente mappatura dei toni cinematografica: i colori della palette arrivano allo schermo come sono. Oltre la cornice di giungla lo sfondo è un verde uniforme.
 - Materiali Lambert con ombreggiatura piatta: le facce dei poligoni si vedono, ed è lo stile.
-- Ombre vere dalla luce direzionale (mappa d'ombra da 2048 px, bordi morbidi) su personaggi, stazioni e alberi vicini; in qualità Media scendono a 1024 px. La mappa d'ombra segue il giocatore invece di coprire tutta la valle, così resta nitida. Si usa il filtro PCF con raggio di sfumatura: le ombre VSM sarebbero più morbide, ma disegnano nella mappa d'ombra anche gli oggetti che le ricevono (terreno, erba) e all'avvio aggiungono circa 27.000 triangoli. Il riquadro d'ombra è largo 44 m di lato e si estende 17 m verso il sole e 9 m dalla parte opposta: copre gli angoli dell'inquadratura senza raccogliere alberi le cui ombre cadono fuori vista. Oltre il bordo della valle fanno ombra solo gli alberi entro 3 m; nel muro di giungla a nord solo i primi 4 m.
-- Terreno vivo: il verde varia a chiazze tra i tre toni della giungla, con ciuffi d'erba sparsi (una sola geometria disegnata molte volte).
-- Sentieri e campi con bordi morbidi e irregolari che sfumano nell'erba, niente rettangoli netti.
-- Bloom (UnrealBloomPass) solo sulle cose che brillano: Lumina, lampade, finestre del Laboratorio. Si disattiva in qualità Media.
+- Ombre vere dalla luce direzionale (mappa d'ombra da 2048 px, filtro PCF con bordi morbidi) su personaggi, stazioni e alberi; in qualità Media 1024 px. La mappa d'ombra segue il giocatore e copre un riquadro di 36 m di lato. Le ombre VSM sono escluse: disegnano nella mappa d'ombra anche gli oggetti che le ricevono (terreno) e costano circa 27.000 triangoli in più all'avvio.
+- Terreno pulito: erba di un solo verde chiaro. Sentieri e campi sono zone nette con angoli arrotondati e un contorno più scuro di 15 cm; i campi hanno solchi regolari.
+- La giungla è una cornice: alberi tondi in file regolari, non un bosco realistico. Dentro la valle non ci sono sassi, ceppi o fiori sparsi: ogni oggetto ha un ruolo.
+- Bloom (UnrealBloomPass) leggero solo sulle cose che brillano: Lumina, lampade, finestre del Laboratorio. Si disattiva in qualità Media.
 
 **Proporzioni.** La scala del mondo è in metri reali e tutti i modelli si adattano a questa tabella:
 
 | Elemento | Misura |
 |---|---|
-| Personaggio adulto | 1,7 m di altezza |
+| Personaggio adulto | 1,7 m di altezza (il giocatore 1,9 m: è il protagonista e deve spiccare) |
 | Porta | 2,0 m di altezza |
 | Capanna | 5 × 4 m di pianta, gronda a 2,4 m, colmo a 3,6 m |
 | Pressa | 2,4 × 2,4 m, alta 1,8 m |
 | Camion di El Gordo | 2,3 × 5,5 m, alto 2,6 m |
-| Appezzamento | 4 × 4 m, piante alte 0,4–0,8 m |
+| Appezzamento | 4 × 4 m, piante alte 0,7–1,0 m in file regolari |
 | Cespugli | 0,5–1,2 m |
 | Alberi della giungla | 4–8 m |
 
 **Visibilità del personaggio.**
 
 - Gli oggetti che stanno tra la camera e il giocatore (alberi, tetti, stazioni) diventano trasparenti al 30% in 0,15 s e tornano pieni quando il giocatore si allontana. Il giocatore non è mai nascosto.
-- Inquadratura di partenza: il giocatore davanti alla capanna, nel terzo centrale dello schermo, con il Campo 1 in vista; niente di più alto delle ginocchia tra la camera e lui, e nessun oggetto che copra più di un quinto dello schermo. Per rispettarlo il punto di partenza è a (20; 5,2): più a sud, la gronda nord della capanna (alta 2,4 m) coprirebbe i piedi del giocatore visti dalla camera a 55°. L'ingombro della capanna è 5,2 × 4,6 m, centrato a (20; 0,9), e comprende la panca e le cassette davanti alla porta.
+- Inquadratura di partenza: il giocatore davanti alla capanna, nel terzo centrale dello schermo, con il Campo 1 in vista; niente di più alto delle ginocchia tra la camera e lui, e nessun oggetto che copra più di un quinto dello schermo. Per rispettarlo il punto di partenza è a (20; 5,2): più vicino, la gronda nord della capanna (alta 2,4 m) coprirebbe i piedi del giocatore visti dalla camera. L'ingombro della capanna è 5,2 × 4,6 m, centrato a (20; 0,9), e comprende la panca e le cassette davanti alla porta.
 
 **Modelli.**
 
 | Elemento           | Composizione                                                  | Dettaglio distintivo                     |
 |--------------------|---------------------------------------------------------------|------------------------------------------|
 | Personaggi         | Dal pacchetto CC0, con scheletro e animazioni di camminata e di attesa | Il cappello dice il ruolo (sezione 6)    |
-| Giocatore          | Come sopra                                                    | L'abito cambia con le fasi (sezione 9)   |
+| Giocatore          | Come sopra, alto 1,9 m, con cappellino rosso e ombra tonda sotto i piedi | L'abito cambia con le fasi (sezione 9); il cappellino rosso lo distingue sempre |
 | Piante di Lumina   | Gruppi di coni e piani                                        | Le foglie pronte hanno un bordo azzurro  |
 | Pressa             | Da codice: basamento, telaio e pistone che scende             | Pistone animato                          |
 | Laboratorio        | Da codice: baracca di legno con camino                        | Fumo e luce azzurra dalle finestre       |

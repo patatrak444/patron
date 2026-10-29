@@ -5,7 +5,7 @@ import './ui/styles.css';
 import { BALANCE } from './config/balance';
 import { fromWorld, toWorld } from './config/map';
 import { createBus, type GameEvents } from './core/bus';
-import { installInput } from './core/input';
+import { installInput, screenToMap } from './core/input';
 import { createFixedStepper, startLoop } from './core/loop';
 import { budget } from './debug/budget';
 import { createDebugPanel, isDebugEnabled } from './debug/debugPanel';
@@ -18,8 +18,9 @@ import { GameCamera } from './world/camera';
 import { loadAssets, type Assets } from './world/assets';
 import { OccluderFader } from './world/fade';
 import { DestinationMarker } from './world/marker';
-import { Character } from './world/models/character';
+import { Character, PLAYER_HEIGHT } from './world/models/character';
 import { createFrame, qualityFromUrl } from './world/render';
+import { PALETTE } from './world/palette';
 import { cappedPixelRatio, createScene } from './world/scene';
 
 /** Modello del giocatore nella prima fase; gli abiti per fase arrivano in M7 (GDD sezione 9). */
@@ -62,8 +63,8 @@ async function boot(root: HTMLElement): Promise<void> {
   // ma disegnano nella mappa d'ombra anche chi le riceve (terreno, erba): +27.000 triangoli all'avvio.
   renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = BALANCE.render.exposure;
+  // Nessuna mappatura dei toni cinematografica: i colori pastello arrivano allo schermo come sono (GDD sezione 10).
+  renderer.toneMapping = THREE.NoToneMapping;
   // Conteggio di disegni e triangoli su tutto il fotogramma: ombre e bloom compresi (GDD sezione 10).
   renderer.info.autoReset = false;
   root.append(renderer.domElement);
@@ -75,7 +76,8 @@ async function boot(root: HTMLElement): Promise<void> {
   const state = createInitialState(Date.now());
   const moveCtx = createMoveContext();
 
-  const player = new Character(assets.characters[PLAYER_MODEL]);
+  // Il giocatore è più alto degli altri e porta il cappellino rosso: si distingue sempre (GDD sezione 10).
+  const player = new Character(assets.characters[PLAYER_MODEL], { height: PLAYER_HEIGHT, cap: PALETTE.policeRed });
   const marker = new DestinationMarker();
   const navOverlay = new NavOverlay(moveCtx.grid);
   scene.add(player.root, marker.mesh, navOverlay.root);
@@ -100,7 +102,9 @@ async function boot(root: HTMLElement): Promise<void> {
   const stepper = createFixedStepper({
     ...BALANCE.sim,
     update: (dt) => {
-      const move = input.keys.move();
+      const key = input.keys.move();
+      // I tasti seguono lo schermo: con la camera ruotata, W va verso nord-est (GDD sezione 3).
+      const move = screenToMap(key.x, key.y, BALANCE.camera.yawDeg);
       stepSim(state, dt, bus, { moveX: move.x, moveY: move.y }, moveCtx);
     },
   });

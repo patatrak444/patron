@@ -1,21 +1,16 @@
-// Luce e atmosfera (GDD sezione 10): sempre tardo pomeriggio. Sole basso da sud-ovest a circa 35°
-// di elevazione, oro caldo, ombre lunghe e morbide; luce emisferica con cielo arancio tenue e
-// suolo verde. La mappa d'ombra segue il giocatore invece di coprire tutta la valle.
+// Luce (GDD sezione 10): giorno pieno, come un diorama. Luce emisferica forte e quasi bianca che tiene
+// chiare anche le facce in ombra; sole alto da sud-ovest (65°), tenue, con ombre corte e leggere.
+// La mappa d'ombra segue il giocatore invece di coprire tutta la valle.
 
 import * as THREE from 'three';
 
 const DEG = Math.PI / 180;
-export const SUN_ELEVATION_DEG = 35;
-/**
- * Riquadro della mappa d'ombra attorno al giocatore, in metri nella vista del sole.
- * Visto da sud-ovest il riquadro cade a terra come un rombo: di lato serve largo abbastanza da
- * coprire gli angoli dell'inquadratura; verso nord-est (lontano dal sole) si accorcia, perché le
- * ombre di quegli oggetti cadono fuori dall'inquadratura.
- */
-export const SHADOW_BOX = { side: 22, towardSun: 17, awayFromSun: 9 } as const;
+export const SUN_ELEVATION_DEG = 65;
+/** Riquadro della mappa d'ombra attorno al giocatore, in metri nella vista del sole (36 m di lato). */
+export const SHADOW_BOX = { side: 18, towardSun: 18, awayFromSun: 18 } as const;
 const SUN_DISTANCE = 60;
 
-/** Direzione da cui arriva il sole: sud-ovest (x negativo, z positivo), 35° sopra l'orizzonte. */
+/** Direzione da cui arriva il sole: sud-ovest (x negativo, z positivo), 65° sopra l'orizzonte. */
 export function sunDirection(): THREE.Vector3 {
   const e = SUN_ELEVATION_DEG * DEG;
   const h = Math.cos(e);
@@ -34,10 +29,10 @@ export interface SceneLights {
 }
 
 export function createLights(scene: THREE.Scene, shadowMapSize: number): SceneLights {
-  const hemi = new THREE.HemisphereLight(0xffc8a0, 0x4f7a3a, 1.35);
+  const hemi = new THREE.HemisphereLight(0xffffff, 0xd8ecc0, 1.95);
   scene.add(hemi);
 
-  const sun = new THREE.DirectionalLight(0xffd9a0, 2.6);
+  const sun = new THREE.DirectionalLight(0xfff3e0, 1.7);
   sun.castShadow = true;
   sun.shadow.mapSize.set(shadowMapSize, shadowMapSize);
   sun.shadow.radius = shadowMapSize >= 2048 ? 3 : 2;

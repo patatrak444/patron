@@ -225,7 +225,7 @@ export function createLuminaPlants(positions: readonly { x: number; z: number; h
   };
 
   const leafMesh = new THREE.InstancedMesh(merge(leaves), flat(0x5fcf5a), positions.length);
-  const tipMesh = new THREE.InstancedMesh(merge(tips), flat(PALETTE.lumina, PALETTE.lumina, 1.6), positions.length);
+  const tipMesh = new THREE.InstancedMesh(merge(tips), flat(PALETTE.lumina, PALETTE.lumina, 1.0), positions.length);
   const m = new THREE.Matrix4();
   const q = new THREE.Quaternion();
   const up = new THREE.Vector3(0, 1, 0);

@@ -11,6 +11,18 @@ const MOVE_KEYS: Readonly<Record<string, readonly [number, number]>> = {
   ArrowRight: [1, 0],
 };
 
+/**
+ * Converte una direzione dello schermo (x a destra, y in alto) nella direzione della mappa
+ * (x a est, y a nord) per una camera ruotata di `yawDeg` (GDD sezione 3): con 45°,
+ * "in alto" diventa nord-est. La lunghezza del vettore non cambia.
+ */
+export function screenToMap(x: number, y: number, yawDeg: number): { x: number; y: number } {
+  const a = (yawDeg * Math.PI) / 180;
+  const c = Math.cos(a);
+  const s = Math.sin(a);
+  return { x: x * c + y * s, y: -x * s + y * c };
+}
+
 /** Stato dei tasti di movimento. Senza DOM, per poterlo provare nei test. */
 export class KeyState {
   private readonly down = new Set<string>();

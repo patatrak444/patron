@@ -4,11 +4,14 @@
 // oscillazione e inclinazione in camminata, respiro da fermo (scala 1,00–1,02 in 2 s).
 
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import type { CharacterAsset } from '../assets';
 
 /** Altezza di un personaggio adulto (GDD sezione 10, proporzioni). */
 export const ADULT_HEIGHT = 1.7;
+/** Il giocatore è più alto degli altri: è il protagonista e deve spiccare (GDD sezione 10). */
+export const PLAYER_HEIGHT = 1.9;
 
 /**
  * Metri percorsi da un ciclo completo dell'animazione, a 1,7 m di altezza: due volte l'escursione
@@ -27,6 +30,39 @@ export function cycleTimeScale(speed: number, stride: number, duration: number):
 
 const FADE = 0.15;
 
+export interface CharacterOptions {
+  /** Altezza in metri (GDD sezione 10). */
+  readonly height?: number;
+  /** Colore del cappellino; senza, nessun cappellino. */
+  readonly cap?: number;
+}
+
+/** Cappellino squadrato con visiera sul davanti (+z), nello stile a blocchi dei Mini Characters. */
+function createCap(width: number, depth: number, headHeight: number, color: number): THREE.Group {
+  const mat = new THREE.MeshLambertMaterial({ color, flatShading: true });
+  const cap = new THREE.Group();
+  const crownH = headHeight * 0.3;
+  const crown = new THREE.Mesh(new RoundedBoxGeometry(width * 0.9, crownH, depth * 0.9, 2, crownH * 0.45), mat);
+  crown.position.y = crownH * 0.4;
+  const brim = new THREE.Mesh(new RoundedBoxGeometry(width * 0.62, headHeight * 0.06, depth * 0.36, 1, headHeight * 0.025), mat);
+  brim.position.set(0, headHeight * 0.03, depth * 0.56);
+  for (const m of [crown, brim]) m.castShadow = true;
+  cap.add(crown, brim);
+  return cap;
+}
+
+/** Ombra tonda e morbida sotto i piedi: appoggia il personaggio al pavimento, come nel genere. */
+function createBlobShadow(radius: number): THREE.Mesh {
+  const mesh = new THREE.Mesh(
+    new THREE.CircleGeometry(radius, 20),
+    new THREE.MeshBasicMaterial({ color: 0x1b2a14, transparent: true, opacity: 0.18, depthWrite: false }),
+  );
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.position.y = 0.02;
+  mesh.renderOrder = 1;
+  return mesh;
+}
+
 export class Character {
   readonly root = new THREE.Group();
   private readonly body = new THREE.Group();
@@ -35,12 +71,31 @@ export class Character {
   private current: THREE.AnimationAction | null = null;
   private phase = 0;
   private time = 0;
+  /** I passi misurati valgono a 1,7 m: un personaggio più alto fa passi proporzionalmente più lunghi. */
+  private readonly strideScale: number;
 
-  constructor(asset: CharacterAsset) {
+  constructor(asset: CharacterAsset, options: CharacterOptions = {}) {
+    const height = options.height ?? ADULT_HEIGHT;
     const model = cloneSkinned(asset.scene);
-    model.scale.setScalar(ADULT_HEIGHT / asset.height);
+    model.scale.setScalar(height / asset.height);
+    this.strideScale = height / ADULT_HEIGHT;
     this.body.add(model);
-    this.root.add(this.body);
+    this.root.add(this.body, createBlobShadow(height * 0.24));
+
+    if (options.cap !== undefined) {
+      // Il cappellino si misura sulla testa e si aggancia al suo osso: segue l'animazione.
+      this.root.updateMatrixWorld(true);
+      const headMesh = model.getObjectByName('head-mesh');
+      const headBone = model.getObjectByName('head');
+      if (headMesh && headBone) {
+        const box = new THREE.Box3().setFromObject(headMesh);
+        const size = box.getSize(new THREE.Vector3());
+        const cap = createCap(size.x, size.z, size.y, options.cap);
+        cap.position.set((box.min.x + box.max.x) / 2, box.max.y - size.y * 0.06, (box.min.z + box.max.z) / 2);
+        this.root.add(cap);
+        headBone.attach(cap);
+      }
+    }
 
     const pick = (name: string): THREE.AnimationClip | undefined => asset.clips.find((c) => c.name === name);
     const idle = pick('idle');
@@ -80,7 +135,7 @@ export class Character {
       const useWalk = moving && speed < 2.5 && this.actions.walk;
       this.play(moving ? (useWalk ? this.actions.walk : run) : this.actions.idle);
       if (moving && this.current) {
-        const stride = this.current === this.actions.sprint ? SPRINT_STRIDE : WALK_STRIDE;
+        const stride = (this.current === this.actions.sprint ? SPRINT_STRIDE : WALK_STRIDE) * this.strideScale;
         this.current.timeScale = cycleTimeScale(speed, stride, this.current.getClip().duration);
       } else if (this.current) {
         this.current.timeScale = 1;

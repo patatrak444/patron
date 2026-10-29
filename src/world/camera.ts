@@ -20,7 +20,17 @@ export function frameLerp(perFrame60: number, dt: number): number {
   return 1 - Math.pow(1 - perFrame60, dt * 60);
 }
 
-/** Camera prospettica dall'alto, inclinata, che segue un bersaglio senza ruotare (GDD sezione 3). */
+/**
+ * Direzione dal bersaglio alla camera. Con yaw 0 la camera sta a sud e guarda verso nord;
+ * con yaw 45° sta a sud-ovest e guarda verso nord-est (GDD sezione 3).
+ */
+export function cameraOffset(pitchDeg: number, yawDeg: number): THREE.Vector3 {
+  const p = pitchDeg * DEG;
+  const y = yawDeg * DEG;
+  return new THREE.Vector3(-Math.sin(y) * Math.cos(p), Math.sin(p), Math.cos(y) * Math.cos(p));
+}
+
+/** Camera prospettica dall'alto, inclinata e ruotata, che segue un bersaglio senza girare (GDD sezione 3). */
 export class GameCamera {
   readonly camera: THREE.PerspectiveCamera;
   /** 0 vicino, 1 medio, 2 lontano. */
@@ -33,9 +43,7 @@ export class GameCamera {
 
   constructor(private readonly cfg: CameraConfig, aspect: number) {
     this.camera = new THREE.PerspectiveCamera(cfg.fovDeg, aspect, 0.5, 300);
-    const pitch = cfg.pitchDeg * DEG;
-    // La camera sta a sud del bersaglio (+z) e guarda verso nord.
-    this.offsetDir = new THREE.Vector3(0, Math.sin(pitch), Math.cos(pitch));
+    this.offsetDir = cameraOffset(cfg.pitchDeg, cfg.yawDeg);
     this.distance = this.desiredDistance();
   }
 

@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { BALANCE } from '../src/config/balance';
-import { OBSTACLES, PATHS, PLAYER_SPAWN } from '../src/config/map';
+import { PATHS, PLAYER_SPAWN } from '../src/config/map';
+import { screenToMap } from '../src/core/input';
+import { cameraOffset } from '../src/world/camera';
 import { scaleToHeight } from '../src/world/assets';
 import { isSolid, mergePieces, SOLID } from '../src/world/batching';
 import { FADE_OPACITY, FADE_SECONDS, stepOpacity } from '../src/world/fade';
@@ -118,15 +120,29 @@ describe('fusione delle geometrie statiche', () => {
 
 describe('inquadratura di partenza (GDD 10)', () => {
   it('nessuna parte della capanna più alta delle ginocchia tra la camera e i piedi del giocatore', () => {
-    const hut = OBSTACLES.find((o) => o.id === 'hut')!.shape;
-    if (hut.kind !== 'rect') throw new Error('capanna rettangolare');
-    // Gronda nord: muro nord a y = 0,6 + 2 = 2,6, sbalzo di 0,45 m, alta 2,4 m.
-    const eaveY = 0.6 + 2 + 0.45;
-    const eaveH = 2.4;
-    // La camera guarda da sud con inclinazione di 55°: il raggio sale di tan(55°) per metro verso sud.
-    const rise = Math.tan((BALANCE.camera.pitchDeg * Math.PI) / 180);
-    const feet = 0.2;
-    const heightAtEave = feet + (PLAYER_SPAWN.y - eaveY) * rise;
-    expect(heightAtEave).toBeGreaterThan(eaveH);
+    // Raggio dai piedi del giocatore verso la camera (inclinata e ruotata come in BALANCE).
+    const dir = cameraOffset(BALANCE.camera.pitchDeg, BALANCE.camera.yawDeg);
+    const feet = new THREE.Vector3(PLAYER_SPAWN.x, 0.2, -PLAYER_SPAWN.y);
+    // Volume della capanna: 5 × 4 m più lo sbalzo del tetto di 0,45 m, alta fino al colmo (3,6 m).
+    const hut = new THREE.Box3(new THREE.Vector3(20 - 2.95, 0, -(0.6 + 2.45)), new THREE.Vector3(20 + 2.95, 3.7, -(0.6 - 2.45)));
+    const ray = new THREE.Ray(feet, dir);
+    expect(ray.intersectsBox(hut)).toBe(false);
+  });
+
+  it('con la camera ruotata, W porta verso nord-est e D verso sud-est', () => {
+    const w = screenToMap(0, 1, 45);
+    expect(w.x).toBeCloseTo(Math.SQRT1_2, 6);
+    expect(w.y).toBeCloseTo(Math.SQRT1_2, 6);
+    const d = screenToMap(1, 0, 45);
+    expect(d.x).toBeCloseTo(Math.SQRT1_2, 6);
+    expect(d.y).toBeCloseTo(-Math.SQRT1_2, 6);
+    expect(Math.hypot(screenToMap(1, 1, 45).x, screenToMap(1, 1, 45).y)).toBeCloseTo(Math.SQRT2, 6);
+  });
+
+  it('la camera sta a sud-ovest del bersaglio, sopra di lui', () => {
+    const o = cameraOffset(50, 45);
+    expect(o.x).toBeLessThan(0);
+    expect(o.z).toBeGreaterThan(0);
+    expect(Math.asin(o.y) * (180 / Math.PI)).toBeCloseTo(50, 6);
   });
 });

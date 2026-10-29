@@ -23,7 +23,9 @@ export const PROP_IDS = [
   'flower_red',
   'truck_flat',
 ] as const;
-export type PropId = (typeof PROP_IDS)[number];
+/** Modelli costruiti da codice nello stesso formato dei pacchetti (es. il cespuglio tondo). */
+export const CODE_PROP_IDS = ['bush_round'] as const;
+export type PropId = (typeof PROP_IDS)[number] | (typeof CODE_PROP_IDS)[number];
 
 export const CHARACTER_IDS = [
   'mini_male_a',
@@ -43,22 +45,22 @@ export type CharacterId = (typeof CHARACTER_IDS)[number];
 
 /** Colori dei materiali dei pacchetti riportati alla palette del documento. */
 const RECOLOR: Record<string, number> = {
-  leafsGreen: PALETTE.jungleMid,
+  leafsGreen: PALETTE.jungleLight,
   leafsDark: PALETTE.jungleDark,
-  grass: PALETTE.jungleMid,
-  woodBark: 0x6b4a2f,
-  woodBarkDark: 0x5a3d26,
-  wood: 0x9a6b45,
+  grass: 0x74c95c,
+  woodBark: 0x9a6640,
+  woodBarkDark: 0x8a5a38,
+  wood: 0xb98256,
   dirt: PALETTE.fieldEarth,
-  dirtDark: 0x6e4a30,
-  stone: 0x9c958a,
-  stoneDark: 0x7a746b,
+  dirtDark: PALETTE.fieldEarthDark,
+  stone: 0xc4bfb4,
+  stoneDark: 0xa9a397,
 };
 
 /** Ricolorazioni proprie di un modello, prima di quelle generali (es. le rocce sono pietra, non terra). */
 const RECOLOR_BY_PROP: Partial<Record<PropId, Record<string, number>>> = {
-  rock_large: { dirt: 0x9c958a, grass: 0x7a746b },
-  rock_small: { dirt: 0x9c958a, grass: 0x7a746b },
+  rock_large: { dirt: 0xc4bfb4, grass: 0xa9a397 },
+  rock_small: { dirt: 0xc4bfb4, grass: 0xa9a397 },
 };
 
 /** Una parte di un modello statico: geometria già nel sistema di riferimento del modello. */
@@ -181,6 +183,30 @@ function heightOf(root: THREE.Object3D): number {
   return box.max.y - box.min.y;
 }
 
+/**
+ * Cespuglio tondo da codice (GDD sezione 10): tre sfere low-poly fuse, alte 1 m. I cespugli del
+ * Nature Kit sono a punte e sembrano carta stropicciata; il genere usa forme morbide e tonde.
+ */
+export function roundBushProp(): Prop {
+  const blobs: [number, number, number, number][] = [
+    [0, 0.5, 0, 0.55],
+    [0.36, 0.34, 0.1, 0.4],
+  ];
+  const parts = blobs.map(([x, y, z, r]) => new THREE.IcosahedronGeometry(r, 1).translate(x, y, z).toNonIndexed());
+  const total = parts.reduce((s, g) => s + g.getAttribute('position').count, 0);
+  const pos = new Float32Array(total * 3);
+  let o = 0;
+  for (const g of parts) {
+    pos.set(g.getAttribute('position').array as Float32Array, o);
+    o += g.getAttribute('position').count * 3;
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const part = { geometry, material: new THREE.MeshLambertMaterial({ name: 'cespuglio', color: 0x6cc35a, flatShading: true }) };
+  const prop = { id: 'bush_round' as const, parts: [part], height: 0 };
+  return { ...prop, height: normalize([part]) };
+}
+
 export async function loadAssets(baseUrl = './models/'): Promise<Assets> {
   const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
   const load = (id: string): Promise<GLTF> => loader.loadAsync(`${baseUrl}${id}.glb`);
@@ -195,6 +221,7 @@ export async function loadAssets(baseUrl = './models/'): Promise<Assets> {
     const parts = extractParts(propGltfs[i]!.scene, RECOLOR_BY_PROP[id]);
     props[id] = { id, parts, height: normalize(parts) };
   });
+  props.bush_round = roundBushProp();
 
   const characters = {} as Record<CharacterId, CharacterAsset>;
   CHARACTER_IDS.forEach((id, i) => {
