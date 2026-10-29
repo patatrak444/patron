@@ -26,4 +26,4 @@ Raccolta organizzata di ciò che fanno, nella forma e nel contenuto, i giochi ar
 
 ## Stato
 
-Fase 1 (censimento) completata: 11 giochi tenuti, con voti di contenuto e forma in `01-catalogo/classifica.md`. Fase 2 (forma) completata: campi F1–F9 nelle schede e un file per campo in `02-forma/`. Fase 3 (contenuto) completata: campi C1–C10 nelle schede e un file per campo in `03-contenuto/`. Fase 4 (sintesi) completata: 21 regole di forma, 21 di contenuto e la lista di controllo in `04-sintesi/`. Fase 5 da fare: vedi `00-metodo/fasi.md`.
+Fase 1 (censimento) completata: 11 giochi tenuti, con voti di contenuto e forma in `01-catalogo/classifica.md`. Fase 2 (forma) completata: campi F1–F9 nelle schede e un file per campo in `02-forma/`. Fase 3 (contenuto) completata: campi C1–C10 nelle schede e un file per campo in `03-contenuto/`. Fase 4 (sintesi) completata: 21 regole di forma, 21 di contenuto e la lista di controllo in `04-sintesi/`. Fase 5 (applicazione) completata: confronto e piano in `05-applicazione/`, in attesa delle decisioni di Luca sulle domande D1–D7.
