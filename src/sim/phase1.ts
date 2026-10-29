@@ -5,13 +5,14 @@
 import { BALANCE, type Phase1Config, type UnlockDef } from '../config/balance';
 import {
   BONFIRE,
-  FIELD_MAT_OFFSET,
   FIELD_PLOTS,
   FIELD_SIZE,
   GIFT_SPOT,
   PRESSES,
   TRUCK,
   UNLOCK_PADS,
+  type FieldId,
+  type LotId,
   type MapPoint,
 } from '../config/map';
 import type { Bus, GameEvents } from '../core/bus';
@@ -20,7 +21,7 @@ import { findPath, type NavGrid } from './pathfinding';
 import { countOf, createStack, isFull, push, take, type Stack } from './stack';
 
 export type UnlockId = UnlockDef['id'];
-export type FieldId = 'field1' | 'field2' | 'field3';
+export type { FieldId } from '../config/map';
 export type PressId = 'press1' | 'press2';
 
 export interface FieldState {
@@ -47,6 +48,8 @@ export interface TruckState {
   capacity: number;
   /** Secondi al ritorno; 0 = il camion è al suo posto. */
   away: number;
+  /** Falso finché il camion non è arrivato la prima volta (arriva con la Pressa 1, GDD sezione 8). */
+  arrived: boolean;
 }
 
 /** Mucchio di mazzette a terra. Solo il giocatore lo raccoglie (GDD sezione 6). */
@@ -111,6 +114,10 @@ export interface Phase1State {
   pileSeq: number;
   /** Vero quando gli ostacoli sono cambiati e la griglia va ricostruita. */
   navDirty: boolean;
+  /** Il Falò si compra (sblocco 4); prima gli Scarti restano nel cassone. */
+  bonfire: boolean;
+  /** Lotti aperti: si cammina solo lì (GDD sezione 4). */
+  lots: LotId[];
 }
 
 /** Ciò che una zona fa. Il giocatore le attiva tutte quelle entro il raggio. */
@@ -129,8 +136,7 @@ export type Zone = ZoneKind & { readonly key: string; readonly x: number; readon
 const FIELD_IDS: readonly FieldId[] = ['field1', 'field2', 'field3'];
 
 export function fieldMat(id: FieldId): MapPoint {
-  const f = FIELD_PLOTS.find((p) => p.id === id)!;
-  return { x: f.x, y: f.y - FIELD_MAT_OFFSET };
+  return FIELD_PLOTS.find((p) => p.id === id)!.mat;
 }
 
 export function createPhase1(cfg: Phase1Config = BALANCE.phase1): Phase1State {
@@ -138,9 +144,10 @@ export function createPhase1(cfg: Phase1Config = BALANCE.phase1): Phase1State {
     cash: 0,
     earned: 0,
     stack: createStack(cfg.stack.capacity),
-    fields: FIELD_IDS.map((id) => ({ id, unlocked: id === 'field1', ready: 0, timer: 0 })),
-    presses: PRESSES.map((p) => ({ id: p.id, unlocked: p.id === 'press1', leaves: 0, pastes: 0, scraps: 0, timer: 0, pastesSinceScrap: 0 })),
-    truck: { load: 0, capacity: cfg.truck.capacity, away: 0 },
+    // Il lotto 1 è vuoto: ogni stazione si compra (GDD sezione 4).
+    fields: FIELD_IDS.map((id) => ({ id, unlocked: false, ready: 0, timer: 0 })),
+    presses: PRESSES.map((p) => ({ id: p.id, unlocked: false, leaves: 0, pastes: 0, scraps: 0, timer: 0, pastesSinceScrap: 0 })),
+    truck: { load: 0, capacity: cfg.truck.capacity, away: 0, arrived: false },
     piles: [{ id: 'gift', x: GIFT_SPOT.x, y: GIFT_SPOT.y, value: cfg.gift }],
     nextUnlock: 0,
     padPaid: 0,
@@ -152,6 +159,8 @@ export function createPhase1(cfg: Phase1Config = BALANCE.phase1): Phase1State {
     burned: 0,
     pileSeq: 0,
     navDirty: false,
+    bonfire: false,
+    lots: ['lot1'],
   };
 }
 
@@ -180,8 +189,8 @@ export function activeZones(s: Phase1State, cfg: Phase1Config = BALANCE.phase1):
     out.push({ kind: 'pressOutput', press: p.id, key: `out:${p.id}`, ...l.output });
     out.push({ kind: 'pressScrap', press: p.id, key: `scrap:${p.id}`, ...l.scrap });
   }
-  out.push({ kind: 'bonfire', key: 'bonfire', ...BONFIRE.mat });
-  out.push({ kind: 'truck', key: 'truck', ...TRUCK.deposit });
+  if (s.bonfire) out.push({ kind: 'bonfire', key: 'bonfire', ...BONFIRE.mat });
+  if (s.truck.arrived) out.push({ kind: 'truck', key: 'truck', ...TRUCK.deposit });
   for (const pile of s.piles) out.push({ kind: 'cash', pile: pile.id, key: `cash:${pile.id}`, x: pile.x, y: pile.y });
   const next = nextUnlockDef(s, cfg);
   if (next) out.push({ kind: 'pad', unlock: next.id, key: `pad:${next.id}`, ...UNLOCK_PADS[next.id] });
@@ -227,6 +236,7 @@ function stepStations(s: Phase1State, dt: number, cfg: Phase1Config, bus: Bus<Ga
     t.away = Math.max(0, t.away - dt);
     if (t.away === 0) {
       t.load = 0;
+      t.arrived = true;
       bus.emit('truck:return', {});
     }
   }
@@ -283,7 +293,7 @@ function transferOnce(s: Phase1State, z: Zone, stack: Stack, cfg: Phase1Config, 
     }
     case 'truck': {
       const t = s.truck;
-      if (t.away > 0 || t.load >= t.capacity || !take(stack, 'paste')) return false;
+      if (!t.arrived || t.away > 0 || t.load >= t.capacity || !take(stack, 'paste')) return false;
       t.load++;
       addToPile(s, 'truck', TRUCK.cash, cfg.truck.pastePrice);
       s.sold++;
@@ -301,7 +311,7 @@ function transferOnce(s: Phase1State, z: Zone, stack: Stack, cfg: Phase1Config, 
 
 /** Le Foglie in mano non hanno dove andare: ogni Pressa aperta ha l'ingresso pieno. */
 export function leavesStuck(s: Phase1State, cfg: Phase1Config = BALANCE.phase1): boolean {
-  return s.presses.every((p) => !p.unlocked || p.leaves >= cfg.press.inCap);
+  return s.presses.some((p) => p.unlocked) && s.presses.every((p) => !p.unlocked || p.leaves >= cfg.press.inCap);
 }
 
 /** Mani piene e niente da posare: l'unica via è svuotarle al Falò. */
@@ -310,8 +320,8 @@ export function handsStuck(s: Phase1State, cfg: Phase1Config = BALANCE.phase1): 
   const leaves = countOf(s.stack, 'leaf');
   const pastes = countOf(s.stack, 'paste');
   const scraps = countOf(s.stack, 'scrap');
-  const truckOpen = s.truck.away === 0 && s.truck.load < s.truck.capacity;
-  return scraps === 0 && !(pastes > 0 && truckOpen) && (leaves === 0 || leavesStuck(s, cfg)) && !(pastes > 0 && !truckOpen && leaves === 0);
+  const truckOpen = s.truck.arrived && s.truck.away === 0 && s.truck.load < s.truck.capacity;
+  return s.bonfire && scraps === 0 && !(pastes > 0 && truckOpen) && (leaves === 0 || leavesStuck(s, cfg)) && !(pastes > 0 && !truckOpen && leaves === 0);
 }
 
 function addToPile(s: Phase1State, id: string, at: MapPoint, value: number): void {
@@ -330,7 +340,7 @@ export function insideZone(z: Zone, pos: MapPoint, cfg: Phase1Config = BALANCE.p
   if (z.kind !== 'fieldPickup') return false;
   // Come nel genere, camminare tra le piante le raccoglie (My Mini Mart, Farm Land).
   const f = FIELD_PLOTS.find((p) => p.id === z.field)!;
-  const h = FIELD_SIZE / 2;
+  const h = FIELD_SIZE / 2 + 0.2;
   return Math.abs(pos.x - f.x) <= h && Math.abs(pos.y - f.y) <= h;
 }
 
@@ -396,6 +406,17 @@ function applyUnlock(s: Phase1State, def: UnlockDef, cfg: Phase1Config, bus: Bus
     s.navDirty = true;
   } else if (def.kind === 'press') {
     s.presses.find((p) => p.id === def.id)!.unlocked = true;
+    s.navDirty = true;
+    // Con la prima Pressa arriva il camion di El Gordo: clacson e arrivo lungo la strada.
+    if (!s.truck.arrived && s.truck.away === 0) {
+      s.truck.away = cfg.truck.firstArrival;
+      bus.emit('truck:arriving', {});
+    }
+  } else if (def.kind === 'bonfire') {
+    s.bonfire = true;
+    s.navDirty = true;
+  } else if (def.kind === 'zone') {
+    if (!s.lots.includes('lot2')) s.lots.push('lot2');
     s.navDirty = true;
   } else {
     s.workers.push(createWorker(def.id, pad, cfg));
@@ -646,41 +667,30 @@ export function objective(s: Phase1State, cfg: Phase1Config = BALANCE.phase1): O
   const gift = s.piles.find((p) => p.id === 'gift');
   if (gift) return { text: 'Raccogli i soldi!', target: gift };
   const next = nextUnlockDef(s, cfg);
-  const press1 = PRESSES[0]!;
-  // Il primo sblocco si compra subito con il regalo.
-  if (next && s.nextUnlock === 0 && s.cash + s.padPaid >= next.cost) {
-    return { text: `Compra ${next.label}!`, target: UNLOCK_PADS[next.id] };
-  }
-  // Mazzette a terra: vanno raccolte.
+  const buy = next ? { text: next.goal, target: UNLOCK_PADS[next.id] } : null;
+  // Con i soldi in tasca la freccia va al prossimo tappetino: si costruisce un pezzo alla volta (PS10, PS12).
+  if (buy && next && s.cash + s.padPaid >= next.cost) return buy;
+  const onGround = s.piles.reduce((n, p) => n + p.value, 0);
   const pile = s.piles.find((p) => p.value > 0);
-  if (pile && s.sold > 0 && s.earned === 0) return { text: 'Prendi i soldi!', target: pile };
-  // Cassone degli Scarti pieno: la Pressa è ferma.
+  if (pile && ((buy && next && s.cash + s.padPaid + onGround >= next.cost) || (s.sold > 0 && s.earned === 0))) {
+    return { text: 'Prendi i soldi!', target: pile };
+  }
+  // Disturbi locali: Scarti in mano, cassone pieno, mani piene, lavoratore addormentato.
+  if (countOf(s.stack, 'scrap') > 0 && s.bonfire) return { text: 'Brucia gli scarti!', target: BONFIRE.mat };
   const full = s.presses.find((p) => p.unlocked && p.scraps >= cfg.press.scrapCap);
-  if (countOf(s.stack, 'scrap') > 0) return { text: 'Brucia gli scarti!', target: BONFIRE.mat };
+  if (full && s.bonfire) return { text: 'Brucia gli scarti!', target: PRESSES.find((p) => p.id === full.id)!.scrap };
   if (handsStuck(s, cfg)) return { text: 'Svuota le mani!', target: BONFIRE.mat };
-  if (full) return { text: 'Brucia gli scarti!', target: PRESSES.find((p) => p.id === full.id)!.scrap };
   const sleeper = s.workers.find((w) => w.asleep);
   if (sleeper) return { text: 'Sveglia il raccoglitore!', target: sleeper };
-  // Copione della prima vendita: Campo → Pressa → camion.
-  if (s.sold === 0) {
-    if (countOf(s.stack, 'paste') > 0) return { text: 'Vendi a El Gordo!', target: TRUCK.deposit };
-    if (s.presses.some((p) => p.pastes > 0)) return { text: 'Prendi la Pasta!', target: press1.output };
-    if (countOf(s.stack, 'leaf') > 0) return { text: 'Porta le foglie qui!', target: press1.deposit };
-    return { text: 'Raccogli le foglie!', target: fieldMat('field1') };
-  }
-  const buy = next ? { text: next.kind === 'worker' ? 'Assumi un raccoglitore!' : `Compra ${next.label}!`, target: UNLOCK_PADS[next.id] } : null;
-  // Con i soldi per il prossimo sblocco (in tasca o a terra), la freccia va al tappetino.
-  const onGround = s.piles.reduce((n, p) => n + p.value, 0);
-  if (buy && next && s.cash + s.padPaid >= next.cost) return buy;
-  if (buy && next && s.cash + s.padPaid + onGround >= next.cost) {
-    const pileTarget = s.piles.find((p) => p.value > 0)!;
-    return { text: 'Prendi i soldi!', target: pileTarget };
-  }
-  // Altrimenti guida il ciclo che li fa guadagnare: è il passo successivo vicino (GDD sezione 1, pilastro 2).
-  if (buy) {
-    if (countOf(s.stack, 'paste') > 0 && s.truck.away === 0) return { text: 'Vendi a El Gordo!', target: TRUCK.deposit };
+  // Altrimenti il ciclo che fa guadagnare: Foglie → Pressa → camion (pilastro 2: il passo vicino).
+  const pressOpen = s.presses.some((p) => p.unlocked);
+  const fieldOpen = s.fields.some((f) => f.unlocked);
+  if (pressOpen && fieldOpen) {
+    if (countOf(s.stack, 'paste') > 0 && s.truck.arrived && s.truck.away === 0) return { text: 'Vendi a El Gordo!', target: TRUCK.deposit };
     const out = s.presses.find((p) => p.unlocked && p.pastes > 0);
-    if (out && countOf(s.stack, 'leaf') === 0 && !isFull(s.stack)) return { text: 'Prendi la Pasta!', target: PRESSES.find((p) => p.id === out.id)!.output };
+    if (out && !isFull(s.stack) && (countOf(s.stack, 'leaf') === 0 || leavesStuck(s, cfg))) {
+      return { text: 'Prendi la Pasta!', target: PRESSES.find((p) => p.id === out.id)!.output };
+    }
     if (countOf(s.stack, 'leaf') > 0 && !leavesStuck(s, cfg)) {
       const press = s.presses.filter((p) => p.unlocked).sort((a, b) => a.leaves - b.leaves)[0]!;
       return { text: 'Porta le foglie qui!', target: PRESSES.find((p) => p.id === press.id)!.deposit };
@@ -688,5 +698,6 @@ export function objective(s: Phase1State, cfg: Phase1Config = BALANCE.phase1): O
     const field = s.fields.filter((f) => f.unlocked).sort((a, b) => b.ready - a.ready)[0]!;
     return { text: 'Raccogli le foglie!', target: fieldMat(field.id) };
   }
+  if (buy) return buy;
   return { text: 'Fase 1 completata!', target: null };
 }

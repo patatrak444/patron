@@ -65,7 +65,7 @@ export class ZoneMats {
   }
 }
 
-export type PadIcon = 'field' | 'worker' | 'press';
+export type PadIcon = 'field' | 'worker' | 'press' | 'bonfire' | 'zone';
 
 const FONT = '"Baloo 2", "Trebuchet MS", Arial, sans-serif';
 
@@ -78,6 +78,7 @@ export class UnlockPad {
   private readonly canvas = document.createElement('canvas');
   private readonly texture: THREE.CanvasTexture;
   private readonly ring: THREE.Mesh;
+  private readonly inner = new THREE.Group();
   private key = '';
   private progress = -1;
   private time = 0;
@@ -101,24 +102,30 @@ export class UnlockPad {
     );
     this.ring.position.y = 0.04;
     this.ring.renderOrder = 3;
-    this.root.add(plane, this.ring);
+    this.inner.add(plane, this.ring);
+    this.root.add(this.inner);
     this.root.visible = false;
   }
 
-  /** `price` null nasconde il tappetino. */
-  update(at: { x: number; z: number } | null, icon: PadIcon, price: number, paid: number, dt: number): void {
+  /**
+   * `at` null nasconde il tappetino. Con `ghost` (lato in metri) è la sagoma dell'oggetto futuro:
+   * impronta chiara con le parentesi agli angoli e il prezzo nel fumetto (skill arcade-idle, PS11).
+   */
+  update(at: { x: number; z: number } | null, icon: PadIcon, price: number, paid: number, dt: number, ghost?: number): void {
     this.root.visible = at !== null;
     if (!at) return;
     this.time += dt;
     this.root.position.set(at.x, 0, at.z);
+    const side = ghost ? Math.max(2.1, ghost + 0.3) : 2.1;
+    this.inner.scale.set(side / 2.1, 1, side / 2.1);
     // Respira piano: è il prossimo passo (GDD sezione 9).
     const s = 1 + 0.035 * Math.sin(this.time * 4);
     this.root.scale.set(s, 1, s);
     const left = Math.max(0, price - paid);
-    const key = `${icon}:${left}`;
+    const key = `${icon}:${left}:${ghost ?? 0}`;
     if (key !== this.key) {
       this.key = key;
-      this.draw(icon, left);
+      this.draw(icon, left, ghost !== undefined);
     }
     const p = price > 0 ? paid / price : 0;
     if (Math.abs(p - this.progress) > 0.005) {
@@ -129,7 +136,7 @@ export class UnlockPad {
     }
   }
 
-  private draw(icon: PadIcon, price: number): void {
+  private draw(icon: PadIcon, price: number, ghost: boolean): void {
     const ctx = this.canvas.getContext('2d')!;
     const W = 256;
     ctx.clearRect(0, 0, W, W);
@@ -144,14 +151,43 @@ export class UnlockPad {
       ctx.arcTo(inset, inset, W - inset, inset, r);
       ctx.closePath();
     };
-    path();
-    ctx.fillStyle = 'rgba(242,166,90,0.92)';
-    ctx.fill();
-    ctx.setLineDash([22, 14]);
-    ctx.lineWidth = 9;
-    ctx.strokeStyle = '#ffffff';
-    ctx.stroke();
-    ctx.setLineDash([]);
+    if (ghost) {
+      // Sagoma: velo bianco e parentesi agli angoli, come i posti vuoti di Monkey Mart.
+      path();
+      ctx.fillStyle = 'rgba(255,255,255,0.28)';
+      ctx.fill();
+      ctx.lineWidth = 14;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = '#ffffff';
+      const a = 16;
+      const b = 70;
+      for (const [x, y, dx, dy] of [
+        [a, a, 1, 1],
+        [W - a, a, -1, 1],
+        [a, W - a, 1, -1],
+        [W - a, W - a, -1, -1],
+      ] as const) {
+        ctx.beginPath();
+        ctx.moveTo(x, y + dy * b);
+        ctx.lineTo(x, y);
+        ctx.lineTo(x + dx * b, y);
+        ctx.stroke();
+      }
+      // Fumetto del prezzo: pillola arancio al centro.
+      ctx.fillStyle = 'rgba(242,140,60,0.95)';
+      ctx.beginPath();
+      ctx.roundRect(40, 60, W - 80, 150, 40);
+      ctx.fill();
+    } else {
+      path();
+      ctx.fillStyle = 'rgba(242,166,90,0.92)';
+      ctx.fill();
+      ctx.setLineDash([22, 14]);
+      ctx.lineWidth = 9;
+      ctx.strokeStyle = '#ffffff';
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
 
     // Icona bianca di ciò che si sblocca.
     ctx.fillStyle = '#ffffff';
@@ -179,6 +215,34 @@ export class UnlockPad {
       ctx.beginPath();
       ctx.ellipse(cx, cy - 18, 24, 18, 0, Math.PI, 0);
       ctx.fill();
+    } else if (icon === 'bonfire') {
+      // Fiamma a goccia con il cuore più piccolo.
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - 46);
+      ctx.quadraticCurveTo(cx + 40, cy, cx + 26, cy + 30);
+      ctx.quadraticCurveTo(cx, cy + 48, cx - 26, cy + 30);
+      ctx.quadraticCurveTo(cx - 40, cy, cx, cy - 46);
+      ctx.fill();
+    } else if (icon === 'zone') {
+      // Quattro frecce verso l'esterno: la Hacienda si allarga.
+      ctx.lineWidth = 12;
+      ctx.lineCap = 'round';
+      for (const [dx, dy] of [
+        [1, 1],
+        [-1, 1],
+        [1, -1],
+        [-1, -1],
+      ] as const) {
+        const x = cx + dx * 40;
+        const y = cy + dy * 34;
+        ctx.beginPath();
+        ctx.moveTo(cx + dx * 12, cy + dy * 10);
+        ctx.lineTo(x, y);
+        ctx.moveTo(x - dx * 22, y);
+        ctx.lineTo(x, y);
+        ctx.lineTo(x, y - dy * 22);
+        ctx.stroke();
+      }
     } else {
       // Pressa: basamento, telaio e pistone.
       ctx.fillRect(cx - 44, cy + 18, 88, 22);

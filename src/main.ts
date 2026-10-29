@@ -211,7 +211,10 @@ async function boot(root: HTMLElement): Promise<void> {
     marker.update(dest, frameSeconds);
     navOverlay.update({ x, y }, p.path);
 
-    camera.follow(w.x, w.z);
+    // Festa dello sblocco: un attimo di primo piano sull'oggetto nuovo, poi si torna al giocatore.
+    const festa = view.festaFocus();
+    camera.closeUp(festa ? BALANCE.feel.festaWidth : null);
+    camera.follow(festa?.x ?? w.x, festa?.z ?? w.z);
     camera.update(frameSeconds);
     lights.follow(w.x, w.z);
     fader.update(camera.camera, player.root.position, frameSeconds);

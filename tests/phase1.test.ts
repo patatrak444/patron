@@ -261,6 +261,6 @@ describe('frase dell\'obiettivo (GDD 8)', () => {
     expect(objective(s).text).toBe('Raccogli le foglie!');
     s.cash = 30;
     expect(objective(s).text).toBe('Assumi un raccoglitore!');
-    for (const u of cfg.unlocks) expect(`Compra ${u.label}!`.split(' ').length).toBeLessThanOrEqual(4);
+    for (const u of cfg.unlocks) expect(u.goal.split(' ').length).toBeLessThanOrEqual(4);
   });
 });
