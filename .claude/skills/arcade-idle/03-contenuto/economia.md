@@ -21,3 +21,10 @@ Fonti: le righe "Contenuto" delle schede in `../01-catalogo/giochi/`, con gli in
 ## Pubblicità
 
 Tutti gli 11 hanno pubblicità; Supercent ricava circa 70% dalla pubblicità e 30% dagli acquisti. L'acquisto più venduto è quasi sempre "togli pubblicità" (3,99–9,99 $). Per un gioco senza pubblicità le stesse spinte possono diventare premi di gioco.
+
+## Misurato sui video (`misure-video.md`)
+
+- Soglie del livello del locale: 15, 24, 39, 60, 81, 114, 141, 165 … 237, 270 stelle ([pizza-ready], [burger-please]): crescita di circa 1,2–1,4 volte per livello; le stelle si guadagnano costruendo e potenziando.
+- Potenziamenti delle postazioni a scelta fra tre schede: +7% velocità (+3 stelle) oppure "HOT" +20% velocità e +5% prezzo (+4 stelle) per gemme o pubblicità ([burger-please]).
+- Ordine speciale a tempo: 19 hamburger in 4 min 13 s, premio 500 ([burger-please]).
+- Pass a tre livelli (gratis, Manager, CEO); premi gratuiti 80 soldi, 2 gemme, 200 soldi ai livelli 4–6 ([pizza-ready]).

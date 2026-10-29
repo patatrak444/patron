@@ -14,3 +14,8 @@ Fonti: le righe "Contenuto" delle schede in `../01-catalogo/giochi/`, con gli in
 ## Da misurare sui video
 
 Il copione minuto per minuto dei primi 5–10 minuti: primo riquadro e suo costo, momento della prima assunzione, prima apparizione di un sistema nuovo.
+
+## Misurato sui video (`misure-video.md`)
+
+- [pizza-ready], economia reale: pila di soldi davanti alla porta → tavolo da 5 → forno → bancone da 100 → primo incasso entro **1 minuto**; primo lavoratore a **circa 5 minuti**; livello 4 e uffici dei potenziamenti a **11 minuti**.
+- Ogni passo ha una riga di testo in alto ("Create a table!", "Clean the table!") e una freccia rosa sul riquadro: 3–4 parole, mai di più.

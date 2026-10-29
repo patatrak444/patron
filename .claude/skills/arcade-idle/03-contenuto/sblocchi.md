@@ -14,3 +14,9 @@ Fonti: le righe "Contenuto" delle schede in `../01-catalogo/giochi/`, con gli in
 - Unico dato pubblico: [farm-land] parte con 7 monete, primo terreno 7, secondo 20 (il primo sblocco costa esattamente quanto si ha).
 - Ordine completo della prima mappa: [my-mini-mart], 9 postazioni.
 - Distanza tra uno sblocco e l'altro: non pubblicata, da misurare sui video.
+
+## Misurato sui video (`misure-video.md`)
+
+- [pizza-ready] e [burger-please]: tavolo **5**, macchina **50**, bancone **100**, nuova zona **100**, riquadri successivi 200–250, caffetteria 700.
+- Il primo sblocco costa quasi niente, il secondo tutto quello che si ha: il giocatore spende appena guadagna (in 24 minuti mai più di 550 in tasca).
+- [prison-life]: le zone grandi si aprono raggiunto un livello (lucchetto con "LEVEL n"), non con i soldi.

@@ -15,3 +15,8 @@ Fonti: le righe "Contenuto" delle schede in `../01-catalogo/giochi/`, con gli in
 - [farm-land]: primo lavoratore 60 monete (dopo 7 e 20 dei terreni).
 - [my-perfect-hotel]: il secondo livello delle pulizie si ripaga in meno di 10 minuti di gioco attivo (guida non ufficiale).
 - Minuto della prima assunzione negli altri: non pubblicato.
+
+## Misurato sui video (`misure-video.md`)
+
+- [pizza-ready]: primo lavoratore (cassiere) a **circa 5 minuti**, al livello 3.
+- [burger-please]: la prima assunzione nell'ufficio del personale è **gratis**; velocità e capacità dei lavoratori costano 250 al primo livello; i lavoratori portano 4–5 pezzi.

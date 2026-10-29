@@ -21,3 +21,8 @@ Fonti: le righe "Contenuto" delle schede in `../01-catalogo/giochi/`, con gli in
 | [dreamdale] | almeno 10 isole |
 | [my-perfect-hotel] | circa 8–10 hotel più eventi |
 | [my-mini-mart] | un mercato ogni 30–40 minuti |
+
+## Misurato sui video (`misure-video.md`)
+
+- [pizza-ready]: livello 2 a 2 minuti, 3 a 5, 4 a 11, livello 5 non ancora raggiunto a 24 minuti; la prima mappa dura più di 24 minuti.
+- [prison-life]: finita la prima prigione si apre una cartina degli Stati Uniti da conquistare stato per stato.

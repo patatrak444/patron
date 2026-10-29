@@ -22,3 +22,8 @@ Fonti: le righe "Contenuto" delle schede in `../01-catalogo/giochi/`, con gli in
 ## Da misurare sui video
 
 Capienza a ogni livello, se la pila mescola oggetti diversi, cosa succede a pila piena.
+
+## Misurato sui video (`misure-video.md`)
+
+- [pizza-ready]: 1 pizza all'inizio, circa 3 a 20 minuti; il forno pieno ne tiene circa 5 (MAX).
+- [burger-please]: capacità del giocatore a 1.000 al primo livello (contro 250 per quella dei lavoratori); a potenziamenti avanzati la pila supera in altezza il personaggio.

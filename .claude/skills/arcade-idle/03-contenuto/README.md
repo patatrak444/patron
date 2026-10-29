@@ -1,6 +1,6 @@
 # Contenuto: come funziona il genere
 
-Compilata nella fase 3. Un file per campo, stessa struttura dei file di forma. `rapporto-ricerca.md` è il rapporto della ricerca che ha alimentato le schede; `fonti/` contiene le note con l'indirizzo di ogni dato. Quasi nessun numero di bilanciamento è pubblico: ogni file dice cosa resta da misurare sui video delle partite.
+Compilata nella fase 3. Un file per campo, stessa struttura dei file di forma. `rapporto-ricerca.md` è il rapporto della ricerca che ha alimentato le schede; `fonti/` contiene le note con l'indirizzo di ogni dato. Quasi nessun numero di bilanciamento è pubblico: ogni file dice cosa resta da misurare sui video delle partite. `misure-video.md` raccoglie i numeri letti su tre video (Pizza Ready con economia reale, Burger Please e Prison Life solo per i prezzi).
 
 | Codice | File | Cosa si osserva |
 | --- | --- | --- |
