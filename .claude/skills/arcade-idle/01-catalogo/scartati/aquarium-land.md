@@ -1,4 +1,6 @@
-# Aquarium Land – Fishbowl World
+# Aquarium Land – Fishbowl World (scartato)
+
+**Motivo dello scarto:** meno download dei giochi tenuti (50M+) e 19/30, sotto la soglia; forma generica.
 
 **Codice scheda:** `[aquarium-land]`
 
@@ -14,6 +16,15 @@
 | Ambiente | acquari |
 | Perché è nel catalogo | n. 8 per download del genere nel 2024 [Udonis]; da verificare se ha il personaggio guidato |
 | Pagina Google Play | https://play.google.com/store/apps/details?id=com.happykamp.aquariumland |
+
+## Valutazione (censimento)
+
+Griglia in `../../00-metodo/valutazione.md`.
+
+| Criterio | Voci | Totale | Prove |
+| --- | --- | --- | --- |
+| Contenuto | Ca 2 · Cb 2 · Cc 2 · Cd 2 · Ce 2 | **10/15** | pesca, vasche, biglietteria; potenziamenti; 4,31 |
+| Forma | Fa 2 · Fb 1 · Fc 3 · Fd 1 · Fe 2 | **9/15** | ambiente affollato; omini generici; grande torre di soldi; schermate senza testo; icona poco chiara |
 
 ## Forma (fase 2)
 

@@ -14,5 +14,6 @@
 | --- | --- |
 | Idle Lumber Empire (AppQuantum, 100M+) | Idle classico a tocchi: niente personaggio da guidare |
 | Office Fever (Rollic) | Non più disponibile su Google Play (ottobre 2026) |
+| Paper Delivery Boy, Aquarium Land, Dino Universe | Scartati dopo la valutazione: vedi `../01-catalogo/classifica.md` |
 
 **Due famiglie.** Le fonti distinguono un arcade idle "tranquillo" (costruire e gestire senza rischio) e uno "ostile" (costruire sotto minaccia, esplorare) ([Gamigion](https://www.gamigion.com/inside-supercent-south-koreas-idle-arcade-powerhouse/)). PATRÓN sta in mezzo: filiera tranquilla con il rischio del Calore. Il catalogo le tiene entrambe.

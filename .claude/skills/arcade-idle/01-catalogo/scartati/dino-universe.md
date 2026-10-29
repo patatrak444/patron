@@ -1,6 +1,8 @@
-# Paper Delivery Boy
+# Dino Universe (scartato)
 
-**Codice scheda:** `[paper-delivery-boy]`
+**Motivo dello scarto:** fuori dallo stile del genere: grafica realistica (forma 5/15).
+
+**Codice scheda:** `[dino-universe]`
 
 ## Dati
 
@@ -8,12 +10,21 @@
 | --- | --- |
 | Studio | Supercent |
 | Download Google Play | 10M+ |
-| Valutazione | 4,4 su 5 (233 k voti) |
-| Uscita | da verificare |
-| Famiglia | da verificare |
-| Ambiente | consegne in città |
-| Perché è nel catalogo | n. 6 per download del genere nel 2024 [Udonis]; da verificare se è arcade idle |
-| Pagina Google Play | https://play.google.com/store/apps/details?id=com.hg.paperdeliveryboy |
+| Valutazione | 4,4 su 5 (175 k voti) |
+| Uscita | aprile 2023 [Gamigion] |
+| Famiglia | ostile |
+| Ambiente | mondo preistorico all'aperto: caccia e nido |
+| Perché è nel catalogo | circa 17 M di download e 4 M$ di acquisti (AppMagic) [Gamigion] |
+| Pagina Google Play | https://play.google.com/store/apps/details?id=io.supercent.ageofdinosaurs |
+
+## Valutazione (censimento)
+
+Griglia in `../../00-metodo/valutazione.md`.
+
+| Criterio | Voci | Totale | Prove |
+| --- | --- | --- | --- |
+| Contenuto | Ca 2 · Cb 2 · Cc 3 · Cd 3 · Ce 3 | **13/15** | caccia, nido, evocazione di alleati; 4,43 con 175 k voti |
+| Forma | Fa 1 · Fb 0 · Fc 1 · Fd 2 · Fe 1 | **5/15** | grafica realistica con dinosauri dettagliati e foreste fotografiche: fuori dallo stile del genere; icona realistica |
 
 ## Forma (fase 2)
 
@@ -51,4 +62,4 @@ Codici dei campi in `../../03-contenuto/README.md`.
 ## Fonti della scheda
 
 - Pagina Google Play (letta il 29 ottobre 2026).
-- [Udonis, Idle Arcade](https://www.blog.udonis.co/mobile-marketing/mobile-games/arcade-idle)
+- [Gamigion, Inside Supercent](https://www.gamigion.com/inside-supercent-south-koreas-idle-arcade-powerhouse/)

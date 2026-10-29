@@ -15,6 +15,15 @@
 | Perché è nel catalogo | riferimento diretto: è nato come gioco per browser, come PATRÓN |
 | Pagina Google Play | https://play.google.com/store/apps/details?id=com.tinydobbins.monkeymart |
 
+## Valutazione (censimento)
+
+Griglia in `../../00-metodo/valutazione.md`.
+
+| Criterio | Voci | Totale | Prove |
+| --- | --- | --- | --- |
+| Contenuto | Ca 3 · Cb 3 · Cc 2 · Cd 2 · Ce 3 | **13/15** | banane, mais, galline, mucche, scaffali, cassa; staff; prima/dopo dell'espansione; 4,7 ma solo 25 k voti su Play |
+| Forma | Fa 3 · Fb 3 · Fc 3 · Fd 3 · Fe 3 | **15/15** | contorni e colori pieni, contatori 1/4 e 2/4, MAX; scimmie con molto carattere e cappelli che dicono il ruolo; montagne di soldi; titolo e didascalie, prima/dopo; icona con personaggio e soldi |
+
 ## Forma (fase 2)
 
 Una riga per campo; codici dei campi in `../../02-forma/README.md`.

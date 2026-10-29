@@ -15,6 +15,15 @@
 | Perché è nel catalogo | n. 4 per incassi del genere nel 2024 (AppMagic) [Udonis] |
 | Pagina Google Play | https://play.google.com/store/apps/details?id=com.dream.dale |
 
+## Valutazione (censimento)
+
+Griglia in `../../00-metodo/valutazione.md`.
+
+| Criterio | Voci | Totale | Prove |
+| --- | --- | --- | --- |
+| Contenuto | Ca 3 · Cb 2 · Cc 3 · Cd 3 · Ce 2 | **13/15** | pietra, legno, costruzione del villaggio, navi; missioni ("Build town hall"); sotterranei; 4,28 |
+| Forma | Fa 3 · Fb 3 · Fc 2 · Fd 3 · Fe 3 | **14/15** | isole luminose e pulite, missione sempre in alto, frecce; personaggi da fiaba; risorse a pile; didascalie su cartello; icona con personaggio |
+
 ## Forma (fase 2)
 
 Una riga per campo; codici dei campi in `../../02-forma/README.md`.

@@ -15,6 +15,15 @@
 | Perché è nel catalogo | n. 5 per download del genere nel 2024 (AppMagic) [Udonis] |
 | Pagina Google Play | https://play.google.com/store/apps/details?id=io.supercent.burgeridle |
 
+## Valutazione (censimento)
+
+Griglia in `../../00-metodo/valutazione.md`.
+
+| Criterio | Voci | Totale | Prove |
+| --- | --- | --- | --- |
+| Contenuto | Ca 3 · Cb 3 · Cc 2 · Cd 2 · Ce 3 | **13/15** | carne, tritacarne, patate, friggitrice, bancone; staff e potenziamenti; barra livello e gemme; 4,4 con 630 k voti |
+| Forma | Fa 3 · Fb 2 · Fc 3 · Fd 2 · Fe 3 | **13/15** | zone di sblocco con prezzo a terra; personaggi semplici; montagne di carne e patate, torri di hamburger con MAX, pile di soldi; poche didascalie; icona chiara |
+
 ## Forma (fase 2)
 
 Una riga per campo; codici dei campi in `../../02-forma/README.md`.

@@ -15,6 +15,15 @@
 | Perché è nel catalogo | n. 2 per download e per incassi del genere nel 2024 (AppMagic) [Udonis] |
 | Pagina Google Play | https://play.google.com/store/apps/details?id=com.master.hotelmaster |
 
+## Valutazione (censimento)
+
+Griglia in `../../00-metodo/valutazione.md`.
+
+| Criterio | Voci | Totale | Prove |
+| --- | --- | --- | --- |
+| Contenuto | Ca 3 · Cb 3 · Cc 3 · Cd 3 · Ce 3 | **15/15** | camere, pulizie, piscina, ristorante; staff; più hotel tematici ed eventi (Barbie, Halloween); 4,5 con 1,9 M voti |
+| Forma | Fa 3 · Fb 3 · Fc 2 · Fd 3 · Fe 3 | **14/15** | interfaccia ricca ma ordinata; personaggi illustrati con carattere; folla di clienti; didascalie con personaggi; icona con personaggio |
+
 ## Forma (fase 2)
 
 Una riga per campo; codici dei campi in `../../02-forma/README.md`.

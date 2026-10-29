@@ -15,6 +15,15 @@
 | Perché è nel catalogo | tema "trasgressivo" trattato in stile giocattolo: utile per PATRÓN |
 | Pagina Google Play | https://play.google.com/store/apps/details?id=io.supercent.prison |
 
+## Valutazione (censimento)
+
+Griglia in `../../00-metodo/valutazione.md`.
+
+| Criterio | Voci | Totale | Prove |
+| --- | --- | --- | --- |
+| Contenuto | Ca 3 · Cb 2 · Cc 2 · Cd 2 · Ce 1 | **10/15** | fabbrica di manette, divise, mensa, celle, ingresso dei detenuti; potenziamenti; 4,06 |
+| Forma | Fa 3 · Fb 2 · Fc 3 · Fd 2 · Fe 3 | **13/15** | percorsi disegnati a terra, icone sopra le zone, scale mobili; poliziotti e detenuti semplici; montagne di materiale e torri di pezzi; una didascalia ("Take in the prisoners"); icona chiara con due personaggi |
+
 ## Forma (fase 2)
 
 Una riga per campo; codici dei campi in `../../02-forma/README.md`.

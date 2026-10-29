@@ -15,6 +15,15 @@
 | Perché è nel catalogo | n. 4 per download del genere nel 2024 (AppMagic) [Udonis]; ambiente all'aperto come la valle di PATRÓN |
 | Pagina Google Play | https://play.google.com/store/apps/details?id=com.loltap.farmland |
 
+## Valutazione (censimento)
+
+Griglia in `../../00-metodo/valutazione.md`.
+
+| Criterio | Voci | Totale | Prove |
+| --- | --- | --- | --- |
+| Contenuto | Ca 3 · Cb 2 · Cc 2 · Cd 2 · Ce 3 | **12/15** | campi, mulino, animali, banco di vendita; potenziamenti; più colture; 4,5 con 848 k voti |
+| Forma | Fa 3 · Fb 2 · Fc 2 · Fd 1 · Fe 2 | **10/15** | isole di prato con sentieri e acqua, zone chiare; omini colorati semplici; risorse in pila poco visibili; schermate senza testo; icona generica |
+
 ## Forma (fase 2)
 
 Una riga per campo; codici dei campi in `../../02-forma/README.md`.

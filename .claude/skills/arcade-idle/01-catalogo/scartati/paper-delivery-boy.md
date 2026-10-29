@@ -1,6 +1,8 @@
-# Dino Universe
+# Paper Delivery Boy (scartato)
 
-**Codice scheda:** `[dino-universe]`
+**Motivo dello scarto:** fuori dal genere: niente filiera né stazioni, è un gioco di consegne a livelli; 17/30.
+
+**Codice scheda:** `[paper-delivery-boy]`
 
 ## Dati
 
@@ -8,12 +10,21 @@
 | --- | --- |
 | Studio | Supercent |
 | Download Google Play | 10M+ |
-| Valutazione | 4,4 su 5 (175 k voti) |
-| Uscita | aprile 2023 [Gamigion] |
-| Famiglia | ostile |
-| Ambiente | mondo preistorico all'aperto: caccia e nido |
-| Perché è nel catalogo | circa 17 M di download e 4 M$ di acquisti (AppMagic) [Gamigion] |
-| Pagina Google Play | https://play.google.com/store/apps/details?id=io.supercent.ageofdinosaurs |
+| Valutazione | 4,4 su 5 (233 k voti) |
+| Uscita | da verificare |
+| Famiglia | da verificare |
+| Ambiente | consegne in città |
+| Perché è nel catalogo | n. 6 per download del genere nel 2024 [Udonis]; da verificare se è arcade idle |
+| Pagina Google Play | https://play.google.com/store/apps/details?id=com.hg.paperdeliveryboy |
+
+## Valutazione (censimento)
+
+Griglia in `../../00-metodo/valutazione.md`.
+
+| Criterio | Voci | Totale | Prove |
+| --- | --- | --- | --- |
+| Contenuto | Ca 1 · Cb 1 · Cc 2 · Cd 2 · Ce 2 | **8/15** | solo consegna in bicicletta con pacchi impilati, livelli; traffico come pericolo; 4,4 ma niente filiera né stazioni |
+| Forma | Fa 2 · Fb 2 · Fc 2 · Fd 1 · Fe 2 | **9/15** | strade a livelli con barra in alto; personaggio in bici; pila di pacchi; schermate senza testo |
 
 ## Forma (fase 2)
 
@@ -51,4 +62,4 @@ Codici dei campi in `../../03-contenuto/README.md`.
 ## Fonti della scheda
 
 - Pagina Google Play (letta il 29 ottobre 2026).
-- [Gamigion, Inside Supercent](https://www.gamigion.com/inside-supercent-south-koreas-idle-arcade-powerhouse/)
+- [Udonis, Idle Arcade](https://www.blog.udonis.co/mobile-marketing/mobile-games/arcade-idle)

@@ -15,6 +15,15 @@
 | Perché è nel catalogo | n. 8 per incassi del genere nel 2024 (AppMagic) [Udonis] |
 | Pagina Google Play | https://play.google.com/store/apps/details?id=com.wasteland.heart |
 
+## Valutazione (censimento)
+
+Griglia in `../../00-metodo/valutazione.md`.
+
+| Criterio | Voci | Totale | Prove |
+| --- | --- | --- | --- |
+| Contenuto | Ca 3 · Cb 2 · Cc 3 · Cd 3 · Ce 0 | **11/15** | acqua, cibo, rottami, costruzione; mappa del mondo, villaggi da salvare; tempeste e nemici; 3,87 |
+| Forma | Fa 2 · Fb 3 · Fc 2 · Fd 3 · Fe 3 | **13/15** | deserto caldo e saturo; sopravvissuto con carattere; risorse in pila; didascalie grandi; icona con personaggio |
+
 ## Forma (fase 2)
 
 Una riga per campo; codici dei campi in `../../02-forma/README.md`.

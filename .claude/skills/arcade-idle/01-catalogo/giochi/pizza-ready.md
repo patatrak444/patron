@@ -15,6 +15,15 @@
 | Perché è nel catalogo | n. 1 per download del genere nel 2024, n. 7 per incassi (AppMagic) [Udonis] |
 | Pagina Google Play | https://play.google.com/store/apps/details?id=io.supercent.pizzaidle |
 
+## Valutazione (censimento)
+
+Griglia in `../../00-metodo/valutazione.md`.
+
+| Criterio | Voci | Totale | Prove |
+| --- | --- | --- | --- |
+| Contenuto | Ca 3 · Cb 3 · Cc 3 · Cd 2 · Ce 3 | **14/15** | forno, nastro, banco, tavoli, drive-in e consegne su due piani con scale mobili; schede "Machine upgrade" a livelli; mappa del mondo con città da sbloccare a prezzo (450, 720, 1.050); 4,4 con 2,9 M di voti |
+| Forma | Fa 3 · Fb 2 · Fc 3 · Fd 2 · Fe 3 | **13/15** | oggetti enormi (pizza grande come il personaggio), freccia UPGRADE a terra, prezzi sopra le zone; omini semplici con cappellino; torri di scatole e montagne di pizze; schermate con poche didascalie; icona con personaggio e pizza chiarissima |
+
 ## Forma (fase 2)
 
 Una riga per campo; codici dei campi in `../../02-forma/README.md`.

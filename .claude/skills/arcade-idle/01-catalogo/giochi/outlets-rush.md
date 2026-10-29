@@ -15,6 +15,15 @@
 | Perché è nel catalogo | n. 3 per download e n. 9 per incassi del genere nel 2024 (AppMagic) [Udonis] |
 | Pagina Google Play | https://play.google.com/store/apps/details?id=com.corestudios.storemanagementidle |
 
+## Valutazione (censimento)
+
+Griglia in `../../00-metodo/valutazione.md`.
+
+| Criterio | Voci | Totale | Prove |
+| --- | --- | --- | --- |
+| Contenuto | Ca 3 · Cb 2 · Cc 2 · Cd 2 · Ce 2 | **11/15** | scarpe e vestiti: deposito, nastro, scaffali, magazzino, cassa, più piani; potenziamenti; 4,35 |
+| Forma | Fa 3 · Fb 2 · Fc 3 · Fd 1 · Fe 3 | **12/15** | negozio ordinato e leggibile; personaggi anonimi; montagne di scarpe colorate; schermate senza testo; icona chiara |
+
 ## Forma (fase 2)
 
 Una riga per campo; codici dei campi in `../../02-forma/README.md`.

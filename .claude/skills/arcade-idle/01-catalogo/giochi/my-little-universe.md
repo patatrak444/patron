@@ -15,6 +15,15 @@
 | Perché è nel catalogo | n. 6 per incassi del genere nel 2024 (AppMagic) [Udonis] |
 | Pagina Google Play | https://play.google.com/store/apps/details?id=com.savetheworld.game |
 
+## Valutazione (censimento)
+
+Griglia in `../../00-metodo/valutazione.md`.
+
+| Criterio | Voci | Totale | Prove |
+| --- | --- | --- | --- |
+| Contenuto | Ca 3 · Cb 3 · Cc 3 · Cd 3 · Ce 3 | **15/15** | miniere, falegnameria, raffineria, costruzione; lavoratori; pianeti, livelli, puzzle; nemici; 4,46 con 693 k voti |
+| Forma | Fa 2 · Fb 3 · Fc 2 · Fd 1 · Fe 3 | **11/15** | mondi a esagoni ricchi ma scuri e affollati; personaggio con carattere; cristalli e risorse; schermate senza testo; icona forte |
+
 ## Forma (fase 2)
 
 Una riga per campo; codici dei campi in `../../02-forma/README.md`.

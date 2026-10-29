@@ -15,6 +15,15 @@
 | Perché è nel catalogo | citato come titolo di riferimento del genere [Udonis] |
 | Pagina Google Play | https://play.google.com/store/apps/details?id=com.KisekiGames.smart |
 
+## Valutazione (censimento)
+
+Griglia in `../../00-metodo/valutazione.md`.
+
+| Criterio | Voci | Totale | Prove |
+| --- | --- | --- | --- |
+| Contenuto | Ca 3 · Cb 3 · Cc 2 · Cd 2 · Ce 1 | **11/15** | campi, animali, scaffali, forno, cassa; "Manage staff" con assunzione a prezzo; livelli; 3,9 |
+| Forma | Fa 3 · Fb 3 · Fc 2 · Fd 3 · Fe 3 | **14/15** | contorni neri in stile cartone, contatori 0/2 sopra le stazioni, frecce gialle; personaggi a cupola colorati; MAX sulle pile; didascalie grandi ("Grow fresh crops"); icona chiara |
+
 ## Forma (fase 2)
 
 Una riga per campo; codici dei campi in `../../02-forma/README.md`.
