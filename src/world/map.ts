@@ -128,7 +128,7 @@ export function createValley(assets: Assets): Valley {
   });
   const desk = placeAt(bakeGroup(createDesk()), { x: 28, y: 26.4 });
   const officeTree = placeAt(createSingle(assets.props.tree_oak, 5.5, 0.6), { x: 30, y: 28 });
-  const bonfire = placeAt(createBonfire(), BONFIRE);
+  const bonfire = placeAt(bakeGroup(createBonfire()), BONFIRE);
   root.add(hut, truck, desk, officeTree, bonfire);
   occluders.push(hut, truck, officeTree);
 

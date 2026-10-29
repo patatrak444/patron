@@ -65,7 +65,7 @@ export interface ScreenConfig {
 }
 
 export interface StackConfig {
-  /** Capacità iniziale della pila sulla schiena (GDD sezione 3). */
+  /** Capacità iniziale della pila tra le braccia (GDD sezione 3). */
   readonly capacity: number;
   /** Raggio di attivazione di un tappetino, in metri. */
   readonly zoneRadius: number;

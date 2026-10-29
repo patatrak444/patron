@@ -199,6 +199,8 @@ export function createBonfire(): THREE.Group {
     [0.02, -0.02, 0.45, 0xffe07a],
   ] as const) {
     const f = new THREE.Mesh(new THREE.ConeGeometry(0.2, h, 5), flat(c, c, 1.6));
+    // Con un nome restano separate quando il Falò si fonde in una mesh: si animano.
+    f.name = 'flame';
     f.position.set(x, 0.2 + h / 2, z);
     flames.add(f);
   }

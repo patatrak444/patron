@@ -1,4 +1,4 @@
-// La pila sulla schiena (GDD sezione 3): merci miste, si scarica per tipo ovunque sia nella pila.
+// La pila tra le braccia (GDD sezione 3): merci miste, si scarica per tipo ovunque sia nella pila.
 
 export type ItemKind = 'leaf' | 'paste' | 'scrap';
 

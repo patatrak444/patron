@@ -28,7 +28,7 @@ export interface Pose {
   readonly vz: number;
 }
 
-/** Pila sulla schiena con un ritardo a molla: in curva ondeggia (GDD sezione 10). */
+/** Pila tra le braccia con un ritardo a molla: in curva ondeggia (GDD sezione 10). */
 class StackSway {
   private sx = 0;
   private sz = 0;
@@ -40,10 +40,10 @@ class StackSway {
   }
 }
 
-function drawStack(batch: ItemBatch, items: readonly VisualItem[], pose: Pose, sway: { x: number; z: number }, back = 0.32, base = 0.78): void {
-  // Dietro la schiena: −z locale del modello.
-  const bx = pose.x - Math.sin(pose.rotY) * back;
-  const bz = pose.z - Math.cos(pose.rotY) * back;
+function drawStack(batch: ItemBatch, items: readonly VisualItem[], pose: Pose, sway: { x: number; z: number }, front = 0.5, base = 0.72): void {
+  // Davanti al petto, tra le braccia: +z locale del modello.
+  const bx = pose.x + Math.sin(pose.rotY) * front;
+  const bz = pose.z + Math.cos(pose.rotY) * front;
   let y = base;
   items.forEach((kind, i) => {
     const f = (i + 1) / Math.max(4, items.length);
@@ -291,7 +291,7 @@ export class Phase1View {
       v.character.update(pos.x, pos.z, w.facing, w.asleep ? 0 : w.speed, cfg.picker.speed, w.asleep ? 0 : dt);
       const rotY = v.character.root.rotation.y;
       const vel = { x: Math.cos(w.facing) * w.speed, z: -Math.sin(w.facing) * w.speed };
-      drawStack(this.batch, w.stack.items, { x: pos.x, z: pos.z, rotY, vx: vel.x, vz: vel.z }, v.sway.update(vel.x, vel.z, dt), 0.28, 0.7);
+      drawStack(this.batch, w.stack.items, { x: pos.x, z: pos.z, rotY, vx: vel.x, vz: vel.z }, v.sway.update(vel.x, vel.z, dt), 0.45, 0.66);
       v.zzz.sprite.position.set(pos.x, 2.0 + (w.asleep ? Math.sin(this.time * 2) * 0.08 : 0), pos.z);
       v.zzz.set(w.asleep ? 'Zzz' : w.waiting ? 'zzz' : null, w.asleep ? 'zzzBig' : 'zzz');
     });
@@ -312,11 +312,10 @@ export class Phase1View {
 
     // Falò: fiamme che tremano, fiammata a ogni sacco.
     this.flare = Math.max(0, this.flare - dt * 2.5);
-    const flames = this.valley.bonfire.getObjectByName('flames');
-    if (flames) {
-      const f = 1 + 0.08 * Math.sin(this.time * 17) + 0.05 * Math.sin(this.time * 29) + this.flare * 0.9;
-      flames.scale.set(1 + this.flare * 0.4, f, 1 + this.flare * 0.4);
-    }
+    const f = 1 + 0.08 * Math.sin(this.time * 17) + 0.05 * Math.sin(this.time * 29) + this.flare * 0.9;
+    this.valley.bonfire.traverse((o) => {
+      if (o.name === 'flame') o.scale.set(1 + this.flare * 0.4, f, 1 + this.flare * 0.4);
+    });
     void simTime;
   }
 

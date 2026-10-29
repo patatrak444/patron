@@ -93,9 +93,11 @@ export function createHud(root: HTMLElement): Hud {
       const cy = innerHeight / 2;
       const ang = Math.atan2(at.y - cy, at.x - cx);
       const m = 48;
+      // In alto c'è l'interfaccia: la freccia resta sotto.
+      const top = 110;
       // Proiezione del bersaglio sul bordo, con un margine.
       const sx = (cx - m) / Math.max(1e-6, Math.abs(Math.cos(ang)));
-      const sy = (cy - m) / Math.max(1e-6, Math.abs(Math.sin(ang)));
+      const sy = (Math.sin(ang) < 0 ? cy - top : cy - m) / Math.max(1e-6, Math.abs(Math.sin(ang)));
       const d = Math.min(sx, sy);
       edge.style.transform = `translate(${cx + Math.cos(ang) * d - 32}px, ${cy + Math.sin(ang) * d - 32}px) rotate(${ang + Math.PI}rad)`;
     },

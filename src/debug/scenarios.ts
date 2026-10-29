@@ -32,6 +32,7 @@ function unlockUpTo(state: GameState, upTo: number, bus: Bus<GameEvents>): void 
 export function prepareScenario(state: GameState, name: Scenario, bus: Bus<GameEvents>): void {
   const s = state.phase1;
   const press = PRESSES[0]!;
+  s.stack.items = [];
   switch (name) {
     case 'pila': {
       // Pila mista piena davanti alla Pressa 1, con Foglie in lavorazione e Paste pronte.

@@ -95,7 +95,10 @@ export class UnlockPad {
     );
     plane.position.y = 0.03;
     plane.renderOrder = 2;
-    this.ring = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ color: PALETTE.white, depthWrite: false }));
+    this.ring = new THREE.Mesh(
+      new THREE.BufferGeometry(),
+      new THREE.MeshBasicMaterial({ color: PALETTE.white, depthWrite: false, side: THREE.DoubleSide }),
+    );
     this.ring.position.y = 0.04;
     this.ring.renderOrder = 3;
     this.root.add(plane, this.ring);
@@ -121,7 +124,7 @@ export class UnlockPad {
     if (Math.abs(p - this.progress) > 0.005) {
       this.progress = p;
       this.ring.geometry.dispose();
-      this.ring.geometry = new THREE.RingGeometry(1.0, 1.14, 48, 1, Math.PI / 2, -p * Math.PI * 2).rotateX(-Math.PI / 2);
+      this.ring.geometry = new THREE.RingGeometry(1.0, 1.16, 48, 1, Math.PI / 2, Math.max(0.001, p) * Math.PI * 2).rotateX(-Math.PI / 2);
       this.ring.visible = p > 0;
     }
   }

@@ -41,10 +41,10 @@ export const VALLEY_CENTER: MapPoint = { x: VALLEY.width / 2, y: VALLEY.depth / 
  * non copre i piedi vista dalla camera a 55°: tra camera e giocatore non c'è nulla più alto delle
  * ginocchia (GDD sezione 10, inquadratura di partenza).
  */
-export const PLAYER_SPAWN: MapPoint = { x: 20, y: 6.6 };
+export const PLAYER_SPAWN: MapPoint = { x: 16.8, y: 7.2 };
 
 /** Il regalo di El Gordo: $20 in mazzette sul sentiero davanti alla capanna (GDD sezione 5). */
-export const GIFT_SPOT: MapPoint = { x: 22.8, y: 8.1 };
+export const GIFT_SPOT: MapPoint = { x: 18.4, y: 6.8 };
 
 /** I sei appezzamenti 4 × 4 m, due file da tre tra (8, 10) e (32, 18). Il Campo 1 è quello davanti alla capanna. */
 export const FIELD_PLOTS: readonly (MapPoint & { readonly id: string })[] = [
@@ -110,7 +110,7 @@ export const UNLOCK_PADS: Readonly<Record<'field2' | 'picker1' | 'field3' | 'pic
   field2: { x: 10, y: 9.3 },
   picker1: { x: 25.6, y: 6.2 },
   field3: { x: 30, y: 9.3 },
-  picker2: { x: 16, y: 7.4 },
+  picker2: { x: 14.4, y: 6.2 },
   press2: { x: 20, y: 24.1 },
 };
 
