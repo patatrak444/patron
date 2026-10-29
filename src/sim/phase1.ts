@@ -7,6 +7,7 @@ import {
   BONFIRE,
   FIELD_MAT_OFFSET,
   FIELD_PLOTS,
+  FIELD_SIZE,
   GIFT_SPOT,
   PRESSES,
   TRUCK,
@@ -274,7 +275,8 @@ function transferOnce(s: Phase1State, z: Zone, stack: Stack, cfg: Phase1Config, 
       return true;
     }
     case 'bonfire': {
-      if (!take(stack, 'scrap')) return false;
+      // Brucia gli Scarti; le Foglie solo se non c'è un posto dove lasciarle (il "cestino" di My Mini Mart).
+      if (!take(stack, 'scrap') && !(leavesStuck(s, cfg) && take(stack, 'leaf'))) return false;
       s.burned++;
       bus.emit('bonfire:burn', {});
       return true;
@@ -297,6 +299,21 @@ function transferOnce(s: Phase1State, z: Zone, stack: Stack, cfg: Phase1Config, 
   }
 }
 
+/** Le Foglie in mano non hanno dove andare: ogni Pressa aperta ha l'ingresso pieno. */
+export function leavesStuck(s: Phase1State, cfg: Phase1Config = BALANCE.phase1): boolean {
+  return s.presses.every((p) => !p.unlocked || p.leaves >= cfg.press.inCap);
+}
+
+/** Mani piene e niente da posare: l'unica via è svuotarle al Falò. */
+export function handsStuck(s: Phase1State, cfg: Phase1Config = BALANCE.phase1): boolean {
+  if (!isFull(s.stack)) return false;
+  const leaves = countOf(s.stack, 'leaf');
+  const pastes = countOf(s.stack, 'paste');
+  const scraps = countOf(s.stack, 'scrap');
+  const truckOpen = s.truck.away === 0 && s.truck.load < s.truck.capacity;
+  return scraps === 0 && !(pastes > 0 && truckOpen) && (leaves === 0 || leavesStuck(s, cfg)) && !(pastes > 0 && !truckOpen && leaves === 0);
+}
+
 function addToPile(s: Phase1State, id: string, at: MapPoint, value: number): void {
   const pile = s.piles.find((p) => p.id === id);
   if (pile) pile.value += value;
@@ -307,11 +324,20 @@ function dist(a: MapPoint, b: MapPoint): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
+/** Vero se il punto attiva la zona: entro il raggio del tappetino o, per un Campo, sopra l'appezzamento. */
+export function insideZone(z: Zone, pos: MapPoint, cfg: Phase1Config = BALANCE.phase1): boolean {
+  if (dist(pos, z) <= cfg.stack.zoneRadius) return true;
+  if (z.kind !== 'fieldPickup') return false;
+  // Come nel genere, camminare tra le piante le raccoglie (My Mini Mart, Farm Land).
+  const f = FIELD_PLOTS.find((p) => p.id === z.field)!;
+  const h = FIELD_SIZE / 2;
+  return Math.abs(pos.x - f.x) <= h && Math.abs(pos.y - f.y) <= h;
+}
+
 function stepPlayerZones(s: Phase1State, pos: MapPoint, dt: number, cfg: Phase1Config, bus: Bus<GameEvents>): void {
-  const r = cfg.stack.zoneRadius;
   const seen = new Set<string>();
   for (const z of activeZones(s, cfg)) {
-    if (dist(pos, z) > r) continue;
+    if (!insideZone(z, pos, cfg)) continue;
     seen.add(z.key);
     if (z.kind === 'cash') {
       collectCash(s, z.pile, dt, cfg, bus);
@@ -631,6 +657,7 @@ export function objective(s: Phase1State, cfg: Phase1Config = BALANCE.phase1): O
   // Cassone degli Scarti pieno: la Pressa è ferma.
   const full = s.presses.find((p) => p.unlocked && p.scraps >= cfg.press.scrapCap);
   if (countOf(s.stack, 'scrap') > 0) return { text: 'Brucia gli scarti!', target: BONFIRE.mat };
+  if (handsStuck(s, cfg)) return { text: 'Svuota le mani!', target: BONFIRE.mat };
   if (full) return { text: 'Brucia gli scarti!', target: PRESSES.find((p) => p.id === full.id)!.scrap };
   const sleeper = s.workers.find((w) => w.asleep);
   if (sleeper) return { text: 'Sveglia il raccoglitore!', target: sleeper };
@@ -641,6 +668,25 @@ export function objective(s: Phase1State, cfg: Phase1Config = BALANCE.phase1): O
     if (countOf(s.stack, 'leaf') > 0) return { text: 'Porta le foglie qui!', target: press1.deposit };
     return { text: 'Raccogli le foglie!', target: fieldMat('field1') };
   }
-  if (next) return { text: next.kind === 'worker' ? 'Assumi un raccoglitore!' : `Compra ${next.label}!`, target: UNLOCK_PADS[next.id] };
+  const buy = next ? { text: next.kind === 'worker' ? 'Assumi un raccoglitore!' : `Compra ${next.label}!`, target: UNLOCK_PADS[next.id] } : null;
+  // Con i soldi per il prossimo sblocco (in tasca o a terra), la freccia va al tappetino.
+  const onGround = s.piles.reduce((n, p) => n + p.value, 0);
+  if (buy && next && s.cash + s.padPaid >= next.cost) return buy;
+  if (buy && next && s.cash + s.padPaid + onGround >= next.cost) {
+    const pileTarget = s.piles.find((p) => p.value > 0)!;
+    return { text: 'Prendi i soldi!', target: pileTarget };
+  }
+  // Altrimenti guida il ciclo che li fa guadagnare: è il passo successivo vicino (GDD sezione 1, pilastro 2).
+  if (buy) {
+    if (countOf(s.stack, 'paste') > 0 && s.truck.away === 0) return { text: 'Vendi a El Gordo!', target: TRUCK.deposit };
+    const out = s.presses.find((p) => p.unlocked && p.pastes > 0);
+    if (out && countOf(s.stack, 'leaf') === 0 && !isFull(s.stack)) return { text: 'Prendi la Pasta!', target: PRESSES.find((p) => p.id === out.id)!.output };
+    if (countOf(s.stack, 'leaf') > 0 && !leavesStuck(s, cfg)) {
+      const press = s.presses.filter((p) => p.unlocked).sort((a, b) => a.leaves - b.leaves)[0]!;
+      return { text: 'Porta le foglie qui!', target: PRESSES.find((p) => p.id === press.id)!.deposit };
+    }
+    const field = s.fields.filter((f) => f.unlocked).sort((a, b) => b.ready - a.ready)[0]!;
+    return { text: 'Raccogli le foglie!', target: fieldMat(field.id) };
+  }
   return { text: 'Fase 1 completata!', target: null };
 }

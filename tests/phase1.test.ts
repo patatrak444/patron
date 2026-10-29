@@ -112,6 +112,13 @@ describe('Campo e Pressa (GDD 4)', () => {
     expect(countOf(s.stack, 'scrap')).toBe(0);
   });
 
+  it('camminare tra le piante del Campo le raccoglie', () => {
+    const s = createPhase1();
+    s.fields[0]!.ready = 8;
+    run(s, { x: 20.5, y: 12.5 }, 0.5);
+    expect(s.stack.items.length).toBe(cfg.stack.capacity);
+  });
+
   it('raccolta per prossimità: un oggetto ogni 0,08 s, fino alla capacità', () => {
     const s = createPhase1();
     s.fields[0]!.ready = 8;
@@ -119,6 +126,27 @@ describe('Campo e Pressa (GDD 4)', () => {
     expect(s.stack.items.length).toBe(3);
     run(s, fieldMat('field1'), 1);
     expect(s.stack.items.length).toBe(cfg.stack.capacity);
+  });
+});
+
+describe('mani piene (GDD 4)', () => {
+  it('con la Pressa piena le Foglie in mano si bruciano al Falò, e la frase lo dice', () => {
+    const s = createPhase1();
+    s.piles = [];
+    s.sold = 3;
+    s.presses[0]!.leaves = cfg.press.inCap;
+    s.presses[0]!.pastes = cfg.press.outCap;
+    s.stack.items = ['leaf', 'leaf', 'leaf', 'leaf'];
+    expect(objective(s).text).toBe('Svuota le mani!');
+    run(s, BONFIRE.mat, 0.5);
+    expect(s.stack.items.length).toBe(0);
+  });
+
+  it('se la Pressa ha posto le Foglie non si bruciano', () => {
+    const s = createPhase1();
+    s.stack.items = ['leaf', 'leaf'];
+    run(s, BONFIRE.mat, 0.5);
+    expect(s.stack.items.length).toBe(2);
   });
 });
 
@@ -229,6 +257,9 @@ describe('frase dell\'obiettivo (GDD 8)', () => {
     expect(objective(s).text).toBe('Vendi a El Gordo!');
     s.stack.items = [];
     s.sold = 1;
+    // Senza i soldi per il Raccoglitore la frase guida il ciclo che li fa guadagnare.
+    expect(objective(s).text).toBe('Raccogli le foglie!');
+    s.cash = 30;
     expect(objective(s).text).toBe('Assumi un raccoglitore!');
     for (const u of cfg.unlocks) expect(`Compra ${u.label}!`.split(' ').length).toBeLessThanOrEqual(4);
   });
