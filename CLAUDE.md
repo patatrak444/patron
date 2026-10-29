@@ -46,6 +46,7 @@ TypeScript, Vite, Three.js, Vitest, ZzFX. Niente altri framework.
 ## Skill
 
 - In `.claude/skills/` ci sono quattro skill Three.js (gameplay, grafica, QA, debug): vedi `.claude/skills/README.md`.
+- `.claude/skills/arcade-idle/` è l'enciclopedia del genere (catalogo dei giochi di successo, forma, contenuto, regole). Va letta prima di ogni lavoro di grafica o meccaniche; le sue regole entrano nel gioco solo passando dal GDD.
 - `docs/GDD.md` e questo file vincono sempre sulle skill.
 
 ## Modelli 3D
