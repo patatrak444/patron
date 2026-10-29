@@ -14,7 +14,7 @@ export type VisualItem = 'leaf' | 'paste' | 'scrap' | 'money';
  * Scala delle merci: la testa dei personaggi è larga circa 0,6 m, e le merci devono esserlo quasi
  * altrettanto (GDD sezione 10). Così la pila tra le braccia supera la sagoma del personaggio.
  */
-export const ITEM_SCALE = 1.3;
+export const ITEM_SCALE = 1.6;
 
 /** Altezza di un pezzo nella pila, in metri. */
 export const ITEM_HEIGHT: Readonly<Record<VisualItem, number>> = {

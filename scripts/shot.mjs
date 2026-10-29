@@ -67,7 +67,10 @@ await page.waitForSelector('canvas');
 
 const report = [];
 await page.waitForFunction(() => window.__patron, null, { timeout: 180000 });
+// SHOT_ONLY=07-pila,11-avanzato fotografa solo quelle (lo zoom può differire dalla serie completa).
+const only = process.env.SHOT_ONLY?.split(',');
 for (const shot of SHOTS) {
+  if (only && !only.includes(shot.name)) continue;
   if (shot.prepare) await page.evaluate((n) => window.__patron.prepare(n), shot.prepare);
   if (shot.at) await page.evaluate(([x, y]) => window.__patron.setPlayer(x, y), shot.at);
   if (shot.zoom) await page.evaluate((z) => window.__patron.zoom(z), shot.zoom);
