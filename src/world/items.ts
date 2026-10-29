@@ -149,7 +149,7 @@ export class ItemBatch {
  * terra di Pizza Ready. Oltre 40 mazzette la pila smette di crescere (GDD sezione 4).
  */
 export function addMoneyPile(batch: ItemBatch, value: number, x: number, z: number, pop = 1): void {
-  const bundles = Math.min(40, Math.max(1, Math.ceil(value / 5)));
+  const bundles = Math.min(40, Math.max(6, Math.ceil(value / 5)));
   for (let i = 0; i < bundles; i++) {
     const layer = Math.floor(i / 6);
     const slot = i % 6;

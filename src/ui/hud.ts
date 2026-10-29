@@ -53,7 +53,7 @@ export function createHud(root: HTMLElement): Hud {
   const cashText = el('span', 'hud__cash-text', cash);
 
   const edge = el('div', 'hud__edge', root);
-  edge.innerHTML = '<svg viewBox="0 0 40 40" width="46" height="46"><path d="M8 20 L30 8 L24 20 L30 32 Z" fill="#ffd23a" stroke="#1b1b2f" stroke-width="3" stroke-linejoin="round"/></svg>';
+  edge.innerHTML = '<svg viewBox="0 0 40 40" width="64" height="64"><path d="M8 20 L30 8 L24 20 L30 32 Z" fill="#ffd23a" stroke="#1b1b2f" stroke-width="3" stroke-linejoin="round"/></svg>';
 
   const pause = el('div', 'pause-badge', root);
   pause.textContent = 'PAUSA · Spazio per riprendere';
@@ -75,10 +75,8 @@ export function createHud(root: HTMLElement): Hud {
     },
     setRespect(level, stars, next) {
       star.textContent = `${level}`;
-      const prev = level >= 2 ? stars : 0;
       fill.style.width = next ? `${Math.min(100, (stars / next) * 100)}%` : '100%';
       barText.textContent = next ? `${stars}/${next}` : `${stars}`;
-      void prev;
     },
     setGoal(text) {
       if (text === lastGoal) return;
@@ -99,7 +97,7 @@ export function createHud(root: HTMLElement): Hud {
       const sx = (cx - m) / Math.max(1e-6, Math.abs(Math.cos(ang)));
       const sy = (cy - m) / Math.max(1e-6, Math.abs(Math.sin(ang)));
       const d = Math.min(sx, sy);
-      edge.style.transform = `translate(${cx + Math.cos(ang) * d - 23}px, ${cy + Math.sin(ang) * d - 23}px) rotate(${ang + Math.PI}rad)`;
+      edge.style.transform = `translate(${cx + Math.cos(ang) * d - 32}px, ${cy + Math.sin(ang) * d - 32}px) rotate(${ang + Math.PI}rad)`;
     },
   };
 }

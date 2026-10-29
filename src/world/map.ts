@@ -118,6 +118,14 @@ export function createValley(assets: Assets): Valley {
   }
   // Camion di El Gordo: 2,3 × 5,5 m, alto 2,6 m, muso verso nord.
   const truck = placeAt(createSingle(assets.props.truck_flat, 2.6), TRUCK, Math.PI);
+  // Il camion di El Gordo nel giallo del marchio: il bianco del modello supera la soglia del bloom e brillerebbe.
+  truck.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    const mat = (mesh.material as THREE.MeshLambertMaterial).clone();
+    mat.color.setHex(0xffd27a);
+    mesh.material = mat;
+  });
   const desk = placeAt(bakeGroup(createDesk()), { x: 28, y: 26.4 });
   const officeTree = placeAt(createSingle(assets.props.tree_oak, 5.5, 0.6), { x: 30, y: 28 });
   const bonfire = placeAt(createBonfire(), BONFIRE);

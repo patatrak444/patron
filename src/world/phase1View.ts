@@ -70,8 +70,8 @@ export class Phase1View {
   private readonly pressOut = new Map<string, Label>();
   private readonly pressScrap = new Map<string, Label>();
   private readonly pressStop = new Map<string, Label>();
-  private readonly truckLabel = new Label(0.5);
-  private readonly truckTimer = new Label(0.5);
+  private readonly truckLabel = new Label(0.7);
+  private readonly truckTimer = new Label(0.7);
   /** Animazioni a tempo: aree che si aprono, stazioni che compaiono, fiammate. */
   private readonly tweens: { t: number; dur: number; apply: (k: number) => void }[] = [];
   private flare = 0;
@@ -89,14 +89,14 @@ export class Phase1View {
     for (const f of FIELD_PLOTS.slice(0, 3)) {
       const l = new Label();
       const w = toWorld({ x: f.x, y: f.y });
-      l.sprite.position.set(w.x, 1.35, w.z);
+      l.sprite.position.set(w.x, 1.5, w.z);
       this.fieldLabels.set(f.id, l);
       this.root.add(l.sprite);
     }
     for (const p of PRESSES) {
       const out = new Label();
       const scrap = new Label();
-      const stop = new Label(0.6);
+      const stop = new Label(0.8);
       const o = toWorld(p.output);
       out.sprite.position.set(o.x, 1.55, o.z + 0.4);
       const s = toWorld(p.scrap);
