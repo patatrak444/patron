@@ -30,43 +30,43 @@ Fase 5. È la lista di cose da fare per portare PATRÓN alla fedeltà con il gen
 
 Ogni voce si spunta solo quando la verifica indicata è passata.
 
-### M2 · Fase 1 a mano (prossima)
+### M2 · Fase 1 a mano (fatta il 29 ottobre 2026, in attesa della prova sull'iMac)
 
 **Logica di gioco** (`src/sim/`, con test)
-- [ ] Pila: 4 posti, merci miste, scarico per tipo, MAX a pila piena (GDD 3)
-- [ ] Zone a terra: raggio 1,2 m, un oggetto ogni 0,08 s; tappetini di sblocco pagati a scatti in 1,5 s (GDD 3)
-- [ ] Campo: 1 Foglia ogni 3 s, uscita 8 (GDD 4)
-- [ ] Pressa: 3 Foglie → 1 Pasta in 4 s, buffer 12/10; 1 sacco di Scarti ogni 2 Paste, cassone 6, ferma a cassone pieno (D3)
-- [ ] Falò: accetta Scarti, li brucia (D3)
-- [ ] Camion: paga $5 a Pasta subito; cassone 10; pieno → parte e torna dopo 20 s (D5)
-- [ ] Mazzette a terra raccolte solo dal giocatore (D4)
-- [ ] Regalo iniziale di $20 (D1)
-- [ ] Sequenza degli sblocchi 1–5 con i prezzi della tabella (GDD 5)
-- [ ] Rispetto: stelle, soglie, premio $20 × livello (D2)
-- [ ] Raccoglitori: macchina a stati, percorsi A*, priorità agli Scarti con cassone pieno per metà, sonno ogni 90–150 s e risveglio entro 1,5 m (D8, D9)
+- [x] Pila: 4 posti, merci miste, scarico per tipo, MAX a pila piena (GDD 3)
+- [x] Zone a terra: raggio 1,2 m, un oggetto ogni 0,08 s; tappetini di sblocco pagati a scatti in 1,5 s (GDD 3)
+- [x] Campo: 1 Foglia ogni 3 s, uscita 8 (GDD 4)
+- [x] Pressa: 3 Foglie → 1 Pasta in 4 s, buffer 12/10; 1 sacco di Scarti ogni 2 Paste, cassone 6, ferma a cassone pieno (D3)
+- [x] Falò: accetta Scarti, li brucia (D3)
+- [x] Camion: paga $5 a Pasta subito; cassone 10; pieno → parte e torna dopo 20 s (D5)
+- [x] Mazzette a terra raccolte solo dal giocatore (D4)
+- [x] Regalo iniziale di $20 (D1)
+- [x] Sequenza degli sblocchi 1–5 con i prezzi della tabella (GDD 5)
+- [x] Rispetto: stelle, soglie, premio $20 × livello (D2)
+- [x] Raccoglitori: macchina a stati, percorsi A*, priorità agli Scarti con cassone pieno per metà, sonno ogni 90–150 s e risveglio entro 1,5 m (D8, D9)
 
 **Mondo** (`src/world/`)
-- [ ] Merci larghe quanto la testa; pila a torre con ritardo a molla (F4, GDD 10)
-- [ ] Stazioni ridisegnate: colori di marca azzurro e giallo, prodotto-insegna sopra, merce impilata sull'uscita (F2, F3)
-- [ ] Mazzette verde acceso #2ECC52 con bordo #E9FFD9, in blocchi 2 × 3 (F1, D13)
-- [ ] Tappetini con icona, prezzo grande e anello di pagamento (D13)
-- [ ] Contatori "n/max" su Campi, Pressa, cassone e camion; MAX a stazione piena; fumetti con un'icona e un numero (F7)
-- [ ] Freccia gialla 3D sul prossimo tappetino e anello a terra; freccia al bordo se fuori schermo (F7)
-- [ ] Camion che parte, sparisce lungo la strada e torna; cerchio con il conto alla rovescia (D5)
-- [ ] Falò con fiammata a ogni sacco (D3)
-- [ ] Raccoglitori con cappello di paglia; "zzz" grande e oscillante quando dormono (D9)
-- [ ] Capanna alla partenza sotto un quinto dello schermo (F5)
+- [x] Merci larghe quanto la testa; pila a torre tra le braccia, con ritardo a molla (F4, GDD 3 e 10)
+- [x] Stazioni ridisegnate: colori di marca azzurro e giallo, prodotto-insegna sopra, merce impilata sull'uscita (F2, F3)
+- [x] Mazzette verde acceso #2ECC52 con bordo #E9FFD9, in blocchi 2 × 3 (F1, D13)
+- [x] Tappetini con icona, prezzo grande e anello di pagamento (D13)
+- [x] Contatori "n/max" su Campi, Pressa, cassone e camion; MAX a stazione piena; fumetti con un'icona e un numero (F7)
+- [x] Freccia gialla 3D sul prossimo tappetino e anello a terra; freccia al bordo se fuori schermo (F7)
+- [x] Camion che parte, sparisce lungo la strada e torna; cerchio con il conto alla rovescia (D5)
+- [x] Falò con fiammata a ogni sacco (D3)
+- [x] Raccoglitori con cappello di paglia; "zzz" grande e oscillante quando dormono (D9)
+- [x] Capanna alla partenza sotto un quinto dello schermo (F5)
 
 **Interfaccia** (HTML/CSS)
-- [ ] Ingranaggio in alto a sinistra; Rispetto (stella e barra "n/max") in alto al centro; frase dell'obiettivo sotto; contante in pillola in alto a destra (D11)
-- [ ] Istruzioni dei primi minuti da 4 parole, sequenza 0:05–0:55 della sezione 8 (D12)
+- [x] Ingranaggio in alto a sinistra; Rispetto (stella e barra "n/max") in alto al centro; frase dell'obiettivo sotto; contante in pillola in alto a destra (D11)
+- [x] Istruzioni dei primi minuti da 4 parole, sequenza 0:05–0:55 della sezione 8 (D12); i tasti WASD disegnati a schermo arrivano con l'onboarding (M7)
 
 **Verifica di chiusura**
-- [ ] `npm test` verde
-- [ ] `npm run shot` con scatti nuovi: pila piena, camion in viaggio, tappetino in pagamento, Raccoglitore addormentato
-- [ ] Ogni scatto passato per la parte A di `../04-sintesi/checklist.md`, con l'esito scritto
-- [ ] Partenza sotto 60.000 triangoli, ovunque sotto 150.000 e 150 disegni
-- [ ] Sull'iMac: almeno 50 fps con `?debug=1`; dal minuto 0 alla Pressa 2 senza aiuto
+- [x] `npm test` verde
+- [x] `npm run shot` con scatti nuovi: pila piena, camion in viaggio, tappetino in pagamento, Raccoglitore addormentato
+- [x] Ogni scatto passato per la parte A di `../04-sintesi/checklist.md`, con l'esito scritto in `verifica-M2.md`
+- [x] Partenza sotto 60.000 triangoli, ovunque sotto 150.000 e 150 disegni
+- [ ] Sull'iMac: almeno 50 fps con `?debug=1`; dal minuto 0 alla Pressa 2 senza aiuto (Luca)
 
 ### M3 · Ufficio e Cargador
 - [ ] Pannello Ufficio a schede grandi (immagine, tacche, prima → dopo, prezzo), aperto solo stando sul tappetino viola (D10, D11)

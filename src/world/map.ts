@@ -4,13 +4,13 @@
 // si costruiscono da codice nello stesso stile.
 
 import * as THREE from 'three';
-import { FIELD_PLOTS, LOCKED_AREAS, VALLEY, toWorld, type MapPoint } from '../config/map';
+import { BONFIRE, FIELD_PLOTS, LOCKED_AREAS, PRESSES, TRUCK, VALLEY, toWorld, type MapPoint } from '../config/map';
 import { createRng, type Rng } from '../core/rng';
 import type { Assets, PropId } from './assets';
 import { createGround } from './ground';
 import { bakeGroup, createBatches } from './batching';
 import { createSingle, type Placement } from './instancing';
-import { createDesk, createHut, createLuminaPlants, createPress } from './models/stations';
+import { createBonfire, createDesk, createHut, createLuminaPlants, createPress } from './models/stations';
 
 /** Profondità della cornice di giungla oltre i bordi della valle. */
 const FRAME_DEPTH = 9;
@@ -61,13 +61,14 @@ class Placements {
     e.list.push({ x: w.x, z: w.z, height, rotY, tint, widthFactor });
     this.map.set(key, e);
   }
-  build(assets: Assets, root: THREE.Group): void {
+  build(assets: Assets, root: THREE.Group, name = 'vegetazione'): void {
     for (const shadow of [true, false]) {
       const entries = [...this.map.values()]
         .filter((e) => e.shadow === shadow)
         .map((e) => ({ prop: assets.props[e.id], list: e.list }));
+      if (entries.length === 0) continue;
       const batches = createBatches(entries, { castShadow: shadow });
-      batches.name = shadow ? 'vegetazione con ombra' : 'vegetazione senza ombra';
+      batches.name = `${name} ${shadow ? 'con ombra' : 'senza ombra'}`;
       root.add(batches);
     }
   }
@@ -84,6 +85,14 @@ export interface Valley {
   readonly root: THREE.Group;
   /** Oggetti che diventano trasparenti quando coprono il giocatore. */
   readonly occluders: readonly THREE.Object3D[];
+  /** Muri di vegetazione delle aree chiuse, uno per area: spariscono allo sblocco. */
+  readonly covers: ReadonlyMap<string, THREE.Group>;
+  /** Pressa 1 e Pressa 2 (nascosta finché non si sblocca). */
+  readonly presses: Readonly<Record<string, THREE.Group>>;
+  /** Piante di Lumina dei Campi 1–3 (2 e 3 nascosti finché non si sbloccano). */
+  readonly plants: Readonly<Record<string, THREE.Group>>;
+  readonly truck: THREE.Object3D;
+  readonly bonfire: THREE.Group;
 }
 
 export function createValley(assets: Assets): Valley {
@@ -98,28 +107,55 @@ export function createValley(assets: Assets): Valley {
 
   // Capanna e stazioni (posizioni del GDD sezione 4).
   const hut = placeAt(bakeGroup(createHut()), { x: 20, y: 0.6 });
-  const press = placeAt(bakeGroup(createPress()), { x: 14, y: 26 });
+  const presses: Record<string, THREE.Group> = {};
+  for (const l of PRESSES) {
+    const press = placeAt(bakeGroup(createPress()), l);
+    press.name = l.id;
+    press.visible = l.id === 'press1';
+    presses[l.id] = press;
+    root.add(press);
+    occluders.push(press);
+  }
   // Camion di El Gordo: 2,3 × 5,5 m, alto 2,6 m, muso verso nord.
-  const truck = placeAt(createSingle(assets.props.truck_flat, 2.6), { x: 3, y: 26 }, Math.PI);
+  const truck = placeAt(createSingle(assets.props.truck_flat, 2.6), TRUCK, Math.PI);
+  // Il camion di El Gordo nel giallo del marchio: il bianco del modello supera la soglia del bloom e brillerebbe.
+  truck.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    const mat = (mesh.material as THREE.MeshLambertMaterial).clone();
+    mat.color.setHex(0xffd27a);
+    mesh.material = mat;
+  });
   const desk = placeAt(bakeGroup(createDesk()), { x: 28, y: 26.4 });
   const officeTree = placeAt(createSingle(assets.props.tree_oak, 5.5, 0.6), { x: 30, y: 28 });
-  root.add(hut, press, truck, desk, officeTree);
-  occluders.push(hut, press, truck, officeTree);
+  const bonfire = placeAt(bakeGroup(createBonfire()), BONFIRE);
+  root.add(hut, truck, desk, officeTree, bonfire);
+  occluders.push(hut, truck, officeTree);
 
-  // Campo 1: sedici piante di Lumina in quattro file regolari, alte 0,7–1,0 m (GDD sezione 10).
-  const f1 = FIELD_PLOTS[0]!;
-  const plants: { x: number; z: number; h: number; r: number }[] = [];
-  for (let i = 0; i < 4; i++) {
-    for (let j = 0; j < 4; j++) {
-      const p = toWorld({ x: f1.x - 1.44 + i * 0.96, y: f1.y - 1.5 + j * 1 });
-      plants.push({ ...p, h: 0.8 + ((i + j) % 3) * 0.1, r: (i * 4 + j) * 1.3 });
+  // Campi 1–3: sedici piante di Lumina in quattro file regolari, alte 0,7–1,0 m (GDD sezione 10).
+  const plantGroups: Record<string, THREE.Group> = {};
+  for (const f of FIELD_PLOTS.slice(0, 3)) {
+    const plants: { x: number; z: number; h: number; r: number }[] = [];
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        const p = toWorld({ x: -1.44 + i * 0.96, y: -1.5 + j * 1 });
+        plants.push({ ...p, h: 0.8 + ((i + j) % 3) * 0.1, r: (i * 4 + j) * 1.3 });
+      }
     }
+    const g = placeAt(createLuminaPlants(plants), f);
+    g.name = `piante:${f.id}`;
+    g.visible = f.id === 'field1';
+    plantGroups[f.id] = g;
+    root.add(g);
   }
-  root.add(createLuminaPlants(plants));
 
-  // Muri di vegetazione sulle aree chiuse, in file ordinate.
+  // Muri di vegetazione sulle aree chiuse, in file ordinate: uno per area, così spariscono allo sblocco.
+  const covers = new Map<string, THREE.Group>();
   for (const area of LOCKED_AREAS) {
     if (area.shape.kind !== 'rect') continue;
+    const CP = new Placements();
+    const cover = new THREE.Group();
+    cover.name = `copertura:${area.id}`;
     const { x, y, w, h } = area.shape;
     const bounds = { x0: x - w / 2 + 0.6, y0: y - h / 2 + 0.6, x1: x + w / 2 - 0.6, y1: y + h / 2 - 0.6 };
     if (area.cover === 'jungle') {
@@ -127,12 +163,15 @@ export function createValley(assets: Assets): Valley {
         const edge = s.y < bounds.y0 + 3.5;
         // Sul margine sud alberi tondi bassi, dentro alberi e palme più alti.
         const id: PropId = edge ? (s.jitter < 0.5 ? 'tree_fat' : 'tree_oak') : pickWeighted(rng, FRAME_TREES).id;
-        P.add(id, edge, s, edge ? 4.2 + s.jitter * 0.8 : 5 + s.jitter * 2, s.jitter * 6.3);
+        CP.add(id, edge, s, edge ? 4.2 + s.jitter * 0.8 : 5 + s.jitter * 2, s.jitter * 6.3);
       }
-      for (const s of rows(rng, { ...bounds, y0: bounds.y0 - 0.4, y1: bounds.y0 + 0.6 }, 1.5)) P.add('bush_round', true, s, 1.1, s.jitter * 6.3);
+      for (const s of rows(rng, { ...bounds, y0: bounds.y0 - 0.4, y1: bounds.y0 + 0.6 }, 1.5)) CP.add('bush_round', true, s, 1.1, s.jitter * 6.3);
     } else {
-      for (const s of rows(rng, bounds, 1.4)) P.add('bush_round', true, s, 1.05, s.jitter * 6.3);
+      for (const s of rows(rng, bounds, 1.4)) CP.add('bush_round', true, s, 1.05, s.jitter * 6.3);
     }
+    CP.build(assets, cover, cover.name);
+    covers.set(area.id, cover);
+    root.add(cover);
   }
 
   // Cornice di giungla attorno alla valle: tre file di alberi tondi. Oltre, verde uniforme.
@@ -157,5 +196,5 @@ export function createValley(assets: Assets): Valley {
   }
 
   P.build(assets, root);
-  return { root, occluders };
+  return { root, occluders, covers, presses, plants: plantGroups, truck, bonfire };
 }

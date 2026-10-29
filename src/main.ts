@@ -11,7 +11,10 @@ import { budget } from './debug/budget';
 import { createDebugPanel, isDebugEnabled } from './debug/debugPanel';
 import { NavOverlay } from './debug/navOverlay';
 import { angleDelta, commandMoveTo } from './sim/player';
+import { levelProgress, objective } from './sim/phase1';
 import { createInitialState, createMoveContext, stepSim } from './sim/state';
+import { createRng } from './core/rng';
+import { prepareScenario, type Scenario } from './debug/scenarios';
 import { hasWebGL2, installMinSizeNotice, isTouchOnlyDevice, showBlockingMessage } from './ui/deviceGate';
 import { createHud } from './ui/hud';
 import { GameCamera } from './world/camera';
@@ -22,6 +25,7 @@ import { Character, PLAYER_HEIGHT } from './world/models/character';
 import { createFrame, qualityFromUrl } from './world/render';
 import { PALETTE } from './world/palette';
 import { cappedPixelRatio, createScene } from './world/scene';
+import { Phase1View } from './world/phase1View';
 
 /** Modello del giocatore nella prima fase; gli abiti per fase arrivano in M7 (GDD sezione 9). */
 const PLAYER_MODEL = 'mini_male_a';
@@ -69,12 +73,15 @@ async function boot(root: HTMLElement): Promise<void> {
   renderer.info.autoReset = false;
   root.append(renderer.domElement);
 
-  const { scene, lights, occluders } = createScene(assets, quality);
+  const { scene, lights, occluders, valley } = createScene(assets, quality);
   const fader = new OccluderFader();
   for (const o of occluders) fader.add(o);
   const bus = createBus<GameEvents>();
   const state = createInitialState(Date.now());
-  const moveCtx = createMoveContext();
+  const moveCtx = createMoveContext(state.phase1);
+  const rng = createRng(state.rngState);
+  const view = new Phase1View(valley, assets, bus);
+  scene.add(view.root);
 
   // Il giocatore è più alto degli altri e porta il cappellino rosso: si distingue sempre (GDD sezione 10).
   const player = new Character(assets.characters[PLAYER_MODEL], { height: PLAYER_HEIGHT, cap: PALETTE.policeRed });
@@ -105,7 +112,7 @@ async function boot(root: HTMLElement): Promise<void> {
       const key = input.keys.move();
       // I tasti seguono lo schermo: con la camera ruotata, W va verso nord-est (GDD sezione 3).
       const move = screenToMap(key.x, key.y, BALANCE.camera.yawDeg);
-      stepSim(state, dt, bus, { moveX: move.x, moveY: move.y }, moveCtx);
+      stepSim(state, dt, bus, { moveX: move.x, moveY: move.y }, moveCtx, rng);
     },
   });
 
@@ -142,6 +149,15 @@ async function boot(root: HTMLElement): Promise<void> {
           camera.follow(w.x, w.z, true);
         },
         zoom: (step: number) => camera.zoom(step),
+        /** Prepara una situazione di gioco per gli screenshot (src/debug/scenarios.ts). */
+        prepare(name: Scenario) {
+          prepareScenario(state, name, bus);
+          Object.assign(moveCtx, createMoveContext(state.phase1));
+          view.syncUnlocked(state.phase1);
+          const w = toWorld(state.player);
+          camera.follow(w.x, w.z, true);
+        },
+        state,
         budget: () => ({ view: budget(scene, camera.camera), shadow: budget(scene, lights.sun.shadow.camera, true) }),
       },
     });
@@ -154,6 +170,18 @@ async function boot(root: HTMLElement): Promise<void> {
       })
     : null;
 
+  // Freccia al bordo: il bersaglio dell'obiettivo proiettato sullo schermo, se è fuori vista (GDD sezione 12).
+  const proj = new THREE.Vector3();
+  const offscreen = (target: { x: number; y: number } | null): { x: number; y: number } | null => {
+    if (!target) return null;
+    const tw = toWorld(target);
+    proj.set(tw.x, 0.5, tw.z).project(camera.camera);
+    const sx = ((proj.x + 1) / 2) * innerWidth;
+    const sy = ((1 - proj.y) / 2) * innerHeight;
+    const m = 40;
+    return sx < m || sy < m || sx > innerWidth - m || sy > innerHeight - m ? { x: sx, y: sy } : null;
+  };
+
   startLoop(stepper, (alpha, frameSeconds) => {
     const p = state.player;
     // Disegno interpolato tra gli ultimi due passi di logica.
@@ -163,6 +191,21 @@ async function boot(root: HTMLElement): Promise<void> {
     const w = toWorld({ x, y });
     const dt = stepper.paused ? 0 : frameSeconds;
     player.update(w.x, w.z, facing, Math.hypot(p.vx, p.vy), BALANCE.player.speed, dt);
+    const s1 = state.phase1;
+    view.update(
+      s1,
+      { x: w.x, z: w.z, rotY: player.root.rotation.y, vx: p.vx, vz: -p.vy },
+      s1.stack.items,
+      alpha,
+      dt,
+      state.time,
+    );
+    hud.setCash(s1.cash);
+    const prog = levelProgress(s1.stars);
+    hud.setRespect(s1.level, prog.stars, prog.next);
+    const goal = objective(s1);
+    hud.setGoal(goal.text);
+    hud.setEdgeArrow(offscreen(goal.target));
 
     const dest = p.path.length > 0 ? toWorld(p.path[p.path.length - 1]!) : null;
     marker.update(dest, frameSeconds);

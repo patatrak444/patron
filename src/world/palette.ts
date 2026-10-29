@@ -15,7 +15,18 @@ export const PALETTE = {
   villageWall: 0xf2e6cf,
   roofTile: 0xe0603f,
   lumina: 0x5ce1e6,
-  money: 0x6fbf5a,
+  /** Mazzette verde acceso con fascia chiara: si staccano dal prato pastello (GDD sezione 10). */
+  money: 0x2ecc52,
+  moneyBand: 0xe9ffd9,
+  /** Colori di marca delle stazioni: l'azzurro della Lumina (versione piena, non emissiva) e il giallo anni '80. */
+  brandBlue: 0x4fc3d9,
+  brandBlueDark: 0x2f8fa8,
+  brandYellow: 0xffc94a,
+  brandYellowDark: 0xe0a52c,
+  /** Tappetini delle zone (GDD sezione 3). */
+  matPickup: 0x6ed36a,
+  matDeposit: 0xffd84a,
+  matCash: 0x5aa8f0,
   magenta: 0xff4f9a,
   gold: 0xffc94a,
   white: 0xffffff,

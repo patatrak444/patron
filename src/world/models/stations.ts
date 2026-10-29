@@ -124,29 +124,87 @@ export function createHut(): THREE.Group {
   return g;
 }
 
-/** Pressa 2,4 × 2,4 m, alta 1,8 m: basamento, telaio e pistone (animato in M2). */
+/**
+ * Pressa 2,4 × 2,4 m, alta 1,8 m (GDD sezione 10), nei colori di marca: basamento giallo, telaio
+ * azzurro. Sopra, come insegna, una Pasta gigante: la stazione si legge dal suo prodotto, come il
+ * forno con la pizza in vetrina di Pizza Ready. A ovest (−x) il cassone degli Scarti; a nord (−z)
+ * il ripiano dove si impila la Pasta prodotta; a sud la tramoggia delle Foglie.
+ */
 export function createPress(): THREE.Group {
   const g = new THREE.Group();
   g.name = 'press';
-  g.add(at(rbox(2.4, 0.55, 2.4, WOOD, 0.08), 0, 0.275, 0));
-  // Vasca di raccolta con bordo.
-  g.add(at(rbox(1.7, 0.18, 1.7, WOOD_DARK, 0.05), 0, 0.64, 0));
-  g.add(at(rbox(1.4, 0.06, 1.4, 0x3f5a2c, 0.02), 0, 0.74, 0));
-  // Telaio d'acciaio.
-  for (const sx of [-1, 1]) g.add(at(rbox(0.2, 1.3, 0.3, STEEL, 0.04), sx * 1.0, 1.15, 0));
-  g.add(at(rbox(2.3, 0.22, 0.36, STEEL_DARK, 0.05), 0, 1.75, 0));
-  // Vite, piatto e volantino rosso.
-  const screw = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.7, 8), flat(STEEL));
+  // Basamento giallo con zoccolo scuro.
+  g.add(at(rbox(1.8, 0.2, 2.3, PALETTE.brandYellowDark, 0.06), 0.25, 0.1, 0));
+  g.add(at(rbox(1.7, 0.5, 2.1, PALETTE.brandYellow, 0.1), 0.25, 0.45, 0));
+  // Tramoggia delle Foglie verso sud (+z).
+  g.add(at(rbox(1.2, 0.12, 0.55, PALETTE.brandBlueDark, 0.04), 0.25, 0.76, 0.75));
+  // Vasca sotto il pistone.
+  g.add(at(rbox(1.1, 0.12, 1.0, WOOD_DARK, 0.04), 0.25, 0.76, -0.05));
+  g.add(at(rbox(0.9, 0.04, 0.8, 0x3f5a2c, 0.02), 0.25, 0.83, -0.05));
+  // Telaio azzurro.
+  for (const sx of [-1, 1]) g.add(at(rbox(0.22, 1.2, 0.32, PALETTE.brandBlue, 0.06), 0.25 + sx * 0.72, 1.3, -0.05));
+  g.add(at(rbox(1.75, 0.26, 0.42, PALETTE.brandBlueDark, 0.08), 0.25, 1.92, -0.05));
+  const screw = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.6, 8), flat(STEEL));
   screw.castShadow = true;
-  g.add(at(screw, 0, 1.3, 0));
-  const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.12, 12), flat(STEEL_DARK));
+  screw.name = 'pressScrew';
+  g.add(at(screw, 0.25, 1.45, -0.05));
+  const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.12, 12), flat(STEEL_DARK));
   plate.castShadow = true;
   plate.name = 'pressPlate';
-  g.add(at(plate, 0, 0.95, 0));
-  const wheel = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.05, 5, 12), flat(PALETTE.roofTile));
-  wheel.rotation.x = Math.PI / 2;
-  wheel.castShadow = true;
-  g.add(at(wheel, 0, 2.0, 0));
+  g.add(at(plate, 0.25, 1.1, -0.05));
+  // Ripiano della Pasta a nord.
+  g.add(at(rbox(1.3, 0.1, 0.5, WOOD, 0.03), 0.25, 0.72, -1.0));
+  // Cassone degli Scarti a ovest: cassa di legno aperta.
+  g.add(at(rbox(0.7, 0.08, 1.2, WOOD_DARK, 0.03), -0.85, 0.04, 0));
+  for (const sz of [-1, 1]) g.add(at(rbox(0.7, 0.5, 0.08, WOOD, 0.02), -0.85, 0.3, sz * 0.56));
+  g.add(at(rbox(0.08, 0.5, 1.2, WOOD, 0.02), -1.18, 0.3, 0));
+  // Insegna: palo e Pasta gigante con la fascia azzurra.
+  g.add(at(rbox(0.12, 1.0, 0.12, WOOD_DARK, 0.03), 0.25, 2.5, -0.05));
+  const sign = new THREE.Group();
+  sign.name = 'pressSign';
+  sign.add(rbox(1.0, 0.4, 0.8, 0xe8d3a6, 0.1));
+  sign.add(rbox(0.26, 0.41, 0.81, PALETTE.brandBlue, 0.05));
+  sign.position.set(0.25, 3.2, -0.05);
+  sign.rotation.y = Math.PI / 4;
+  g.add(sign);
+  return g;
+}
+
+/**
+ * Falò per gli Scarti (GDD sezione 4): anello di pietre, legna e fiamme. Le fiamme sono emissive e
+ * passano nel bloom; il gruppo 'flames' si anima a ogni sacco bruciato.
+ */
+export function createBonfire(): THREE.Group {
+  const g = new THREE.Group();
+  g.name = 'bonfire';
+  const stones = 9;
+  for (let i = 0; i < stones; i++) {
+    const a = (i / stones) * Math.PI * 2;
+    const s = new THREE.Mesh(new THREE.DodecahedronGeometry(0.2, 0), flat(i % 2 ? 0xa9a397 : 0xc4bfb4));
+    s.scale.set(1, 0.7, 1);
+    s.castShadow = true;
+    g.add(at(s, Math.cos(a) * 0.62, 0.12, Math.sin(a) * 0.62));
+  }
+  for (const r of [0.4, -0.5, 1.6]) {
+    const log = rbox(0.9, 0.14, 0.14, WOOD_DARK, 0.05);
+    log.rotation.y = r;
+    g.add(at(log, 0, 0.12, 0));
+  }
+  const flames = new THREE.Group();
+  flames.name = 'flames';
+  for (const [x, z, h, c] of [
+    [0, 0, 0.9, 0xff7a2e],
+    [0.15, 0.1, 0.6, 0xffb347],
+    [-0.14, -0.08, 0.65, 0xffb347],
+    [0.02, -0.02, 0.45, 0xffe07a],
+  ] as const) {
+    const f = new THREE.Mesh(new THREE.ConeGeometry(0.2, h, 5), flat(c, c, 1.6));
+    // Con un nome restano separate quando il Falò si fonde in una mesh: si animano.
+    f.name = 'flame';
+    f.position.set(x, 0.2 + h / 2, z);
+    flames.add(f);
+  }
+  g.add(flames);
   return g;
 }
 

@@ -23,6 +23,12 @@ const SHOTS = [
   { name: '04-ufficio', at: [26, 23.5], wait: 2 },
   { name: '05-lontano', zoom: 1, wait: 2 },
   { name: '06-vicino', zoom: -2, wait: 2 },
+  // Fase 1 (M2): situazioni preparate con window.__patron.prepare (src/debug/scenarios.ts).
+  { name: '07-pila', zoom: 1, prepare: 'pila', wait: 2 },
+  { name: '08-camion', prepare: 'camion', wait: 2 },
+  { name: '09-pagamento', prepare: 'pagamento', wait: 1 },
+  { name: '10-raccoglitore', prepare: 'raccoglitore', wait: 2 },
+  { name: '11-avanzato', prepare: 'avanzato', zoom: 1, wait: 3 },
 ];
 
 function waitForServer(url, ms = 30000) {
@@ -61,7 +67,11 @@ await page.waitForSelector('canvas');
 
 const report = [];
 await page.waitForFunction(() => window.__patron, null, { timeout: 180000 });
+// SHOT_ONLY=07-pila,11-avanzato fotografa solo quelle (lo zoom può differire dalla serie completa).
+const only = process.env.SHOT_ONLY?.split(',');
 for (const shot of SHOTS) {
+  if (only && !only.includes(shot.name)) continue;
+  if (shot.prepare) await page.evaluate((n) => window.__patron.prepare(n), shot.prepare);
   if (shot.at) await page.evaluate(([x, y]) => window.__patron.setPlayer(x, y), shot.at);
   if (shot.zoom) await page.evaluate((z) => window.__patron.zoom(z), shot.zoom);
   await page.waitForTimeout(shot.wait * 1000);

@@ -119,7 +119,7 @@ L'azione principale del gioco è muoversi: ogni azione parte da sola quando il p
 
 - Una zona di Deposito accetta solo il tipo di oggetto della sua stazione: la merce sbagliata resta addosso.
 
-**La pila (stack).** Porti la merce in una pila visibile sulla schiena.
+**La pila (stack).** Porti la merce in una pila visibile davanti a te, tra le braccia, che sale come una torre: è il modo di Pizza Ready, Burger Please e My Mini Mart.
 
 - Capacità iniziale: 4 oggetti. Potenziabile (sezione 5).
 
@@ -507,7 +507,7 @@ In 3 minuti il giocatore deve aver fatto un giro completo della catena, incassat
 | 0:08  | Le mazzette volano nel contatore: "El Gordo ti anticipa \$20" | Il contante |
 | 0:12  | Il tappetino "Campo 2 – \$15" pulsa. Freccia | Gli sblocchi |
 | 0:18  | Campo 2 si apre con un'esplosione di foglie e un suono di fanfara breve; compare la prima stella del Rispetto | Crescere |
-| 0:25  | Freccia verso il Campo 1: le foglie volano sulla schiena una a una, con un suono crescente | La raccolta per prossimità e la pila |
+| 0:25  | Freccia verso il Campo 1: le foglie volano tra le braccia una a una, con un suono crescente | La raccolta per prossimità e la pila |
 | 0:40  | Freccia verso la Pressa: "Porta le foglie qui". La pressa scende, esce la prima Pasta | Le stazioni trasformano |
 | 0:55  | Freccia verso il camion: "Vendi a El Gordo". Il cassone segna "1/10", le mazzette escono e volano nel contatore in alto con un conteggio animato | Prima ricompensa |
 | 2:30  | Tappetino "Raccoglitore – \$30" accanto ai Campi                                                                        | Si può assumere                          |
@@ -654,7 +654,7 @@ Il giocatore resta finché ha sempre un passo successivo chiaro, vicino e divers
 
 - Personaggi: camminata e attesa dalle animazioni del pacchetto, con la velocità della camminata legata alla velocità reale (niente piedi che scivolano). Se un personaggio non ha animazioni, si usa il ripiego procedurale: oscillazione verticale e inclinazione in avanti in camminata, respiro da fermo (scala 1,00–1,02 in 2 s).
 
-- Pila sulla schiena: ogni oggetto segue quello sotto con un ritardo a molla, così la pila ondeggia in curva.
+- Pila tra le braccia: ogni oggetto segue quello sotto con un ritardo a molla, così la pila ondeggia in curva.
 
 **Game feel: ogni azione ha una risposta.** Le piccole risposte visive e sonore (vibrazione della camera, particelle, scatti di scala, suoni) cambiano la sensazione di un gioco più di molte funzioni nuove ([Bugnet](https://bugnet.io/blog/game-feel-why-juice-matters-and-how-to-add-it)). Vanno però dosate: una vibrazione della camera troppo forte dà la nausea ([Wayline](https://www.wayline.io/learn/game-feel/1)).
 
