@@ -46,6 +46,10 @@ Non cambia il design, aggiunge una verifica. Il Calore non ha precedenti nel gen
 - **Bordo di giungla:** è sotto soglia (nessun gioco lo usa, ma nemmeno l'isola sull'acqua è una regola). Resta, pulito e ordinato come oggi.
 - **Primo lavoratore a 3 minuti** invece di 5: più veloce del genere, scelta del GDD per mostrare subito l'automazione.
 
+## Decisioni (29 ottobre 2026)
+
+Luca ha approvato D1–D7. D5 con un'aggiunta: la capienza del camion si allarga con un potenziamento (Cassone, da 10 a 40). D6 resta da decidere in M8. Tutte le voci, F1–F7 comprese, sono scritte nel GDD (sezioni 3–15).
+
 ## Ordine proposto
 
 1. Luca risponde alle domande D1–D7.
