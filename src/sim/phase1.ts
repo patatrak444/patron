@@ -63,6 +63,8 @@ export interface CashPile {
   readonly x: number;
   readonly y: number;
   value: number;
+  /** Valore all'inizio della raccolta: fissa la velocità con cui il mucchio si svuota. */
+  start?: number;
 }
 
 export type WorkerTask =
@@ -405,9 +407,11 @@ function collectCash(s: Phase1State, id: string, dt: number, cfg: Phase1Config, 
   const i = s.piles.findIndex((p) => p.id === id);
   if (i < 0) return;
   const pile = s.piles[i]!;
-  // Il mucchio si svuota in circa mezzo secondo, qualunque sia il valore, a pezzi di almeno $5.
+  // Il mucchio si svuota in cashCollectSeconds, qualunque sia il valore: la quota di ogni passo si calcola
+  // sul valore iniziale del mucchio, così anche la torre del regalo scende piano.
+  if (pile.start === undefined || pile.value > pile.start) pile.start = pile.value;
   const steps = Math.max(1, Math.round(cfg.stack.cashCollectSeconds / dt));
-  const amount = Math.min(pile.value, Math.max(5, Math.ceil(pile.value / steps)));
+  const amount = Math.min(pile.value, Math.max(1, Math.ceil(pile.start / steps)));
   pile.value -= amount;
   s.cash += amount;
   s.earned += id === 'gift' ? 0 : amount;

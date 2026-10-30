@@ -14,9 +14,11 @@ export interface Hud {
   setEdgeArrow(at: { x: number; y: number } | null): void;
   /**
    * Banconote che volano dal punto (x, y) dello schermo alla pillola del contante (GDD sezione 3, UX3):
-   * i soldi raccolti non restano addosso al personaggio.
+   * i soldi raccolti non restano addosso. Partono una a una dalla coda; il contatore sale quando arrivano.
    */
-  flyBills(x: number, y: number, count: number, seconds: number): void;
+  flyBills(x: number, y: number, value: number): void;
+  /** Avanza la coda delle banconote: si chiama a ogni fotogramma. */
+  update(dt: number): void;
 }
 
 /** Numero abbreviato: 950 · 1,2K · 3,45M (GDD sezione 12). */
@@ -34,7 +36,14 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls: string, parent: 
   return e;
 }
 
-export function createHud(root: HTMLElement): Hud {
+export interface HudFeel {
+  readonly billValue: number;
+  readonly billEvery: number;
+  readonly collectBills: number;
+  readonly collectFlySeconds: number;
+}
+
+export function createHud(root: HTMLElement, feel: HudFeel): Hud {
   const hud = el('div', 'hud', root);
 
   const gear = el('button', 'hud__gear', hud);
@@ -63,20 +72,73 @@ export function createHud(root: HTMLElement): Hud {
   const pause = el('div', 'pause-badge', root);
   pause.textContent = 'PAUSA · Spazio per riprendere';
 
-  let lastCash = -1;
+  // Contante mostrato: insegue quello vero. Le spese scendono subito; i guadagni che arrivano in volo
+  // salgono quando la banconota tocca la pillola (revisione del 30 ottobre 2026).
+  let real = -1;
+  let shown = -1;
+  let inFlight = 0;
+  let queueTimer = 0;
+  const queue: { x: number; y: number; value: number }[] = [];
   let lastGoal = '';
+  const show = (n: number, bump: boolean): void => {
+    if (bump) {
+      cash.classList.remove('is-bump');
+      void cash.offsetWidth;
+      cash.classList.add('is-bump');
+    }
+    shown = n;
+    cashText.textContent = formatCash(n);
+  };
+  const launch = (from: { x: number; y: number; value: number }): void => {
+    const r = bill.getBoundingClientRect();
+    const tx = r.left + r.width / 2;
+    const ty = r.top + r.height / 2;
+    const b = el('span', 'hud__bill hud__bill--fly', root);
+    b.style.left = `${from.x - 22}px`;
+    b.style.top = `${from.y - 14}px`;
+    const dx = tx - from.x;
+    const dy = ty - from.y;
+    const anim = b.animate(
+      [
+        { transform: 'translate(0, 0) rotate(-12deg) scale(0.75)' },
+        { transform: `translate(${dx * 0.35}px, ${dy * 0.35 - 70}px) rotate(18deg) scale(1.05)`, offset: 0.4 },
+        { transform: `translate(${dx}px, ${dy}px) rotate(-12deg) scale(0.85)` },
+      ],
+      { duration: feel.collectFlySeconds * 1000, easing: 'cubic-bezier(0.4, 0, 0.7, 1)' },
+    );
+    anim.onfinish = () => {
+      b.remove();
+      inFlight -= from.value;
+      show(Math.min(real, shown + from.value), true);
+    };
+  };
   return {
     setPaused: (paused) => pause.classList.toggle('is-visible', paused),
     setCash(n) {
-      if (n === lastCash) return;
-      // Si gonfia a ogni incasso (GDD sezione 12).
-      if (n > lastCash && lastCash >= 0) {
-        cash.classList.remove('is-bump');
-        void cash.offsetWidth;
-        cash.classList.add('is-bump');
+      if (n === real) return;
+      real = n;
+      // Soldi arrivati senza volo (premi, debug) o spesi: il numero si allinea subito.
+      if (shown < 0 || n < shown || n - inFlight > shown) show(Math.max(0, n - inFlight), n > shown && shown >= 0);
+    },
+    flyBills(x, y, value) {
+      inFlight += value;
+      // Una banconota ogni billValue dollari; oltre collectBills in coda, l'ultima porta anche il resto.
+      let left = value;
+      while (left > 0) {
+        const v = Math.min(left, feel.billValue);
+        const last = queue[queue.length - 1];
+        if (queue.length >= feel.collectBills && last) last.value += v;
+        else queue.push({ x, y, value: v });
+        left -= v;
       }
-      lastCash = n;
-      cashText.textContent = formatCash(n);
+    },
+    update(dt) {
+      queueTimer -= dt;
+      while (queue.length > 0 && queueTimer <= 0) {
+        launch(queue.shift()!);
+        queueTimer += feel.billEvery;
+      }
+      if (queue.length === 0) queueTimer = Math.max(queueTimer, 0);
     },
     setRespect(level, stars, next) {
       star.textContent = `${level}`;
@@ -90,27 +152,6 @@ export function createHud(root: HTMLElement): Hud {
       goal.classList.remove('is-new');
       void goal.offsetWidth;
       goal.classList.add('is-new');
-    },
-    flyBills(x, y, count, seconds) {
-      const r = bill.getBoundingClientRect();
-      const tx = r.left + r.width / 2;
-      const ty = r.top + r.height / 2;
-      for (let i = 0; i < count; i++) {
-        const b = el('span', 'hud__bill hud__bill--fly', root);
-        const jx = (i % 3) * 10 - 10;
-        const jy = Math.floor(i / 3) * -8;
-        b.style.left = `${x + jx - 22}px`;
-        b.style.top = `${y + jy - 14}px`;
-        const anim = b.animate(
-          [
-            { transform: 'translate(0, 0) rotate(-12deg) scale(0.7)', opacity: 1 },
-            { transform: `translate(${(tx - x) * 0.45}px, ${(ty - y) * 0.45 - 60}px) rotate(20deg) scale(1)`, opacity: 1, offset: 0.45 },
-            { transform: `translate(${tx - x - jx}px, ${ty - y - jy}px) rotate(-12deg) scale(0.9)`, opacity: 0.9 },
-          ],
-          { duration: seconds * 1000, delay: i * 45, easing: 'ease-in', fill: 'backwards' },
-        );
-        anim.onfinish = () => b.remove();
-      }
     },
     setEdgeArrow(at) {
       edge.classList.toggle('is-visible', at !== null);

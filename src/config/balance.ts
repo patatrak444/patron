@@ -175,10 +175,18 @@ export interface FeelConfig {
   readonly festaHeight: number;
   /** Strati della torre di mazzette del regalo: 10 strati da 0,19 m = 1,9 m, l'altezza del personaggio. */
   readonly giftTowerLayers: number;
-  /** Banconote che volano al contatore per ogni raccolta, al massimo. */
+  /** Banconote che volano al contatore per ogni mucchio, al massimo, e dollari di una banconota. */
   readonly collectBills: number;
-  /** Secondi di volo di una banconota (da sopra la testa al riquadro, dal mucchio al contatore). */
+  readonly billValue: number;
+  /** Secondi tra una banconota e la successiva, sia raccogliendo sia pagando ("una a una", PS16). */
+  readonly billEvery: number;
+  /** Secondi di volo di una banconota e altezza dell'arco, in metri (UX5: 0,2–0,3 s, arco 0,5–0,8 m). */
   readonly flySeconds: number;
+  readonly flyArc: number;
+  /** Secondi di volo di una banconota dal mucchio al contatore, sullo schermo. */
+  readonly collectFlySeconds: number;
+  /** Da dove partono le banconote pagando: sopra la testa del personaggio, in metri. */
+  readonly payFromHeight: number;
   /** Secondi fra due sbuffi di polvere mentre si corre. */
   readonly dustEvery: number;
   /** Secondi di viaggio del camion lungo la strada, in arrivo e in partenza. */
@@ -237,14 +245,19 @@ export const BALANCE: Balance = {
     festaSeconds: 3,
     festaHeight: 12,
     giftTowerLayers: 10,
-    collectBills: 8,
-    flySeconds: 0.35,
+    collectBills: 12,
+    billValue: 5,
+    billEvery: 0.07,
+    flyArc: 0.7,
+    collectFlySeconds: 0.6,
+    payFromHeight: 2.3,
+    flySeconds: 0.28,
     dustEvery: 0.14,
     truckDriveSeconds: 3,
   },
   phase1: {
     gift: 40,
-    stack: { capacity: 4, cashPileSize: 1.4, rewardDistance: 3, transferInterval: 0.08, unlockPaySeconds: 2, unlockPayDelay: 0.25, cashCollectSeconds: 0.5 },
+    stack: { capacity: 4, cashPileSize: 1.4, rewardDistance: 3, transferInterval: 0.08, unlockPaySeconds: 2, unlockPayDelay: 0.25, cashCollectSeconds: 0.6 },
     field: { cycle: 3, outCap: 8 },
     press: { leavesPerPaste: 3, cycle: 4, inCap: 12, outCap: 10, pastesPerScrap: 2, scrapCap: 6 },
     truck: { pastePrice: 5, capacity: 10, awaySeconds: 20, firstArrival: 4 },

@@ -102,7 +102,7 @@ export class Phase1View {
   private dustTimer = 0;
   private payTimer = 0;
   private lastPaid = 0;
-  private readonly pilePos = new Map<string, { x: number; z: number }>();
+  private readonly pilePos = new Map<string, { x: number; z: number; top: number }>();
   private readonly headTop = new THREE.Vector3();
 
   constructor(
@@ -203,7 +203,7 @@ export class Phase1View {
   }
 
   /** Dove sta, nel mondo, un mucchio di mazzette (per far volare le banconote verso il contatore). */
-  pileWorld(id: string): { x: number; z: number } | null {
+  pileWorld(id: string): { x: number; z: number; top: number } | null {
     return this.pilePos.get(id) ?? null;
   }
 
@@ -307,7 +307,7 @@ export class Phase1View {
     // pagando, le banconote partono da sopra la testa.
     const sway = this.playerSway.update(player.vx, player.vz, dt);
     drawStack(this.batch, playerItems, player, sway);
-    this.headTop.set(player.x, 2.3, player.z);
+    this.headTop.set(player.x, feel.payFromHeight, player.z);
     // Sbuffi di polvere mentre si corre (skill arcade-idle, PS19).
     this.dustTimer -= dt;
     if (Math.hypot(player.vx, player.vz) > 1 && this.dustTimer <= 0) {
@@ -426,11 +426,19 @@ export class Phase1View {
 
     // Mazzette a terra in blocchi 2 × 3; il regalo è una torre alta quanto il personaggio (UX11), quelle del
     // camion stanno sul vassoio scuro.
+    this.pilePos.clear();
     for (const pile of s.piles) {
       const w = toWorld(pile);
-      this.pilePos.set(pile.id, w);
-      if (pile.id === 'gift') addMoneyTower(this.batch, w.x, w.z, Math.ceil((feel.giftTowerLayers * pile.value) / cfg.gift));
-      else addMoneyPile(this.batch, pile.value, w.x, w.z, 1, pile.id === 'truck' ? 0.1 : 0);
+      let top: number;
+      if (pile.id === 'gift') {
+        const layers = Math.ceil((feel.giftTowerLayers * pile.value) / cfg.gift);
+        addMoneyTower(this.batch, w.x, w.z, layers);
+        top = layers * ITEM_HEIGHT.money;
+      } else {
+        const base = pile.id === 'truck' ? 0.1 : 0;
+        top = base + addMoneyPile(this.batch, pile.value, w.x, w.z, 1, base);
+      }
+      this.pilePos.set(pile.id, { ...w, top });
     }
 
     // Mazzette che volano verso il tappetino mentre si paga.
@@ -438,9 +446,10 @@ export class Phase1View {
     if (s.padPaid > this.lastPaid && nextDef) {
       this.payTimer -= dt;
       if (this.payTimer <= 0) {
-        this.payTimer = 0.07;
+        this.payTimer = feel.billEvery;
+        // Si mira al bordo del riquadro verso la camera (sud-ovest): l'arrivo non resta dietro il personaggio.
         const to = toWorld(UNLOCK_PADS[nextDef.id]);
-        const target = new THREE.Vector3(to.x, 0.05, to.z);
+        const target = new THREE.Vector3(to.x - 0.75, 0.05, to.z + 0.75);
         this.flights.push({ from: this.headTop.clone(), to: () => target, t: 0, delay: 0 });
       }
     }
@@ -458,7 +467,7 @@ export class Phase1View {
       this.batch.add(
         'money',
         fl.from.x + (to.x - fl.from.x) * k,
-        fl.from.y + (to.y - fl.from.y) * k + Math.sin(k * Math.PI) * 1.2,
+        fl.from.y + (to.y - fl.from.y) * k + Math.sin(k * Math.PI) * feel.flyArc,
         fl.from.z + (to.z - fl.from.z) * k,
         k * 6,
       );

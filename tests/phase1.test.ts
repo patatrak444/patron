@@ -69,6 +69,26 @@ describe('regalo e sblocchi (GDD 5)', () => {
     expect(s.piles.find((p) => p.id === 'gift')!.value).toBe(cfg.gift);
   });
 
+  it('un mucchio si svuota in circa 0,6 s qualunque sia il valore, così la torre del regalo scende piano', () => {
+    for (const value of [40, 200]) {
+      const s = createPhase1();
+      s.piles = [{ id: 'gift', x: GIFT_SPOT.x, y: GIFT_SPOT.y, value }];
+      const bus = createBus<GameEvents>();
+      let events = 0;
+      bus.on('cash:collect', () => events++);
+      const ctx = { grid: createMoveContext(s).grid, rng: createRng(7) };
+      let t = 0;
+      while (s.piles.length > 0 && t < 3) {
+        stepPhase1(s, GIFT_SPOT, DT, bus, ctx);
+        t += DT;
+      }
+      expect(s.cash).toBe(value);
+      expect(t, `\$${value}`).toBeGreaterThan(cfg.stack.cashCollectSeconds - 0.15);
+      expect(t, `\$${value}`).toBeLessThan(cfg.stack.cashCollectSeconds + 0.1);
+      expect(events).toBeGreaterThan(10);
+    }
+  });
+
   it('il regalo di $40 si raccoglie in mezzo secondo e paga Campo 1 e Pressa 1', () => {
     const s = createPhase1();
     run(s, GIFT_SPOT, 0.5);

@@ -105,15 +105,15 @@ async function boot(root: HTMLElement): Promise<void> {
   addEventListener('resize', resize);
   resize();
 
-  const hud = createHud(root);
+  const hud = createHud(root, BALANCE.feel);
   // Raccogliendo, le banconote volano dal mucchio alla pillola del contante (GDD sezione 3, UX3).
   const billFrom = new THREE.Vector3();
   bus.on('cash:collect', ({ amount, pile }) => {
     const at = view.pileWorld(pile);
     if (!at || mode !== 'play') return;
-    billFrom.set(at.x, 0.4, at.z).project(camera.camera);
-    const n = Math.min(BALANCE.feel.collectBills, Math.max(2, Math.ceil(amount / 5)));
-    hud.flyBills((billFrom.x * 0.5 + 0.5) * innerWidth, (-billFrom.y * 0.5 + 0.5) * innerHeight, n, BALANCE.feel.flySeconds + 0.25);
+    // Le banconote partono dallo strato che sparisce: la cima del mucchio.
+    billFrom.set(at.x, at.top, at.z).project(camera.camera);
+    hud.flyBills((billFrom.x * 0.5 + 0.5) * innerWidth, (-billFrom.y * 0.5 + 0.5) * innerHeight, amount);
   });
   installMinSizeNotice(root);
 
@@ -287,6 +287,7 @@ async function boot(root: HTMLElement): Promise<void> {
       state.time,
     );
     hud.setCash(s1.cash);
+    hud.update(frameSeconds);
     const prog = levelProgress(s1.stars);
     hud.setRespect(s1.level, prog.stars, prog.next);
     const goal = objective(s1);

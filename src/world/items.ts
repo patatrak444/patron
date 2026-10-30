@@ -155,7 +155,8 @@ export class ItemBatch {
  * Mucchio di mazzette a blocchi di 2 × 3 che cresce in altezza (GDD sezione 10), come i soldi a
  * terra di Pizza Ready. Oltre 40 mazzette la pila smette di crescere (GDD sezione 4).
  */
-export function addMoneyPile(batch: ItemBatch, value: number, x: number, z: number, pop = 1, baseY = 0): void {
+/** Restituisce l'altezza della cima del mucchio sopra `baseY`. */
+export function addMoneyPile(batch: ItemBatch, value: number, x: number, z: number, pop = 1, baseY = 0): number {
   const bundles = Math.min(40, Math.max(6, Math.ceil(value / 5)));
   for (let i = 0; i < bundles; i++) {
     const layer = Math.floor(i / 6);
@@ -164,6 +165,7 @@ export function addMoneyPile(batch: ItemBatch, value: number, x: number, z: numb
     const row = Math.floor(slot / 2);
     batch.add('money', x + (col - 0.5) * 0.38 * ITEM_SCALE, baseY + layer * ITEM_HEIGHT.money * pop, z + (row - 1) * 0.24 * ITEM_SCALE, 0, pop);
   }
+  return Math.ceil(bundles / 6) * ITEM_HEIGHT.money * pop;
 }
 
 /**
