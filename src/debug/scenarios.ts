@@ -46,7 +46,7 @@ export function prepareScenario(state: GameState, name: Scenario, bus: Bus<GameE
     case 'festa': {
       // Il Campo 1 appena comprato: primo piano e coriandoli.
       unlockUpTo(state, at('field1') + 1, bus);
-      place(state, UNLOCK_PADS.field1.x + 1.6, UNLOCK_PADS.field1.y - 0.6);
+      place(state, 28.3, 21);
       break;
     }
     case 'primo': {
@@ -56,7 +56,7 @@ export function prepareScenario(state: GameState, name: Scenario, bus: Bus<GameE
       s.presses[0]!.leaves = 3;
       s.stack.items = ['leaf', 'leaf', 'leaf'];
       s.cash = 5;
-      place(state, 19.4, 9.2);
+      place(state, 30, 26.8);
       break;
     }
     case 'pila': {
@@ -96,19 +96,19 @@ export function prepareScenario(state: GameState, name: Scenario, bus: Bus<GameE
       // Un Raccoglitore addormentato vicino ai Campi; la sagoma della Nuova zona.
       unlockUpTo(state, at('picker1') + 1, bus);
       const w = s.workers[0]!;
-      Object.assign(w, { x: 18.4, y: 10.6, prevX: 18.4, prevY: 10.6, asleep: true, phase: 'choose', task: null, path: [] });
+      Object.assign(w, { x: 27.8, y: 20.6, prevX: 27.8, prevY: 20.6, asleep: true, phase: 'choose', task: null, path: [] });
       w.stack.items = ['leaf', 'leaf'];
       s.sold = 6;
       s.earned = 30;
       s.cash = 34;
-      place(state, 20.4, 8.0);
+      place(state, 29, 18);
       break;
     }
     case 'lotto2': {
       // La Hacienda allargata: il lotto 2 appena aperto, la sagoma del Campo 3.
       unlockUpTo(state, at('zone2') + 1, bus);
       s.cash = 50;
-      place(state, 26.5, 10.5);
+      place(state, 37, 20);
       break;
     }
     case 'avanzato': {
@@ -124,7 +124,7 @@ export function prepareScenario(state: GameState, name: Scenario, bus: Bus<GameE
       s.sold = 40;
       s.earned = 400;
       s.cash = 1340;
-      place(state, 25, 11);
+      place(state, 29, 20);
       break;
     }
   }

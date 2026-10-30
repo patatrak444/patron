@@ -6,14 +6,19 @@ import { BALANCE, type Phase1Config, type UnlockDef } from '../config/balance';
 import {
   BONFIRE,
   FIELD_PLOTS,
-  FIELD_SIZE,
   GIFT_SPOT,
+  LOTS,
   PRESSES,
   TRUCK,
   UNLOCK_PADS,
+  fieldArea,
+  inRect,
+  padArea,
+  rectAt,
   type FieldId,
   type LotId,
   type MapPoint,
+  type Rect,
 } from '../config/map';
 import type { Bus, GameEvents } from '../core/bus';
 import type { Rng } from '../core/rng';
@@ -116,11 +121,13 @@ export interface Phase1State {
   navDirty: boolean;
   /** Il Falò si compra (sblocco 4); prima gli Scarti restano nel cassone. */
   bonfire: boolean;
+  /** L'Ufficio si compra (sblocco 4b, GDD sezione 5). */
+  office: boolean;
   /** Lotti aperti: si cammina solo lì (GDD sezione 4). */
   lots: LotId[];
 }
 
-/** Ciò che una zona fa. Il giocatore le attiva tutte quelle entro il raggio. */
+/** Ciò che una zona fa. Il giocatore attiva tutte quelle la cui area lo contiene (GDD sezione 3). */
 export type ZoneKind =
   | { readonly kind: 'fieldPickup'; readonly field: FieldId }
   | { readonly kind: 'pressDeposit'; readonly press: PressId }
@@ -131,7 +138,11 @@ export type ZoneKind =
   | { readonly kind: 'cash'; readonly pile: string }
   | { readonly kind: 'pad'; readonly unlock: UnlockId };
 
-export type Zone = ZoneKind & { readonly key: string; readonly x: number; readonly y: number };
+/**
+ * Una zona: dove va chi la usa (x, y) e l'area d'attivazione, uguale al disegno a terra allargato
+ * verso l'esterno della macchina (GDD sezione 3, UX2).
+ */
+export type Zone = ZoneKind & { readonly key: string; readonly x: number; readonly y: number; readonly area: Rect };
 
 const FIELD_IDS: readonly FieldId[] = ['field1', 'field2', 'field3'];
 
@@ -160,6 +171,7 @@ export function createPhase1(cfg: Phase1Config = BALANCE.phase1): Phase1State {
     pileSeq: 0,
     navDirty: false,
     bonfire: false,
+    office: false,
     lots: ['lot1'],
   };
 }
@@ -179,21 +191,24 @@ export function activeZones(s: Phase1State, cfg: Phase1Config = BALANCE.phase1):
   const out: Zone[] = [];
   for (const f of s.fields) {
     if (!f.unlocked) continue;
-    const m = fieldMat(f.id);
-    out.push({ kind: 'fieldPickup', field: f.id, key: `pick:${f.id}`, ...m });
+    const plot = FIELD_PLOTS.find((p) => p.id === f.id)!;
+    out.push({ kind: 'fieldPickup', field: f.id, key: `pick:${f.id}`, ...plot.mat, area: fieldArea(plot) });
   }
   for (const p of s.presses) {
     if (!p.unlocked) continue;
     const l = PRESSES.find((x) => x.id === p.id)!;
-    out.push({ kind: 'pressDeposit', press: p.id, key: `in:${p.id}`, ...l.deposit });
-    out.push({ kind: 'pressOutput', press: p.id, key: `out:${p.id}`, ...l.output });
-    out.push({ kind: 'pressScrap', press: p.id, key: `scrap:${p.id}`, ...l.scrap });
+    out.push({ kind: 'pressDeposit', press: p.id, key: `in:${p.id}`, x: l.deposit.x, y: l.deposit.y, area: l.deposit.area });
+    out.push({ kind: 'pressOutput', press: p.id, key: `out:${p.id}`, x: l.output.x, y: l.output.y, area: l.output.area });
+    out.push({ kind: 'pressScrap', press: p.id, key: `scrap:${p.id}`, x: l.scrap.x, y: l.scrap.y, area: l.scrap.area });
   }
-  if (s.bonfire) out.push({ kind: 'bonfire', key: 'bonfire', ...BONFIRE.mat });
-  if (s.truck.arrived) out.push({ kind: 'truck', key: 'truck', ...TRUCK.deposit });
-  for (const pile of s.piles) out.push({ kind: 'cash', pile: pile.id, key: `cash:${pile.id}`, x: pile.x, y: pile.y });
+  if (s.bonfire) out.push({ kind: 'bonfire', key: 'bonfire', x: BONFIRE.mat.x, y: BONFIRE.mat.y, area: BONFIRE.mat.area });
+  if (s.truck.arrived) out.push({ kind: 'truck', key: 'truck', x: TRUCK.deposit.x, y: TRUCK.deposit.y, area: TRUCK.deposit.area });
+  for (const pile of s.piles) {
+    const area = pile.id === 'truck' ? TRUCK.tray : rectAt(pile.x, pile.y, cfg.stack.cashPileSize, cfg.stack.cashPileSize);
+    out.push({ kind: 'cash', pile: pile.id, key: `cash:${pile.id}`, x: pile.x, y: pile.y, area });
+  }
   const next = nextUnlockDef(s, cfg);
-  if (next) out.push({ kind: 'pad', unlock: next.id, key: `pad:${next.id}`, ...UNLOCK_PADS[next.id] });
+  if (next) out.push({ kind: 'pad', unlock: next.id, key: `pad:${next.id}`, ...UNLOCK_PADS[next.id], area: padArea(next.id) });
   return out;
 }
 
@@ -330,24 +345,32 @@ function addToPile(s: Phase1State, id: string, at: MapPoint, value: number): voi
   else s.piles.push({ id, x: at.x, y: at.y, value });
 }
 
+/**
+ * Dove piove il premio di un livello: a 3 m dal riquadro appena pagato, verso il centro del lotto 1,
+ * così le mazzette non finiscono dentro una stazione o fuori dalla staccionata.
+ */
+function rewardSpot(at: MapPoint, cfg: Phase1Config): MapPoint {
+  const l = LOTS.lot1;
+  const cx = (l.x0 + l.x1) / 2;
+  const cy = (l.y0 + l.y1) / 2;
+  const d = Math.hypot(cx - at.x, cy - at.y) || 1;
+  const k = Math.min(1, cfg.stack.rewardDistance / d);
+  return { x: at.x + (cx - at.x) * k, y: at.y + (cy - at.y) * k };
+}
+
 function dist(a: MapPoint, b: MapPoint): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-/** Vero se il punto attiva la zona: entro il raggio del tappetino o, per un Campo, sopra l'appezzamento. */
-export function insideZone(z: Zone, pos: MapPoint, cfg: Phase1Config = BALANCE.phase1): boolean {
-  if (dist(pos, z) <= cfg.stack.zoneRadius) return true;
-  if (z.kind !== 'fieldPickup') return false;
-  // Come nel genere, camminare tra le piante le raccoglie (My Mini Mart, Farm Land).
-  const f = FIELD_PLOTS.find((p) => p.id === z.field)!;
-  const h = FIELD_SIZE / 2 + 0.2;
-  return Math.abs(pos.x - f.x) <= h && Math.abs(pos.y - f.y) <= h;
+/** Vero se il punto attiva la zona: è dentro la sua area (GDD sezione 3: area = disegno). */
+export function insideZone(z: Zone, pos: MapPoint): boolean {
+  return inRect(pos, z.area);
 }
 
 function stepPlayerZones(s: Phase1State, pos: MapPoint, dt: number, cfg: Phase1Config, bus: Bus<GameEvents>): void {
   const seen = new Set<string>();
   for (const z of activeZones(s, cfg)) {
-    if (!insideZone(z, pos, cfg)) continue;
+    if (!insideZone(z, pos)) continue;
     seen.add(z.key);
     if (z.kind === 'cash') {
       collectCash(s, z.pile, dt, cfg, bus);
@@ -415,6 +438,9 @@ function applyUnlock(s: Phase1State, def: UnlockDef, cfg: Phase1Config, bus: Bus
   } else if (def.kind === 'bonfire') {
     s.bonfire = true;
     s.navDirty = true;
+  } else if (def.kind === 'office') {
+    s.office = true;
+    s.navDirty = true;
   } else if (def.kind === 'zone') {
     if (!s.lots.includes('lot2')) s.lots.push('lot2');
     s.navDirty = true;
@@ -447,7 +473,7 @@ export function addStars(s: Phase1State, n: number, at: MapPoint, cfg: Phase1Con
     s.level++;
     // Pioggia di mazzette: un mucchio accanto a dove è successo, da raccogliere.
     s.pileSeq++;
-    addToPile(s, `reward${s.pileSeq}`, { x: at.x + 1.4, y: at.y + 0.6 }, cfg.respect.rewardPerLevel * s.level);
+    addToPile(s, `reward${s.pileSeq}`, rewardSpot(at, cfg), cfg.respect.rewardPerLevel * s.level);
     bus.emit('respect:level', { level: s.level });
   }
 }

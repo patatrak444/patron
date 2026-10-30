@@ -6,7 +6,7 @@
 
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
-import { ARCH, BONFIRE, FIELD_PLOTS, FIELD_SIZE, LOTS, PICKER_HUT, PRESSES, TRUCK, VALLEY, inRect, toWorld, type LotId, type MapPoint, type Rect } from '../config/map';
+import { ARCH, BONFIRE, FIELD_PLOTS, FIELD_SIZE, LOTS, OFFICE, PICKER_HUT, PRESSES, ROAD, TRUCK, VALLEY, inRect, toWorld, type LotId, type MapPoint, type Rect } from '../config/map';
 import { createRng, type Rng } from '../core/rng';
 import type { Assets, PropId } from './assets';
 import { bakeGroup, createBatches } from './batching';
@@ -123,10 +123,11 @@ function createFieldSoil(): THREE.Group {
   top.castShadow = false;
   top.position.y = 0.02;
   g.add(top);
-  for (let i = 0; i < 3; i++) {
+  // Solchi regolari, uno per fila di piante.
+  for (let i = 0; i < 4; i++) {
     const f = rbox(FIELD_SIZE - 0.5, 0.03, 0.14, PALETTE.fieldEarthDark, 0.02);
     f.castShadow = false;
-    f.position.set(0, 0.075, -FIELD_SIZE / 2 + 0.75 + i * 0.75);
+    f.position.set(0, 0.075, -FIELD_SIZE / 2 + 0.5 + i * 1.0);
     g.add(f);
   }
   return bakeGroup(g);
@@ -235,6 +236,25 @@ function createArch(): THREE.Group {
   return g;
 }
 
+/**
+ * Ufficio (GDD sezioni 4 e 12): casetta 3 × 2,5 m con la porta a ovest, dove si appoggia il contorno
+ * d'ingresso, e un'insegna gialla con la freccia in su sopra la porta.
+ */
+function createOffice(): THREE.Group {
+  const g = new THREE.Group();
+  const W = OFFICE.w;
+  const D = OFFICE.h;
+  g.add(moved(rbox(W + 0.15, 0.2, D + 0.15, 0x9c958a, 0.05), 0, 0.1, 0));
+  g.add(moved(rbox(W, 2.0, D, PALETTE.villageWall, 0.06), 0, 1.2, 0));
+  g.add(moved(rbox(W + 0.6, 0.22, D + 0.6, PALETTE.roofTile, 0.08), 0, 2.32, 0));
+  g.add(moved(rbox(W - 0.4, 0.3, D - 0.5, 0xb04a33, 0.08), 0, 2.56, 0));
+  // Porta a ovest (−x) con l'insegna gialla.
+  g.add(moved(rbox(0.1, 1.7, 1.0, 0x5a3a24, 0.03), -W / 2 - 0.03, 1.05, 0));
+  g.add(moved(rbox(0.14, 0.5, 1.5, PALETTE.brandYellow, 0.06), -W / 2 - 0.08, 2.05, 0));
+  for (const sz of [-1, 1]) g.add(moved(rbox(0.1, 0.7, 0.55, 0x2f3b45, 0.02), -W / 2 - 0.03, 1.35, sz * 0.85));
+  return bakeGroup(g);
+}
+
 /** Casetta dei Raccoglitori (decorativa) per il lotto 2. */
 function createHut(): THREE.Group {
   const g = new THREE.Group();
@@ -273,6 +293,7 @@ export interface Valley {
   readonly soils: Readonly<Record<string, THREE.Group>>;
   readonly truck: THREE.Object3D;
   readonly bonfire: THREE.Group;
+  readonly office: THREE.Group;
   readonly hut: THREE.Group;
 }
 
@@ -321,7 +342,7 @@ export function createValley(assets: Assets): Valley {
   for (const l of PRESSES) {
     const press = placeAt(bakeGroup(createPress()), l);
     const sign = createRecipeSign('leaf', 'paste', 2.3);
-    sign.position.set(TORCHIO.screw.x, 2.65, 0);
+    sign.position.set(TORCHIO.screw.x, 2.95, TORCHIO.screw.z);
     press.add(sign);
     press.name = l.id;
     press.visible = false;
@@ -333,8 +354,8 @@ export function createValley(assets: Assets): Valley {
   const soils: Record<string, THREE.Group> = {};
   for (const f of FIELD_PLOTS) {
     const pos: { x: number; z: number; h: number; r: number }[] = [];
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) pos.push({ x: -0.9 + i * 0.9, z: -0.9 + j * 0.9, h: 0.8 + ((i + j) % 3) * 0.1, r: (i * 3 + j) * 1.3 });
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) pos.push({ x: -1.5 + i * 1.0, z: -1.5 + j * 1.0, h: 0.85 + ((i + j) % 3) * 0.1, r: (i * 4 + j) * 1.3 });
     }
     const g = placeAt(createLuminaPlants(pos), f);
     g.name = `piante:${f.id}`;
@@ -360,13 +381,17 @@ export function createValley(assets: Assets): Valley {
   truck.visible = false;
   const hut = placeAt(createHut(), PICKER_HUT, Math.PI);
   hut.visible = false;
-  root.add(bonfire, truck, hut);
+  const office = placeAt(createOffice(), OFFICE);
+  office.visible = false;
+  occluders.push(office);
+  root.add(bonfire, truck, hut, office);
 
   // Fuori dai lotti: qualche cespuglio tondo lungo la staccionata, alberi verso i bordi della valle.
   const allLots = Object.values(LOTS);
   const nearLot = (p: MapPoint, m: number): boolean => allLots.some((r) => inRect(p, r, -m));
-  const onRoad = (p: MapPoint): boolean => Math.abs(p.y - 18) < 2.6;
-  for (const s of rows(rng, { x0: 2, y0: 1, x1: VALLEY.width - 2, y1: 34 }, 3.2)) {
+  const onRoad = (p: MapPoint): boolean => Math.abs(p.y - ROAD.from.y) < ROAD.width;
+  const jungleFrom = ROAD.from.y + ROAD.width + 1.2;
+  for (const s of rows(rng, { x0: 2, y0: 1, x1: VALLEY.width - 2, y1: jungleFrom - 1 }, 4.6)) {
     if (nearLot(s, 2.2) || onRoad(s)) continue;
     // Più lontano dai lotti, alberi; vicino, cespugli bassi: niente di alto tra la camera e il lotto.
     const far = !nearLot(s, 6);
@@ -375,16 +400,17 @@ export function createValley(assets: Assets): Valley {
       const t = pickWeighted(rng, FRAME_TREES);
       P.add(t.id, true, s, t.h[0] + s.jitter * (t.h[1] - t.h[0]), s.jitter * 6.3);
     } else if (s.jitter < 0.55) {
-      P.add('bush_round', true, s, 0.9 + s.jitter * 0.4, s.jitter * 6.3);
+      // I cespugli fuori dalla staccionata non fanno ombra: con la camera lontana costavano disegni in più.
+      P.add('bush_round', false, s, 0.9 + s.jitter * 0.4, s.jitter * 6.3);
     }
   }
   // Giungla fitta oltre la strada, verso nord (radura e paese delle Fasi 2 e 3).
-  for (const s of rows(rng, { x0: 0, y0: 21.5, x1: VALLEY.width, y1: VALLEY.depth - 1 }, 3)) {
+  for (const s of rows(rng, { x0: 0, y0: jungleFrom, x1: VALLEY.width, y1: VALLEY.depth - 1 }, 4.2)) {
     const t = pickWeighted(rng, FRAME_TREES);
-    P.add(t.id, s.y < 24, s, t.h[0] + s.jitter * (t.h[1] - t.h[0]), s.jitter * 6.3);
+    P.add(t.id, false, s, t.h[0] + s.jitter * (t.h[1] - t.h[0]), s.jitter * 6.3);
   }
   // Cornice oltre i bordi della valle; a sud e a ovest solo cespugli, per non coprire la vista.
-  for (const s of rows(rng, { x0: -FRAME_DEPTH, y0: -FRAME_DEPTH, x1: VALLEY.width + FRAME_DEPTH, y1: VALLEY.depth + FRAME_DEPTH }, 3)) {
+  for (const s of rows(rng, { x0: -FRAME_DEPTH, y0: -FRAME_DEPTH, x1: VALLEY.width + FRAME_DEPTH, y1: VALLEY.depth + FRAME_DEPTH }, 4.5)) {
     const outside = s.x < -0.9 || s.y < -0.9 || s.x > VALLEY.width + 0.9 || s.y > VALLEY.depth + 0.9;
     if (!outside) continue;
     if (s.y < 0 || s.x < 0) {
@@ -397,5 +423,5 @@ export function createValley(assets: Assets): Valley {
   }
   P.build(assets, root, 'vegetazione');
 
-  return { root, occluders, lots, fences, arch, presses, plants, soils, truck, bonfire, hut };
+  return { root, occluders, lots, fences, arch, presses, plants, soils, truck, bonfire, office, hut };
 }

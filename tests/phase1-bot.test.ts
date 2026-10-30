@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BALANCE } from '../src/config/balance';
-import { BONFIRE, FIELD_PLOTS, FIELD_SIZE, PRESSES, TRUCK, UNLOCK_PADS, VALLEY, type MapPoint } from '../src/config/map';
+import { BONFIRE, PRESSES, TRUCK, UNLOCK_PADS, VALLEY, type MapPoint } from '../src/config/map';
 import { createBus, type GameEvents } from '../src/core/bus';
 import { createRng } from '../src/core/rng';
 import { createNavGrid, findPath } from '../src/sim/pathfinding';
@@ -19,17 +19,21 @@ const cfg = BALANCE.phase1;
 function playPhase1(maxSeconds: number) {
   const state = createInitialState(42);
   const s = state.phase1;
-  // Il giocatore automatico cammina sui sentieri: attraversare i Campi raccoglie Foglie per caso.
+  // Il giocatore automatico usa la stessa griglia dei percorsi del gioco: tra le piante si cammina.
   const botGrid = () => {
     const m = createMoveContext(s);
-    const fields = FIELD_PLOTS.filter((f) => s.fields.find((x) => x.id === f.id)!.unlocked).map((f) => ({ kind: 'rect' as const, x: f.x, y: f.y, w: FIELD_SIZE, h: FIELD_SIZE }));
-    return createNavGrid(VALLEY.width, VALLEY.depth, [...m.shapes, ...fields], BALANCE.nav.pad, m.areas);
+    return createNavGrid(VALLEY.width, VALLEY.depth, m.shapes, BALANCE.nav.pad, m.areas);
   };
   const ctx = { grid: botGrid() };
   const bus = createBus<GameEvents>();
   const rng = createRng(1);
   const unlockedAt: Record<string, number> = {};
-  bus.on('unlock', ({ id }) => (unlockedAt[id] = state.time));
+  // Durante la festa dello sblocco la camera è sull'oggetto nuovo: il giocatore guarda e aspetta (GDD 3).
+  let festa = 0;
+  bus.on('unlock', ({ id }) => {
+    unlockedAt[id] = state.time;
+    festa = BALANCE.feel.festaSeconds;
+  });
   let firstSale = -1;
   bus.on('truck:sale', () => firstSale < 0 && (firstSale = state.time));
   let pos: MapPoint = { x: state.player.x, y: state.player.y };
@@ -69,7 +73,8 @@ function playPhase1(maxSeconds: number) {
       path = findPath(ctx.grid, pos, target).points;
       think = 0.5;
     }
-    if (think > 0) think -= DT;
+    if (festa > 0) festa -= DT;
+    else if (think > 0) think -= DT;
     else {
       let budget = BALANCE.player.speed * DT;
       while (budget > 0 && path.length > 0) {
@@ -113,7 +118,7 @@ describe('ritmo della Fase 1 con un giocatore automatico (GDD 5 e 8)', () => {
     // Il giocatore automatico non impara i comandi e non esita: è più rapido di una persona, quindi il
     // limite basso è largo (un terzo). La taratura fine dei prezzi si fa in M8 con partite vere.
     // Minuti obiettivo della tabella degli sblocchi (GDD sezione 5).
-    const goals: Record<string, number> = { field2: 1.5, bonfire: 2, picker1: 3, zone2: 5, field3: 6.5, picker2: 8, press2: 10 };
+    const goals: Record<string, number> = { field2: 0.5, bonfire: 1.3, office: 1.5, picker1: 2.5, zone2: 3.5, field3: 6.5, picker2: 8, press2: 10 };
     const report = Object.entries(goals).map(([id, m]) => `${id}: ${min(id).toFixed(1)} min (obiettivo ${m})`);
     console.info(report.join("\n"));
     for (const [id, m] of Object.entries(goals)) {

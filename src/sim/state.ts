@@ -1,7 +1,7 @@
 // Stato di gioco e passo di logica. Nessuna dipendenza da Three.js o dal DOM.
 
 import { BALANCE } from '../config/balance';
-import { BONFIRE, LOTS, OBSTACLES, PLAYER_SPAWN, PRESSES, PRESS_SIZE, VALLEY, type Rect, type Shape } from '../config/map';
+import { BONFIRE, LOTS, OBSTACLES, OFFICE, PLAYER_SPAWN, PRESSES, PRESS_SIZE, VALLEY, type Rect, type Shape } from '../config/map';
 import type { Bus, GameEvents } from '../core/bus';
 import { createRng, type Rng } from '../core/rng';
 import { createNavGrid } from './pathfinding';
@@ -42,6 +42,7 @@ export function obstacleShapes(p1?: Phase1State): Shape[] {
     if (p1?.presses.find((x) => x.id === p.id)?.unlocked) shapes.push({ kind: 'rect', x: p.x, y: p.y, w: PRESS_SIZE, h: PRESS_SIZE });
   }
   if (p1?.bonfire) shapes.push({ kind: 'circle', x: BONFIRE.x, y: BONFIRE.y, r: BONFIRE.r });
+  if (p1?.office) shapes.push({ kind: 'rect', x: OFFICE.x, y: OFFICE.y, w: OFFICE.w, h: OFFICE.h });
   return shapes;
 }
 

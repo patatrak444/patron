@@ -3,7 +3,7 @@
 
 import * as THREE from 'three';
 import { BALANCE } from '../config/balance';
-import { FIELD_PLOTS, GHOSTS, PRESSES, TRUCK, UNLOCK_PADS, toWorld, type MapPoint, type UnlockId } from '../config/map';
+import { FIELD_PLOTS, GHOSTS, LOTS, PRESSES, TRUCK, UNLOCK_PADS, toWorld, type MapPoint, type UnlockId } from '../config/map';
 import type { Bus, GameEvents } from '../core/bus';
 import { activeZones, nextUnlockDef, objective, pressBlocked, pressCanWork, type Phase1State, type WorkerState } from '../sim/phase1';
 import type { Assets, CharacterId } from './assets';
@@ -18,7 +18,7 @@ import { GoalArrow, UnlockPad, ZoneMats, type PadIcon } from './zones';
 const cfg = BALANCE.phase1;
 const feel = BALANCE.feel;
 /** Metri percorsi dal camion fuori scena, lungo la strada. */
-const TRUCK_RUN = 40;
+const TRUCK_RUN = 64;
 /** Cappello di paglia dei Raccoglitori (GDD sezione 6). */
 const STRAW = 0xe8c86a;
 const WORKER_MODELS: readonly CharacterId[] = ['mini_male_b', 'mini_male_d', 'mini_female_b', 'mini_male_e'];
@@ -114,7 +114,7 @@ export class Phase1View {
     for (const f of FIELD_PLOTS) {
       const l = new Label();
       const w = toWorld({ x: f.x, y: f.y });
-      l.sprite.position.set(w.x, 1.5, w.z);
+      l.sprite.position.set(w.x, 1.6, w.z);
       this.fieldLabels.set(f.id, l);
       this.root.add(l.sprite);
     }
@@ -123,9 +123,9 @@ export class Phase1View {
       const scrap = new Label();
       const stop = new Label(0.8);
       const o = toWorld(p.output);
-      out.sprite.position.set(o.x, 1.55, o.z + 0.4);
+      out.sprite.position.set(o.x - 0.4, 2.1, o.z);
       const s = toWorld(p.scrap);
-      scrap.sprite.position.set(s.x + 0.25, 1.15, s.z);
+      scrap.sprite.position.set(s.x + 0.3, 1.4, s.z);
       const c = toWorld(p);
       stop.sprite.position.set(c.x, 4.0, c.z);
       this.pressOut.set(p.id, out);
@@ -178,6 +178,7 @@ export class Phase1View {
     }
     if (v.presses[id]) this.appear(v.presses[id]!);
     if (id === 'bonfire') this.appear(v.bonfire);
+    if (id === 'office') this.appear(v.office);
     if (id === 'zone2') this.openLot2(true);
   }
 
@@ -192,7 +193,7 @@ export class Phase1View {
     const sides = [v.fences.lot2];
     if (!animate) return;
     const w = l2.floor.position.x;
-    const half = 5;
+    const half = (LOTS.lot2.x1 - LOTS.lot2.x0) / 2;
     this.tween(0.6, (k) => {
       const e = 1 - (1 - k) * (1 - k);
       l2.floor.scale.x = Math.max(0.001, e);
@@ -251,6 +252,7 @@ export class Phase1View {
     }
     for (const p of s.presses) set(v.presses[p.id]!, p.unlocked);
     set(v.bonfire, s.bonfire);
+    set(v.office, s.office);
     set(v.truck, s.truck.arrived);
     if (s.lots.includes('lot2')) this.openLot2(false);
     else {
@@ -365,26 +367,26 @@ export class Phase1View {
       if (plate) {
         const working = pressCanWork(p);
         const phase = (p.timer / cfg.press.cycle) * Math.PI * 2;
-        plate.position.y = working ? 1.1 - 0.26 * (0.5 - 0.5 * Math.cos(phase)) : 1.1;
+        plate.position.y = working ? 1.3 - 0.12 * (0.5 - 0.5 * Math.cos(phase)) : 1.3;
         // La vite scende con il piatto e gira: è un torchio.
         const screw = g.getObjectByName('pressScrew');
         if (screw) {
-          screw.position.y = plate.position.y + 0.5;
+          screw.position.y = plate.position.y + 0.42;
           if (working) screw.rotation.y = phase;
         }
       }
-      // Foglie in mucchio nella tramoggia a ovest, Panetti impilati sul ripiano a sud, Scarti nel cassone a nord.
+      // Foglie in mucchio nella tramoggia a sud, Panetti impilati sul ripiano a ovest, Scarti nel cassone a est.
       const H = TORCHIO.hopper;
-      for (let i = 0; i < Math.min(p.leaves, 6); i++) {
-        this.batch.add('leaf', c.x + H.x + 0.05, 0.86 + Math.floor(i / 2) * ITEM_HEIGHT.leaf * 0.8, c.z + H.z + ((i % 2) - 0.5) * 0.42, Math.PI / 2, 0.8);
+      for (let i = 0; i < Math.min(p.leaves, 9); i++) {
+        this.batch.add('leaf', c.x + H.x + ((i % 3) - 1) * 0.62, 0.55 + Math.floor(i / 3) * ITEM_HEIGHT.leaf * 0.7, c.z + H.z, 0, 0.8);
       }
       const SH = TORCHIO.shelf;
       for (let i = 0; i < p.pastes; i++) {
-        this.batch.add('paste', c.x + SH.x + ((i % 2) - 0.5) * 0.3 * S, 0.77 + Math.floor(i / 2) * ITEM_HEIGHT.paste, c.z + SH.z, 0);
+        this.batch.add('paste', c.x + SH.x, 0.56 + Math.floor(i / 2) * ITEM_HEIGHT.paste, c.z + SH.z + ((i % 2) - 0.5) * 0.36 * S, Math.PI / 2);
       }
       const CR = TORCHIO.crate;
       for (let i = 0; i < p.scraps; i++) {
-        this.batch.add('scrap', c.x + CR.x + ((i % 3) - 1) * 0.36, 0.08 + Math.floor(i / 3) * 0.25, c.z + CR.z, i, 0.85);
+        this.batch.add('scrap', c.x + CR.x, 0.08 + Math.floor(i / 3) * 0.25, c.z + CR.z + ((i % 3) - 1) * 0.6, i, 0.85);
       }
       out.set(p.pastes >= cfg.press.outCap ? 'MAX' : `${p.pastes}/${cfg.press.outCap}`, p.pastes >= cfg.press.outCap ? 'max' : 'pill');
       scrap.set(p.scraps >= cfg.press.scrapCap ? 'MAX' : `${p.scraps}/${cfg.press.scrapCap}`, p.scraps >= cfg.press.scrapCap ? 'max' : 'pill');

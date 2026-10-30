@@ -17,8 +17,15 @@ export interface CameraConfig {
   readonly yawDeg: number;
   /** Campo visivo verticale, in gradi. */
   readonly fovDeg: number;
-  /** Larghezza di mondo inquadrata ai tre livelli di zoom, in metri. */
-  readonly zoomWidths: readonly [near: number, medium: number, far: number];
+  /**
+   * Altezza di mondo inquadrata ai tre livelli di zoom, in metri, misurata sul piano perpendicolare
+   * allo sguardo: così il lotto entra intero anche nelle finestre più larghe del 16:9 (GDD sezione 3).
+   */
+  readonly zoomHeights: readonly [near: number, medium: number, far: number];
+  /** Zona morta al centro dello schermo, in metri: la camera si muove solo se il giocatore ne esce. */
+  readonly deadZone: { readonly width: number; readonly depth: number };
+  /** Punto inquadrato all'avvio, in coordinate del GDD: fa entrare tutto il lotto 1 con l'arco. */
+  readonly start: { readonly x: number; readonly y: number };
   /** Interpolazione dell'inseguimento per fotogramma a 60 fps; si applica in base al tempo trascorso. */
   readonly followLerp: number;
 }
@@ -67,8 +74,10 @@ export interface ScreenConfig {
 export interface StackConfig {
   /** Capacità iniziale della pila tra le braccia (GDD sezione 3). */
   readonly capacity: number;
-  /** Raggio di attivazione di un tappetino, in metri. */
-  readonly zoneRadius: number;
+  /** Lato dell'area di un mucchio di mazzette a terra, in metri (il vassoio del camion ha la sua misura). */
+  readonly cashPileSize: number;
+  /** Distanza dal riquadro pagato a cui piove il premio di un livello, verso il centro del lotto. */
+  readonly rewardDistance: number;
   /** Secondi tra un oggetto e il successivo trasferito da o verso una zona. */
   readonly transferInterval: number;
   /** Durata del pagamento di un tappetino di sblocco, qualunque sia il prezzo. */
@@ -103,11 +112,11 @@ export interface TruckConfig {
 }
 
 export interface UnlockDef {
-  readonly id: 'field1' | 'press1' | 'field2' | 'bonfire' | 'picker1' | 'zone2' | 'field3' | 'picker2' | 'press2';
+  readonly id: 'field1' | 'press1' | 'field2' | 'bonfire' | 'office' | 'picker1' | 'zone2' | 'field3' | 'picker2' | 'press2';
   readonly cost: number;
   /** Frase dell'obiettivo, 4 parole al massimo (GDD sezione 8). */
   readonly goal: string;
-  readonly kind: 'field' | 'worker' | 'press' | 'bonfire' | 'zone';
+  readonly kind: 'field' | 'worker' | 'press' | 'bonfire' | 'zone' | 'office';
 }
 
 export interface RespectConfig {
@@ -131,7 +140,7 @@ export interface WorkerConfig {
 }
 
 export interface Phase1Config {
-  /** Regalo di El Gordo davanti alla capanna (GDD sezione 5). */
+  /** Regalo di El Gordo a due passi dal giocatore (GDD sezione 5). */
   readonly gift: number;
   readonly stack: StackConfig;
   readonly field: FieldConfig;
@@ -159,9 +168,9 @@ export interface TitleConfig {
 
 /** Sensazione di gioco (GDD sezione 10; skill arcade-idle, PS13–PS19): numeri solo visivi. */
 export interface FeelConfig {
-  /** Festa dello sblocco: secondi di primo piano e larghezza inquadrata, in metri. */
+  /** Festa dello sblocco: secondi di primo piano e altezza inquadrata, in metri (UX8). */
   readonly festaSeconds: number;
-  readonly festaWidth: number;
+  readonly festaHeight: number;
   /** Dollari per mazzetta della pila sulla schiena, e tetto di mazzette disegnate. */
   readonly dollarsPerBundle: number;
   readonly maxBackBundles: number;
@@ -192,10 +201,12 @@ export const BALANCE: Balance = {
     maxStepsPerFrame: 120,
   },
   camera: {
-    pitchDeg: 50,
+    pitchDeg: 45,
     yawDeg: 45,
     fovDeg: 22,
-    zoomWidths: [20, 28, 36],
+    zoomHeights: [19, 25, 31],
+    deadZone: { width: 14, depth: 10 },
+    start: { x: 27.3, y: 20.3 },
     followLerp: 0.1,
   },
   player: {
@@ -218,10 +229,10 @@ export const BALANCE: Balance = {
     minWidth: 1280,
     minHeight: 600,
   },
-  title: { focusX: 25, focusY: 12, orbitSeconds: 60, pitchDeg: 38, width: 46, descendSeconds: 2.2 },
+  title: { focusX: 34, focusY: 24, orbitSeconds: 60, pitchDeg: 38, width: 62, descendSeconds: 2.2 },
   feel: {
-    festaSeconds: 1.1,
-    festaWidth: 9,
+    festaSeconds: 3,
+    festaHeight: 12,
     dollarsPerBundle: 10,
     maxBackBundles: 20,
     flySeconds: 0.35,
@@ -229,8 +240,8 @@ export const BALANCE: Balance = {
     truckDriveSeconds: 3,
   },
   phase1: {
-    gift: 25,
-    stack: { capacity: 4, zoneRadius: 1.2, transferInterval: 0.08, unlockPaySeconds: 1.5, cashCollectSeconds: 0.5 },
+    gift: 40,
+    stack: { capacity: 4, cashPileSize: 1.4, rewardDistance: 3, transferInterval: 0.08, unlockPaySeconds: 1.5, cashCollectSeconds: 0.5 },
     field: { cycle: 3, outCap: 8 },
     press: { leavesPerPaste: 3, cycle: 4, inCap: 12, outCap: 10, pastesPerScrap: 2, scrapCap: 6 },
     truck: { pastePrice: 5, capacity: 10, awaySeconds: 20, firstArrival: 4 },
@@ -239,8 +250,9 @@ export const BALANCE: Balance = {
       { id: 'press1', cost: 15, goal: 'Compra il torchio!', kind: 'press' },
       { id: 'field2', cost: 20, goal: 'Compra il Campo 2!', kind: 'field' },
       { id: 'bonfire', cost: 10, goal: 'Compra il falò!', kind: 'bonfire' },
+      { id: 'office', cost: 40, goal: "Compra l'ufficio!", kind: 'office' },
       { id: 'picker1', cost: 30, goal: 'Assumi un raccoglitore!', kind: 'worker' },
-      { id: 'zone2', cost: 60, goal: 'Apri una nuova zona!', kind: 'zone' },
+      { id: 'zone2', cost: 120, goal: 'Apri una nuova zona!', kind: 'zone' },
       { id: 'field3', cost: 80, goal: 'Compra il Campo 3!', kind: 'field' },
       { id: 'picker2', cost: 120, goal: 'Assumi un raccoglitore!', kind: 'worker' },
       { id: 'press2', cost: 200, goal: 'Compra il Torchio 2!', kind: 'press' },

@@ -92,8 +92,9 @@ async function boot(root: HTMLElement): Promise<void> {
 
   const camera = new GameCamera(BALANCE.camera, innerWidth / innerHeight);
   const frame = createFrame(renderer, scene, camera.camera, quality, BALANCE.render.bloom);
-  const spawn = toWorld(state.player);
-  camera.follow(spawn.x, spawn.z, true);
+  // All'avvio la camera inquadra tutto il lotto 1 con l'arco (GDD sezione 3).
+  const start = toWorld(BALANCE.camera.start);
+  camera.follow(start.x, start.z, true, true);
 
   const resize = (): void => {
     const w = innerWidth;
@@ -135,8 +136,8 @@ async function boot(root: HTMLElement): Promise<void> {
     if (mode !== 'title') return;
     view.showState(state.phase1, !instant);
     player.root.visible = true;
-    const w = toWorld(state.player);
-    camera.follow(w.x, w.z, true);
+    camera.follow(start.x, start.z, true, true);
+    camera.follow(start.x, start.z);
     craneFrom.pos.copy(camera.camera.position);
     craneFrom.quat.copy(camera.camera.quaternion);
     placeCrane();
@@ -144,7 +145,7 @@ async function boot(root: HTMLElement): Promise<void> {
     craneFrom.quat.copy(camera.camera.quaternion);
     mode = instant ? 'play' : 'descend';
     descendTime = 0;
-    if (instant) camera.follow(w.x, w.z, true);
+    if (instant) camera.follow(start.x, start.z, true);
     stepper.paused = false;
   };
   void title.started.then(() => startPlay(false));
@@ -192,7 +193,8 @@ async function boot(root: HTMLElement): Promise<void> {
         setPlayer(x: number, y: number) {
           Object.assign(state.player, { x, y, prevX: x, prevY: y, vx: 0, vy: 0, path: [] });
           const w = toWorld({ x, y });
-          camera.follow(w.x, w.z, true);
+          camera.follow(w.x, w.z, true, true);
+          camera.follow(w.x, w.z);
         },
         zoom: (step: number) => camera.zoom(step),
         /** Prepara una situazione di gioco per gli screenshot (src/debug/scenarios.ts). */
@@ -203,8 +205,9 @@ async function boot(root: HTMLElement): Promise<void> {
           view.syncUnlocked(state.phase1);
           const w = toWorld(state.player);
           const f = view.festaFocus();
-          camera.closeUp(f ? BALANCE.feel.festaWidth : null);
-          camera.follow(f?.x ?? w.x, f?.z ?? w.z, true);
+          camera.closeUp(f ? BALANCE.feel.festaHeight : null);
+          camera.follow(f?.x ?? w.x, f?.z ?? w.z, true, true);
+          if (!f) camera.follow(w.x, w.z);
         },
         state,
         /** Salta la schermata iniziale senza animazione (screenshot automatici). */
@@ -287,8 +290,8 @@ async function boot(root: HTMLElement): Promise<void> {
 
     // Festa dello sblocco: un attimo di primo piano sull'oggetto nuovo, poi si torna al giocatore.
     const festa = view.festaFocus();
-    camera.closeUp(festa ? BALANCE.feel.festaWidth : null);
-    camera.follow(festa?.x ?? w.x, festa?.z ?? w.z);
+    camera.closeUp(festa ? BALANCE.feel.festaHeight : null);
+    camera.follow(festa?.x ?? w.x, festa?.z ?? w.z, false, festa !== null);
     camera.update(frameSeconds);
     if (mode === 'descend') {
       // Dalla gru al lotto 1: si fonde la posa della gru con quella di gioco (GDD sezione 8).

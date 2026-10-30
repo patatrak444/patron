@@ -218,16 +218,16 @@ L'azione principale del gioco è muoversi: ogni azione parte da sola quando il p
 | Regalo di El Gordo | (28,6, 18,6) | 1,2 × 1,2, alto 1,9 | Torre di mazzette 2 × 3 per 10 strati (UX11): vale \$40 in tutto, il numero di mazzette è solo visivo; a 2,3 m dal Campo 1 |
 | Campo 1 | (31, 23,5) | 4 × 4 | Si raccoglie camminando tra le piante: l'area è l'appezzamento più 0,2 m |
 | Campo 2 | (24,5, 23,5) | 4 × 4 | Come il Campo 1; 4,4 m dalla tramoggia |
-| Torchio 1 | (31, 30,5) | 3 × 3, alto 2,2 | Tramoggia a sud da (30,1, 28,1) a (32,5, 29), a 2,6 m dal Campo 1; ripiano dei Panetti a ovest da (28,6, 29) a (29,5, 31,4); cassone degli Scarti a est da (32,5, 29,6) a (33,4, 32) |
-| Falò | (37, 26,5) | 1,6 × 1,6 | Consegna sul lato ovest, da (35,3, 25,7) a (36,2, 27,3): 3 m dal cassone degli Scarti |
-| Carico del camion | contorno da (23, 33,1) a (27, 34) | 4 × 0,9 | Dietro la staccionata; 2,3 m dal ripiano dei Panetti |
-| Vassoio delle mazzette | (25, 31,6) | 1,2 × 0,8 | Vassoio scuro basso, a 1,1 m dal carico; 6,6 m dal Campo 1 e 5,7 m dal Campo 2 |
+| Torchio 1 | (31, 30,1) | 3 × 3, alto 2,2 | Tramoggia a sud da (30,1, 27,7) a (32,5, 28,6), a 2,2 m dal Campo 1; ripiano dei Panetti a ovest da (28,6, 28,6) a (29,5, 31); cassone degli Scarti a est da (32,5, 29,2) a (33,4, 31,6) |
+| Falò | (37, 26,5) | 1,6 × 1,6 | Consegna sul lato ovest, da (35,3, 25,7) a (36,2, 27,3): 2,7 m dal cassone degli Scarti |
+| Carico del camion | contorno da (25,5, 33,1) a (29,5, 34) | 4 × 0,9 | Dietro la staccionata; 2,1 m dal ripiano dei Panetti |
+| Vassoio delle mazzette | (30,7, 32,8) | 1,2 × 0,8 | Vassoio scuro basso, a 0,6 m dal carico; 6,9 m dal Campo 1 e 7,8 m dal Campo 2 |
 | Ufficio | casetta in (34,5, 15) | 3 × 2,5 | Ingresso a ovest: contorno bianco da 2 × 2 in (32, 15), attaccato alla porta con la scritta UFFICIO a terra e una freccia in su, senza fondo pieno (come la stanza UPGRADE di Pizza Ready) |
 | Primo Raccoglitore | riquadro in (27, 14) | 2,3 × 2,3 | A sud dei Campi |
 | Nuova zona | riquadro in (36,8, 20) | 2,3 × 2,3 | Sul bordo est |
-| Arco PATRÓN | (35,5, 34) | 3,4 × 0,5, alto 4 | Sul lato nord, verso la strada, lontano dal camion |
+| Arco PATRÓN | (22,5, 34) | 3,4 × 0,5, alto 4 | Sul lato nord, verso l'angolo nord-ovest: con la camera da sud-ovest quell'angolo sta a metà altezza dello schermo, e l'arco resta sempre in vista, mai sotto l'interfaccia in alto (primo screenshot del 30 ottobre 2026) |
 
-**La strada di El Gordo** corre da ovest a est appena fuori dall'arco, a y = 35,5–38. Il camion arriva lungo la strada da ovest e si ferma a ovest dell'arco (x ≈ 25, y ≈ 36,8), così non copre l'insegna; il carico si fa dal contorno dietro la staccionata, e le mazzette compaiono sul vassoio accanto. A cassone pieno riparte verso est e torna da ovest. Le auto della polizia usano la stessa strada.
+**La strada di El Gordo** corre da ovest a est appena fuori dall'arco, a y = 35,5–38. Il camion arriva lungo la strada da ovest e si ferma a est dell'arco (x ≈ 27,5, y ≈ 36,8), così non copre l'insegna; il carico si fa dal contorno dietro la staccionata, e le mazzette compaiono sul vassoio accanto. A cassone pieno riparte verso est e torna da ovest. Le auto della polizia usano la stessa strada.
 
 **Sagome.** Ogni stazione non ancora comprata si vede come la sua impronta grigia a terra, con le parentesi bianche agli angoli e un fumetto con la mazzetta e il prezzo; quella del prossimo sblocco ha sopra la freccia gialla. All'inizio si vede una sagoma sola (PS10, PS11).
 
@@ -597,7 +597,7 @@ In 3 minuti il giocatore deve aver fatto un giro completo della catena, incassat
 | 0:10  | Sagoma del Campo 1 con il fumetto "\$5": "Compra il campo!". La festa: camera vicina, piantine che spuntano, stelle | Gli sblocchi |
 | 0:16  | Sagoma del Torchio con "\$15": "Compra il torchio!". Seconda festa | Le stazioni |
 | 0:22  | Sagoma del Campo 2, pagata con il resto del regalo. Terza festa | Crescere |
-| 0:28  | Finita la festa, clacson: il camion di El Gordo arriva lungo la strada e si ferma a ovest dell'arco | Il compratore |
+| 0:28  | Finita la festa, clacson: il camion di El Gordo arriva lungo la strada e si ferma a est dell'arco | Il compratore |
 | 0:30  | "Raccogli le foglie!": camminando tra le piante le foglie volano tra le braccia una a una | La raccolta e la pila |
 | 0:40  | "Foglie al torchio!": la vite scende, esce il primo Panetto | Le stazioni trasformano |
 | 0:55  | "Vendi a El Gordo!": il cassone segna "1/10", le mazzette compaiono sul vassoio accanto al camion. "Prendi i soldi!" | Prima ricompensa |

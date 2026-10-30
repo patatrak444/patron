@@ -2,6 +2,7 @@
 // di sblocco con icona e prezzo, freccia gialla 3D sul prossimo obiettivo con un anello a terra.
 
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { PALETTE } from './palette';
 
 export type MatKind = 'pickup' | 'deposit' | 'cash';
@@ -65,7 +66,7 @@ export class ZoneMats {
   }
 }
 
-export type PadIcon = 'field' | 'worker' | 'press' | 'bonfire' | 'zone';
+export type PadIcon = 'field' | 'worker' | 'press' | 'bonfire' | 'zone' | 'office';
 
 const FONT = '"Baloo 2", "Trebuchet MS", Arial, sans-serif';
 
@@ -224,6 +225,18 @@ export class UnlockPad {
       ctx.quadraticCurveTo(cx, cy + 48, cx - 26, cy + 30);
       ctx.quadraticCurveTo(cx - 40, cy, cx, cy - 46);
       ctx.fill();
+    } else if (icon === 'office') {
+      // Freccia in su: si diventa più forti (potenziamenti, GDD sezione 12).
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - 48);
+      ctx.lineTo(cx + 42, cy);
+      ctx.lineTo(cx + 16, cy);
+      ctx.lineTo(cx + 16, cy + 40);
+      ctx.lineTo(cx - 16, cy + 40);
+      ctx.lineTo(cx - 16, cy);
+      ctx.lineTo(cx - 42, cy);
+      ctx.closePath();
+      ctx.fill();
     } else if (icon === 'zone') {
       // Quattro frecce verso l'esterno: la Hacienda si allarga.
       ctx.lineWidth = 12;
@@ -287,13 +300,15 @@ export class GoalArrow {
   constructor() {
     this.root.name = 'freccia obiettivo';
     const mat = new THREE.MeshLambertMaterial({ color: 0xffd23a, emissive: 0x6b4a00, flatShading: true });
-    const head = new THREE.Mesh(new THREE.ConeGeometry(0.42, 0.62, 4), mat);
-    head.rotation.x = Math.PI;
-    head.position.y = 0.31;
-    const shaft = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.55, 0.28), mat);
-    shaft.position.y = 0.88;
-    for (const m of [head, shaft]) m.castShadow = true;
-    this.arrow.add(head, shaft);
+    // Punta e asta in una sola geometria: un disegno solo, anche nella mappa d'ombra.
+    const headGeo = new THREE.ConeGeometry(0.42, 0.62, 4).toNonIndexed();
+    headGeo.rotateX(Math.PI);
+    headGeo.translate(0, 0.31, 0);
+    const shaftGeo = new THREE.BoxGeometry(0.28, 0.55, 0.28).toNonIndexed();
+    shaftGeo.translate(0, 0.88, 0);
+    const arrowMesh = new THREE.Mesh(mergeGeometries([headGeo, shaftGeo])!, mat);
+    arrowMesh.castShadow = true;
+    this.arrow.add(arrowMesh);
     this.ring = new THREE.Mesh(
       new THREE.RingGeometry(0.62, 0.78, 32).rotateX(-Math.PI / 2),
       new THREE.MeshBasicMaterial({ color: 0xffd23a, transparent: true, opacity: 0.85, depthWrite: false }),

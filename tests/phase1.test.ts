@@ -169,7 +169,7 @@ describe('Campo e Pressa (GDD 4)', () => {
     const s = createPhase1();
     openUpTo(s, 'field1');
     s.fields[0]!.ready = 8;
-    run(s, { x: 16.6, y: 9.0 }, 0.5);
+    run(s, { x: 30.2, y: 22.8 }, 0.5);
     expect(s.stack.items.length).toBe(cfg.stack.capacity);
   });
 
