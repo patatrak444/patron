@@ -226,6 +226,14 @@ function createArch(): THREE.Group {
   board.position.set(0, 4.25, 0);
   board.castShadow = true;
   g.add(board);
+  // Vassoio scuro delle mazzette del camion, accanto all'arco (GDD sezione 4): fuso nell'arco, nessun
+  // disegno in più. Coordinate locali: x verso est, +z verso sud.
+  const tray = toWorld(TRUCK.cash);
+  const arch = toWorld(ARCH);
+  const tw = TRUCK.tray.x1 - TRUCK.tray.x0;
+  const td = TRUCK.tray.y1 - TRUCK.tray.y0;
+  g.add(moved(rbox(tw + 0.1, 0.07, td + 0.1, 0x555b73, 0.03), tray.x - arch.x, 0.035, tray.z - arch.z));
+  g.add(moved(rbox(tw - 0.08, 0.05, td - 0.08, 0x3b3f52, 0.02), tray.x - arch.x, 0.07, tray.z - arch.z));
   // Due lanterne: le poche cose che brillano, insieme alla Lumina.
   for (const sx of [-1, 1]) {
     const lamp = new THREE.Mesh(new THREE.OctahedronGeometry(0.16, 0), flat(0xffd27a, 0xffb347, 2.2));

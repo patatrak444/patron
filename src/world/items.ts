@@ -155,13 +155,27 @@ export class ItemBatch {
  * Mucchio di mazzette a blocchi di 2 × 3 che cresce in altezza (GDD sezione 10), come i soldi a
  * terra di Pizza Ready. Oltre 40 mazzette la pila smette di crescere (GDD sezione 4).
  */
-export function addMoneyPile(batch: ItemBatch, value: number, x: number, z: number, pop = 1): void {
+export function addMoneyPile(batch: ItemBatch, value: number, x: number, z: number, pop = 1, baseY = 0): void {
   const bundles = Math.min(40, Math.max(6, Math.ceil(value / 5)));
   for (let i = 0; i < bundles; i++) {
     const layer = Math.floor(i / 6);
     const slot = i % 6;
     const col = slot % 2;
     const row = Math.floor(slot / 2);
-    batch.add('money', x + (col - 0.5) * 0.38 * ITEM_SCALE, layer * ITEM_HEIGHT.money * pop, z + (row - 1) * 0.24 * ITEM_SCALE, 0, pop);
+    batch.add('money', x + (col - 0.5) * 0.38 * ITEM_SCALE, baseY + layer * ITEM_HEIGHT.money * pop, z + (row - 1) * 0.24 * ITEM_SCALE, 0, pop);
+  }
+}
+
+/**
+ * Il regalo di El Gordo: torre di mazzette 2 × 3 alta quanto il personaggio, che si vede da lontano (GDD
+ * sezione 4, UX11). Il numero di mazzette è solo visivo.
+ */
+export function addMoneyTower(batch: ItemBatch, x: number, z: number, layers: number): void {
+  for (let i = 0; i < layers * 6; i++) {
+    const layer = Math.floor(i / 6);
+    const slot = i % 6;
+    const col = slot % 2;
+    const row = Math.floor(slot / 2);
+    batch.add('money', x + (col - 0.5) * 0.38 * ITEM_SCALE, layer * ITEM_HEIGHT.money, z + (row - 1) * 0.24 * ITEM_SCALE, (layer % 2) * 0.06, 1);
   }
 }

@@ -334,6 +334,15 @@ body {
   transform: rotate(-12deg);
 }
 
+.hud__bill--fly {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 3px var(--ink) inset,
+    0 3px 6px rgba(27, 27, 47, 0.25);
+}
+
 .hud__cash-text {
   margin-left: auto;
 }

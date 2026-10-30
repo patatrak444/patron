@@ -106,6 +106,15 @@ async function boot(root: HTMLElement): Promise<void> {
   resize();
 
   const hud = createHud(root);
+  // Raccogliendo, le banconote volano dal mucchio alla pillola del contante (GDD sezione 3, UX3).
+  const billFrom = new THREE.Vector3();
+  bus.on('cash:collect', ({ amount, pile }) => {
+    const at = view.pileWorld(pile);
+    if (!at || mode !== 'play') return;
+    billFrom.set(at.x, 0.4, at.z).project(camera.camera);
+    const n = Math.min(BALANCE.feel.collectBills, Math.max(2, Math.ceil(amount / 5)));
+    hud.flyBills((billFrom.x * 0.5 + 0.5) * innerWidth, (-billFrom.y * 0.5 + 0.5) * innerHeight, n, BALANCE.feel.flySeconds + 0.25);
+  });
   installMinSizeNotice(root);
 
   // Schermata iniziale (GDD sezione 8): sotto il logo gira l'impero dimostrativo, uno stato di gioco

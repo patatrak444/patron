@@ -7,7 +7,7 @@ import { BONFIRE, FIELD_PLOTS, GHOSTS, LOTS, OFFICE, PRESSES, TRUCK, UNLOCK_PADS
 import type { Bus, GameEvents } from '../core/bus';
 import { nextUnlockDef, objective, pressBlocked, pressCanWork, type Phase1State, type WorkerState } from '../sim/phase1';
 import type { Assets, CharacterId } from './assets';
-import { addMoneyPile, ITEM_HEIGHT, ITEM_SCALE as S, ItemBatch, type VisualItem } from './items';
+import { addMoneyPile, addMoneyTower, ITEM_HEIGHT, ITEM_SCALE as S, ItemBatch, type VisualItem } from './items';
 import { Label } from './labels';
 import type { Valley } from './map';
 import { Confetti, Dust } from './effects';
@@ -58,7 +58,7 @@ function drawStack(batch: ItemBatch, items: readonly VisualItem[], pose: Pose, s
   });
 }
 
-/** Mazzetta in volo: dal mucchio alla schiena o dalla schiena al tappetino (skill arcade-idle, PS16). */
+/** Banconota in volo da sopra la testa al riquadro d'acquisto (skill arcade-idle, PS16). */
 interface Flight {
   readonly from: THREE.Vector3;
   readonly to: () => THREE.Vector3;
@@ -103,7 +103,7 @@ export class Phase1View {
   private payTimer = 0;
   private lastPaid = 0;
   private readonly pilePos = new Map<string, { x: number; z: number }>();
-  private readonly backTop = new THREE.Vector3();
+  private readonly headTop = new THREE.Vector3();
 
   constructor(
     private readonly valley: Valley,
@@ -141,12 +141,7 @@ export class Phase1View {
 
     bus.on('unlock', ({ id }) => this.onUnlock(id as UnlockId));
     bus.on('truck:arriving', () => (this.valley.truck.visible = true));
-    bus.on('cash:collect', ({ amount, pile }) => {
-      const at = this.pilePos.get(pile);
-      if (!at) return;
-      const n = Math.min(10, Math.max(2, Math.ceil(amount / feel.dollarsPerBundle)));
-      for (let i = 0; i < n; i++) this.flights.push({ from: new THREE.Vector3(at.x, 0.2 + i * 0.05, at.z), to: () => this.backTop, t: 0, delay: i * 0.04 });
-    });
+
     bus.on('bonfire:burn', () => (this.flare = 1));
     bus.on('press:paste', ({ press }) => {
       const sign = this.valley.presses[press]?.getObjectByName('pressPlate');
@@ -205,6 +200,11 @@ export class Phase1View {
       this.tween(0.9, (k) => (f.scale.y = Math.max(0.001, pop(Math.max(0, (k - 0.5) / 0.5)))));
     });
     this.appear(v.hut, 0.4);
+  }
+
+  /** Dove sta, nel mondo, un mucchio di mazzette (per far volare le banconote verso il contatore). */
+  pileWorld(id: string): { x: number; z: number } | null {
+    return this.pilePos.get(id) ?? null;
   }
 
   /** Punto da inquadrare da vicino durante la festa, o null. */
@@ -303,17 +303,11 @@ export class Phase1View {
 
     this.batch.begin();
 
-    // Pila del giocatore: merce tra le braccia, mazzette sulla schiena (GDD sezione 4, «Le mazzette addosso»).
+    // Pila del giocatore: solo merce tra le braccia. I soldi non si portano addosso (GDD sezione 3, UX3):
+    // pagando, le banconote partono da sopra la testa.
     const sway = this.playerSway.update(player.vx, player.vz, dt);
     drawStack(this.batch, playerItems, player, sway);
-    const bundles = Math.min(feel.maxBackBundles, Math.ceil(s.cash / feel.dollarsPerBundle));
-    const bx = player.x - Math.sin(player.rotY) * 0.4;
-    const bz = player.z - Math.cos(player.rotY) * 0.4;
-    for (let i = 0; i < bundles; i++) {
-      const f = (i + 1) / Math.max(6, bundles);
-      this.batch.add('money', bx + sway.x * f * i * 0.6, 0.95 + i * ITEM_HEIGHT.money, bz + sway.z * f * i * 0.6, player.rotY);
-    }
-    this.backTop.set(bx, 0.95 + bundles * ITEM_HEIGHT.money, bz);
+    this.headTop.set(player.x, 2.3, player.z);
     // Sbuffi di polvere mentre si corre (skill arcade-idle, PS19).
     this.dustTimer -= dt;
     if (Math.hypot(player.vx, player.vz) > 1 && this.dustTimer <= 0) {
@@ -430,11 +424,13 @@ export class Phase1View {
       this.truckTimer.set(null);
     }
 
-    // Mazzette a terra.
+    // Mazzette a terra in blocchi 2 × 3; il regalo è una torre alta quanto il personaggio (UX11), quelle del
+    // camion stanno sul vassoio scuro.
     for (const pile of s.piles) {
       const w = toWorld(pile);
       this.pilePos.set(pile.id, w);
-      addMoneyPile(this.batch, pile.value, w.x, w.z);
+      if (pile.id === 'gift') addMoneyTower(this.batch, w.x, w.z, Math.ceil((feel.giftTowerLayers * pile.value) / cfg.gift));
+      else addMoneyPile(this.batch, pile.value, w.x, w.z, 1, pile.id === 'truck' ? 0.1 : 0);
     }
 
     // Mazzette che volano verso il tappetino mentre si paga.
@@ -445,7 +441,7 @@ export class Phase1View {
         this.payTimer = 0.07;
         const to = toWorld(UNLOCK_PADS[nextDef.id]);
         const target = new THREE.Vector3(to.x, 0.05, to.z);
-        this.flights.push({ from: this.backTop.clone(), to: () => target, t: 0, delay: 0 });
+        this.flights.push({ from: this.headTop.clone(), to: () => target, t: 0, delay: 0 });
       }
     }
     this.lastPaid = s.padPaid;

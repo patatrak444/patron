@@ -173,10 +173,11 @@ export interface FeelConfig {
   /** Festa dello sblocco: secondi di primo piano e altezza inquadrata, in metri (UX8). */
   readonly festaSeconds: number;
   readonly festaHeight: number;
-  /** Dollari per mazzetta della pila sulla schiena, e tetto di mazzette disegnate. */
-  readonly dollarsPerBundle: number;
-  readonly maxBackBundles: number;
-  /** Secondi di volo di una mazzetta (dal mucchio alla schiena, dalla schiena al tappetino). */
+  /** Strati della torre di mazzette del regalo: 10 strati da 0,19 m = 1,9 m, l'altezza del personaggio. */
+  readonly giftTowerLayers: number;
+  /** Banconote che volano al contatore per ogni raccolta, al massimo. */
+  readonly collectBills: number;
+  /** Secondi di volo di una banconota (da sopra la testa al riquadro, dal mucchio al contatore). */
   readonly flySeconds: number;
   /** Secondi fra due sbuffi di polvere mentre si corre. */
   readonly dustEvery: number;
@@ -235,8 +236,8 @@ export const BALANCE: Balance = {
   feel: {
     festaSeconds: 3,
     festaHeight: 12,
-    dollarsPerBundle: 10,
-    maxBackBundles: 20,
+    giftTowerLayers: 10,
+    collectBills: 8,
     flySeconds: 0.35,
     dustEvery: 0.14,
     truckDriveSeconds: 3,

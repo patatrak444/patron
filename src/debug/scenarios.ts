@@ -8,7 +8,7 @@ import { createRng } from '../core/rng';
 import { stepPhase1 } from '../sim/phase1';
 import { createMoveContext, type GameState } from '../sim/state';
 
-export type Scenario = 'festa' | 'primo' | 'pila' | 'camion' | 'pagamento' | 'raccoglitore' | 'lotto2' | 'avanzato';
+export type Scenario = 'festa' | 'primo' | 'pila' | 'camion' | 'pagamento' | 'raccoglitore' | 'lotto2' | 'avanzato' | 'raccolta';
 
 function place(state: GameState, x: number, y: number): void {
   const facing = (-3 * Math.PI) / 4;
@@ -109,6 +109,14 @@ export function prepareScenario(state: GameState, name: Scenario, bus: Bus<GameE
       unlockUpTo(state, at('zone2') + 1, bus);
       s.cash = 50;
       place(state, 37, 20);
+      break;
+    }
+    case 'raccolta': {
+      // Sul vassoio del camion: le banconote volano dal mucchio al contatore in alto a destra (UX3).
+      unlockUpTo(state, at('bonfire') + 1, bus);
+      s.piles.push({ id: 'truck', x: TRUCK.cash.x, y: TRUCK.cash.y, value: 120 });
+      s.cash = 10;
+      place(state, TRUCK.cash.x, TRUCK.cash.y);
       break;
     }
     case 'avanzato': {

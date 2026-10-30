@@ -12,6 +12,11 @@ export interface Hud {
   setGoal(text: string): void;
   /** Posizione in pixel del bersaglio fuori schermo, o null per nascondere la freccia al bordo. */
   setEdgeArrow(at: { x: number; y: number } | null): void;
+  /**
+   * Banconote che volano dal punto (x, y) dello schermo alla pillola del contante (GDD sezione 3, UX3):
+   * i soldi raccolti non restano addosso al personaggio.
+   */
+  flyBills(x: number, y: number, count: number, seconds: number): void;
 }
 
 /** Numero abbreviato: 950 · 1,2K · 3,45M (GDD sezione 12). */
@@ -85,6 +90,27 @@ export function createHud(root: HTMLElement): Hud {
       goal.classList.remove('is-new');
       void goal.offsetWidth;
       goal.classList.add('is-new');
+    },
+    flyBills(x, y, count, seconds) {
+      const r = bill.getBoundingClientRect();
+      const tx = r.left + r.width / 2;
+      const ty = r.top + r.height / 2;
+      for (let i = 0; i < count; i++) {
+        const b = el('span', 'hud__bill hud__bill--fly', root);
+        const jx = (i % 3) * 10 - 10;
+        const jy = Math.floor(i / 3) * -8;
+        b.style.left = `${x + jx - 22}px`;
+        b.style.top = `${y + jy - 14}px`;
+        const anim = b.animate(
+          [
+            { transform: 'translate(0, 0) rotate(-12deg) scale(0.7)', opacity: 1 },
+            { transform: `translate(${(tx - x) * 0.45}px, ${(ty - y) * 0.45 - 60}px) rotate(20deg) scale(1)`, opacity: 1, offset: 0.45 },
+            { transform: `translate(${tx - x - jx}px, ${ty - y - jy}px) rotate(-12deg) scale(0.9)`, opacity: 0.9 },
+          ],
+          { duration: seconds * 1000, delay: i * 45, easing: 'ease-in', fill: 'backwards' },
+        );
+        anim.onfinish = () => b.remove();
+      }
     },
     setEdgeArrow(at) {
       edge.classList.toggle('is-visible', at !== null);
