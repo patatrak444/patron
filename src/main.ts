@@ -17,7 +17,8 @@ import { createRng } from './core/rng';
 import { prepareScenario, type Scenario } from './debug/scenarios';
 import { hasWebGL2, installMinSizeNotice, isTouchOnlyDevice, showBlockingMessage } from './ui/deviceGate';
 import { createHud } from './ui/hud';
-import { GameCamera } from './world/camera';
+import { cameraOffset, distanceForWidth, GameCamera } from './world/camera';
+import { createTitleScreen } from './ui/title';
 import { loadAssets, type Assets } from './world/assets';
 import { OccluderFader } from './world/fade';
 import { DestinationMarker } from './world/marker';
@@ -106,6 +107,48 @@ async function boot(root: HTMLElement): Promise<void> {
   const hud = createHud(root);
   installMinSizeNotice(root);
 
+  // Schermata iniziale (GDD sezione 8): sotto il logo gira l'impero dimostrativo, uno stato di gioco
+  // a parte con la Fase 1 completa. Al clic il disegno torna allo stato vero e la camera scende.
+  const demo = createInitialState(7);
+  prepareScenario(demo, 'avanzato', createBus<GameEvents>());
+  demo.phase1.cash = 0;
+  const demoBus = createBus<GameEvents>();
+  const demoCtx = createMoveContext(demo.phase1);
+  const demoRng = createRng(11);
+  let demoAcc = 0;
+  let mode: 'title' | 'descend' | 'play' = 'title';
+  let titleTime = 0;
+  let descendTime = 0;
+  const craneFrom = { pos: new THREE.Vector3(), quat: new THREE.Quaternion() };
+  const tcfg = BALANCE.title;
+  const craneFocus = toWorld({ x: tcfg.focusX, y: tcfg.focusY });
+  const placeCrane = (): void => {
+    const yaw = BALANCE.camera.yawDeg + (titleTime / tcfg.orbitSeconds) * 360;
+    const dist = distanceForWidth(tcfg.width, BALANCE.camera.fovDeg, camera.camera.aspect);
+    camera.camera.position.set(craneFocus.x, 0, craneFocus.z).addScaledVector(cameraOffset(tcfg.pitchDeg, yaw), dist);
+    camera.camera.lookAt(craneFocus.x, 0, craneFocus.z);
+  };
+  view.showState(demo.phase1);
+  player.root.visible = false;
+  const title = createTitleScreen(root);
+  const startPlay = (instant: boolean): void => {
+    if (mode !== 'title') return;
+    view.showState(state.phase1, !instant);
+    player.root.visible = true;
+    const w = toWorld(state.player);
+    camera.follow(w.x, w.z, true);
+    craneFrom.pos.copy(camera.camera.position);
+    craneFrom.quat.copy(camera.camera.quaternion);
+    placeCrane();
+    craneFrom.pos.copy(camera.camera.position);
+    craneFrom.quat.copy(camera.camera.quaternion);
+    mode = instant ? 'play' : 'descend';
+    descendTime = 0;
+    if (instant) camera.follow(w.x, w.z, true);
+    stepper.paused = false;
+  };
+  void title.started.then(() => startPlay(false));
+
   const stepper = createFixedStepper({
     ...BALANCE.sim,
     update: (dt) => {
@@ -115,6 +158,8 @@ async function boot(root: HTMLElement): Promise<void> {
       stepSim(state, dt, bus, { moveX: move.x, moveY: move.y }, moveCtx, rng);
     },
   });
+  // La partita vera parte solo dopo il clic sulla schermata iniziale.
+  stepper.paused = true;
 
   // Clic sul terreno: raggio dalla camera al piano del suolo.
   const raycaster = new THREE.Raycaster();
@@ -132,6 +177,7 @@ async function boot(root: HTMLElement): Promise<void> {
     },
     onZoom: (step) => camera.zoom(step),
     onTogglePause() {
+      if (mode !== 'play') return;
       stepper.paused = !stepper.paused;
       hud.setPaused(stepper.paused);
     },
@@ -161,6 +207,11 @@ async function boot(root: HTMLElement): Promise<void> {
           camera.follow(f?.x ?? w.x, f?.z ?? w.z, true);
         },
         state,
+        /** Salta la schermata iniziale senza animazione (screenshot automatici). */
+        skipTitle() {
+          title.start();
+          startPlay(true);
+        },
         budget: () => ({ view: budget(scene, camera.camera), shadow: budget(scene, lights.sun.shadow.camera, true) }),
       },
     });
@@ -186,6 +237,26 @@ async function boot(root: HTMLElement): Promise<void> {
   };
 
   startLoop(stepper, (alpha, frameSeconds) => {
+    if (mode === 'title') {
+      // L'impero dimostrativo lavora da solo sotto il logo; la gru gli gira intorno.
+      const dt = Math.min(frameSeconds, 0.25);
+      titleTime += dt;
+      demoAcc += dt;
+      for (let i = 0; i < 4 && demoAcc >= BALANCE.sim.step; i++) {
+        demoAcc -= BALANCE.sim.step;
+        demo.time += BALANCE.sim.step;
+        stepSim(demo, BALANCE.sim.step, demoBus, { moveX: 0, moveY: 0 }, demoCtx, demoRng);
+      }
+      const d = demo.player;
+      const dw = toWorld(d);
+      view.update(demo.phase1, { x: dw.x, z: dw.z, rotY: 0, vx: 0, vz: 0 }, [], 1, dt, demo.time);
+      placeCrane();
+      lights.follow(craneFocus.x, craneFocus.z);
+      renderer.info.reset();
+      frame.render();
+      debug?.frame(frameSeconds);
+      return;
+    }
     const p = state.player;
     // Disegno interpolato tra gli ultimi due passi di logica.
     const x = p.prevX + (p.x - p.prevX) * alpha;
@@ -219,6 +290,15 @@ async function boot(root: HTMLElement): Promise<void> {
     camera.closeUp(festa ? BALANCE.feel.festaWidth : null);
     camera.follow(festa?.x ?? w.x, festa?.z ?? w.z);
     camera.update(frameSeconds);
+    if (mode === 'descend') {
+      // Dalla gru al lotto 1: si fonde la posa della gru con quella di gioco (GDD sezione 8).
+      descendTime += Math.min(frameSeconds, 0.1);
+      const k = Math.min(1, descendTime / BALANCE.title.descendSeconds);
+      const e = k * k * (3 - 2 * k);
+      camera.camera.position.lerpVectors(craneFrom.pos, camera.camera.position, e);
+      camera.camera.quaternion.slerpQuaternions(craneFrom.quat, camera.camera.quaternion.clone(), e);
+      if (k >= 1) mode = 'play';
+    }
     lights.follow(w.x, w.z);
     fader.update(camera.camera, player.root.position, frameSeconds);
     renderer.info.reset();

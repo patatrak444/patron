@@ -17,6 +17,8 @@ const base = useDev ? 'http://localhost:5173/' : `http://localhost:${PORT}/`;
  * (−1 vicino, +1 lontano) e secondi di attesa. La partenza usa il punto di partenza vero.
  */
 const SHOTS = [
+  // Schermata iniziale: logo sopra l'impero completo, prima del clic (GDD sezione 8).
+  { name: '00-titolo', wait: 3 },
   // M2b: la Hacienda vuota, con il regalo e la sagoma del Campo 1 (skill arcade-idle, PS1–PS4).
   { name: '01-partenza', wait: 3 },
   // Situazioni preparate con window.__patron.prepare (src/debug/scenarios.ts).
@@ -70,8 +72,14 @@ const report = [];
 await page.waitForFunction(() => window.__patron, null, { timeout: 180000 });
 // SHOT_ONLY=07-pila,11-avanzato fotografa solo quelle (lo zoom può differire dalla serie completa).
 const only = process.env.SHOT_ONLY?.split(',');
+let titleSkipped = false;
 for (const shot of SHOTS) {
   if (only && !only.includes(shot.name)) continue;
+  // Dopo la schermata iniziale si entra in partita senza animazione.
+  if (shot.name !== '00-titolo' && !titleSkipped) {
+    await page.evaluate(() => window.__patron.skipTitle());
+    titleSkipped = true;
+  }
   if (shot.prepare) await page.evaluate((n) => window.__patron.prepare(n), shot.prepare);
   if (shot.at) await page.evaluate(([x, y]) => window.__patron.setPlayer(x, y), shot.at);
   if (shot.zoom) await page.evaluate((z) => window.__patron.zoom(z), shot.zoom);
