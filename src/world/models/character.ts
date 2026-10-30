@@ -63,6 +63,9 @@ function createBlobShadow(radius: number): THREE.Mesh {
   return mesh;
 }
 
+/** Radianti di fase del passo per metro percorso: un mezzo giro di seno a ogni appoggio. */
+const STEP_RATE = 2.4;
+
 export class Character {
   readonly root = new THREE.Group();
   private readonly body = new THREE.Group();
@@ -156,7 +159,7 @@ export class Character {
       }
       this.mixer.update(dt);
       // Fase del passo: un giro ogni due appoggi.
-      if (moving) this.stepPhase += speed * dt * 2.4;
+      if (moving) this.stepPhase += speed * dt * STEP_RATE;
       // Braccia in posa di trasporto, con un passaggio morbido di 0,15 s.
       this.carry += ((this.carrying ? 1 : 0) - this.carry) * (1 - Math.exp(-dt / 0.05));
       if (this.carry > 0.01) for (const a of this.arms) a.bone.quaternion.slerp(a.pose, this.carry);
@@ -164,7 +167,7 @@ export class Character {
     }
 
     if (t > 0.02) {
-      this.phase += speed * dt * 2.4;
+      this.phase += speed * dt * STEP_RATE;
       this.body.position.y = Math.abs(Math.sin(this.phase)) * 0.07 * t;
       this.body.rotation.x = 0.16 * t;
       this.body.scale.y = 1;

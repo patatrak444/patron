@@ -2,7 +2,8 @@
 // vive qui: solo posizioni, animazioni e scritte (GDD sezioni 4, 9, 10 e 12).
 
 import * as THREE from 'three';
-import { BALANCE } from '../config/balance';
+import { BALANCE, type StackFeelConfig } from '../config/balance';
+import { StackSway } from './stackSway';
 import { BONFIRE, FIELD_PLOTS, GHOSTS, LOTS, OFFICE, PRESSES, TRUCK, UNLOCK_PADS, toWorld, type MapPoint, type UnlockId } from '../config/map';
 import type { Bus, GameEvents } from '../core/bus';
 import { nextUnlockDef, objective, pressBlocked, pressCanWork, type Phase1State, type WorkerState } from '../sim/phase1';
@@ -37,56 +38,14 @@ export interface Pose {
 }
 
 /**
- * Pila che si piega come una molla (GDD sezione 10): la cima si inclina all'indietro rispetto alla corsa e
- * torna dritta quando ci si ferma, con un tetto all'inclinazione (skill ux-ui-arcade-idle, raccolta-e-pila).
- */
-class StackSway {
-  private x = 0;
-  private z = 0;
-  private vx = 0;
-  private vz = 0;
-  update(velX: number, velZ: number, dt: number, cfg: StackFeel): { x: number; z: number } {
-    const step = Math.min(dt, 1 / 30);
-    let tx = -velX * cfg.leanPerSpeed;
-    let tz = -velZ * cfg.leanPerSpeed;
-    const len = Math.hypot(tx, tz);
-    if (len > cfg.maxLean) {
-      tx *= cfg.maxLean / len;
-      tz *= cfg.maxLean / len;
-    }
-    // Molla smorzata: oscilla un poco e si assesta.
-    this.vx += ((tx - this.x) * cfg.spring - this.vx * cfg.damping) * step;
-    this.vz += ((tz - this.z) * cfg.spring - this.vz * cfg.damping) * step;
-    this.x += this.vx * step;
-    this.z += this.vz * step;
-    return { x: this.x, z: this.z };
-  }
-}
-
-/** Misure della pila in mano: le stesse regole per il giocatore e per i lavoratori, con numeri diversi. */
-export interface StackFeel {
-  readonly front: number;
-  readonly base: number;
-  /** Ingrandimento di traverso per tipo di merce, in profondità e in altezza. */
-  readonly sideways: Readonly<Record<VisualItem, number>>;
-  readonly depth: number;
-  readonly scaleY: number;
-  readonly bob: number;
-  readonly leanPerSpeed: number;
-  readonly maxLean: number;
-  readonly spring: number;
-  readonly damping: number;
-}
-
-/**
  * Pila tra le braccia, davanti al corpo all'altezza delle mani (GDD sezione 3, UX4). Il lato lungo di ogni
  * merce sta di traverso, così sporge ai lati del corpo e si vede anche di spalle. La pila si inclina (la
  * cima si sposta di più della base) e rimbalza a ogni passo. Restituisce il centro e l'altezza della cima.
  */
-function drawStack(batch: ItemBatch, items: readonly VisualItem[], pose: Pose, lean: { x: number; z: number }, cfg: StackFeel, stepPhase: number): { x: number; z: number; top: number } {
+function drawStack(batch: ItemBatch, items: readonly VisualItem[], pose: Pose, lean: { x: number; z: number }, cfg: StackFeelConfig, stepPhase: number): { x: number; z: number; top: number } {
   const bx = pose.x + Math.sin(pose.rotY) * cfg.front;
   const bz = pose.z + Math.cos(pose.rotY) * cfg.front;
-  const moving = Math.hypot(pose.vx, pose.vz) > 0.2;
+  const moving = Math.hypot(pose.vx, pose.vz) > cfg.movingSpeed;
   let y = cfg.base + (moving ? Math.abs(Math.sin(stepPhase)) * cfg.bob : 0);
   const n = Math.max(1, items.length - 1);
   items.forEach((kind, i) => {

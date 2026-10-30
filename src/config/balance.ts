@@ -168,15 +168,22 @@ export interface TitleConfig {
   readonly descendSeconds: number;
 }
 
+/** Misure della pila in mano: le stesse regole per il giocatore e per i lavoratori, con numeri diversi. */
 export interface StackFeelConfig {
+  /** Distanza davanti al centro del corpo e altezza della base, in metri. */
   readonly front: number;
   readonly base: number;
+  /** Ingrandimento di traverso per tipo di merce, in profondità e in altezza, rispetto ai ripiani. */
   readonly sideways: { readonly leaf: number; readonly paste: number; readonly scrap: number; readonly money: number };
   readonly depth: number;
   readonly scaleY: number;
+  /** Rimbalzo a ogni passo, in metri, sopra questa velocità (m/s). */
   readonly bob: number;
+  readonly movingSpeed: number;
+  /** Inclinazione per m/s di cambio di velocità, tetto, memoria della velocità (s), molla e smorzamento. */
   readonly leanPerSpeed: number;
   readonly maxLean: number;
+  readonly leanMemory: number;
   readonly spring: number;
   readonly damping: number;
 }
@@ -269,12 +276,14 @@ export const BALANCE: Balance = {
     playerStack: {
       front: 0.68,
       base: 1.05,
-      sideways: { leaf: 2.0, paste: 2.6, scrap: 2.2, money: 2.6 },
+      sideways: { leaf: 1.6, paste: 2.75, scrap: 2.2, money: 2.6 },
       depth: 1.3,
       scaleY: 1.5,
       bob: 0.05,
-      leanPerSpeed: 0.03,
+      movingSpeed: 0.2,
+      leanPerSpeed: 0.05,
       maxLean: 0.14,
+      leanMemory: 0.25,
       spring: 90,
       damping: 11,
     },
@@ -285,8 +294,10 @@ export const BALANCE: Balance = {
       depth: 1.1,
       scaleY: 1.2,
       bob: 0.04,
-      leanPerSpeed: 0.03,
+      movingSpeed: 0.2,
+      leanPerSpeed: 0.05,
       maxLean: 0.1,
+      leanMemory: 0.25,
       spring: 90,
       damping: 11,
     },
