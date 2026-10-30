@@ -11,6 +11,7 @@ import { addMoneyPile, ITEM_HEIGHT, ITEM_SCALE as S, ItemBatch, type VisualItem 
 import { Label } from './labels';
 import type { Valley } from './map';
 import { Confetti, Dust } from './effects';
+import { TORCHIO } from './models/stations';
 import { Character } from './models/character';
 import { GoalArrow, UnlockPad, ZoneMats, type PadIcon } from './zones';
 
@@ -319,15 +320,25 @@ export class Phase1View {
         const working = pressCanWork(p);
         const phase = (p.timer / cfg.press.cycle) * Math.PI * 2;
         plate.position.y = working ? 1.1 - 0.26 * (0.5 - 0.5 * Math.cos(phase)) : 1.1;
+        // La vite scende con il piatto e gira: è un torchio.
+        const screw = g.getObjectByName('pressScrew');
+        if (screw) {
+          screw.position.y = plate.position.y + 0.5;
+          if (working) screw.rotation.y = phase;
+        }
       }
+      // Foglie in mucchio nella tramoggia a ovest, Panetti impilati sul ripiano a sud, Scarti nel cassone a nord.
+      const H = TORCHIO.hopper;
       for (let i = 0; i < Math.min(p.leaves, 6); i++) {
-        this.batch.add('leaf', c.x + 0.25 + ((i % 2) - 0.5) * 0.4 * S, 0.82 + Math.floor(i / 2) * ITEM_HEIGHT.leaf, c.z + 0.75, Math.PI / 2);
+        this.batch.add('leaf', c.x + H.x + 0.05, 0.86 + Math.floor(i / 2) * ITEM_HEIGHT.leaf * 0.8, c.z + H.z + ((i % 2) - 0.5) * 0.42, Math.PI / 2, 0.8);
       }
+      const SH = TORCHIO.shelf;
       for (let i = 0; i < p.pastes; i++) {
-        this.batch.add('paste', c.x + 0.25 + ((i % 2) - 0.5) * 0.46 * S, 0.77 + Math.floor(i / 2) * ITEM_HEIGHT.paste, c.z - 1.0);
+        this.batch.add('paste', c.x + SH.x + ((i % 2) - 0.5) * 0.3 * S, 0.77 + Math.floor(i / 2) * ITEM_HEIGHT.paste, c.z + SH.z, 0);
       }
+      const CR = TORCHIO.crate;
       for (let i = 0; i < p.scraps; i++) {
-        this.batch.add('scrap', c.x - 0.85 + ((i % 2) - 0.5) * 0.3, 0.08 + Math.floor(i / 6) * 0.25, c.z + (Math.floor(i / 2) % 3 - 1) * 0.36, i, 0.85);
+        this.batch.add('scrap', c.x + CR.x + ((i % 3) - 1) * 0.36, 0.08 + Math.floor(i / 3) * 0.25, c.z + CR.z, i, 0.85);
       }
       out.set(p.pastes >= cfg.press.outCap ? 'MAX' : `${p.pastes}/${cfg.press.outCap}`, p.pastes >= cfg.press.outCap ? 'max' : 'pill');
       scrap.set(p.scraps >= cfg.press.scrapCap ? 'MAX' : `${p.scraps}/${cfg.press.scrapCap}`, p.scraps >= cfg.press.scrapCap ? 'max' : 'pill');

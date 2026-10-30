@@ -88,6 +88,24 @@ Il mondo di M2 è stato buttato e rifatto da zero secondo `../06-prima-sessione/
 - [x] Disegni ≤ 144, partenza 59k triangoli, ovunque ≤ 114k
 - [ ] Sull'iMac: almeno 50 fps; dal minuto 0 alla Pressa 2 senza aiuto (Luca)
 
+### M2c · Storia e leggibilità (dal giudizio di Luca sulla M2b, 30 ottobre 2026)
+
+**Cosa funziona già (da non rompere):** spazio iniziale piccolo che si allarga con gli acquisti; tappetino di sblocco con l'icona e il prezzo; barra del Rispetto in alto con la frase dell'obiettivo.
+
+**Cosa non funziona:** nessuna introduzione né schermata con il logo, solo frecce; merce e soldi si confondono con il personaggio e spuntano solo da certe angolature; tappetini quadrati a tinta unita; non si capisce cosa sia la Pressa né a cosa serva; grafica ancora lontana dal genere.
+
+Una voce per volta, nell'ordine. Ognuna si chiude con test, screenshot, la prova di percezione (GDD sezione 1, «La storia») e la prova di Luca sull'iMac, prima di passare alla successiva.
+
+| # | Voce | Perché a questo punto | Fatta quando |
+|---|---|---|---|
+| 1 | **Storia e visione della filiera** nel GDD (sezione 1): solo per noi, niente testo nel gioco; per ogni capitolo tempi, guadagni, colli di bottiglia, automazione, personale e segni nel mondo; prova di percezione | Decide nomi, personaggi e ordine di tutto il resto | [x] Scritta il 30 ottobre; trovato un conto che non torna nel capitolo 3 (prezzi troppo alti), da risolvere in M5 |
+| 2 | **Stazioni che si spiegano da sole**: la Pressa diventa il Torchio, con le foglie che entrano da una parte e i panetti che escono dall'altra; cartello con «foglia → panetto» sopra ogni stazione | È la domanda 5 della prova: se non si capisce la macchina, non si capisce il gioco | [x] 30 ottobre: torchio a vite con volantino rosso, tramoggia verde a ovest verso il tappetino di consegna, ripiano dei Panetti a sud verso il ritiro, cartello «🌿 → panetto»; nomi Torchio e Panetto nel GDD e nelle frasi. Manca la prova di Luca |
+| 3 | **Tappetini con l'icona**: ogni tappetino ha la forma e lo stile di quello di sblocco, con l'icona di cosa si lascia o si prende e una freccia dentro/fuori; niente quadrati a tinta unita | Stesso linguaggio visivo per tutto quello che si calpesta | [ ] |
+| 4 | **Pila sempre visibile**: merce e soldi disegnati sopra il personaggio da ogni angolatura, più alti delle spalle e mai coperti dal corpo | Domanda 6 della prova; è il feedback continuo del genere | [ ] |
+| 5 | **El Gordo in scena**: al finestrino del camion, con un fumetto-emoji alla prima vendita e quando il cassone è pieno | Domanda 3: chi mi paga | [ ] |
+| 6 | **Schermata di caricamento**: logo PATRÓN sopra l'impero completo al tramonto, GIOCA, poi la Hacienda vuota senza testo (GDD sezione 8) | Domande 1 e 2: dove si arriva, chi sono | [ ] |
+| 7 | **Grafica del genere**: confronto fianco a fianco con Pizza Ready e My Mini Mart, scheda di punteggio, interventi su personaggi, luce, contorni e materiali | Si fa per ultima, su un mondo che ormai si capisce | [ ] |
+
 ### M3 · Ufficio e Cargador
 - [ ] Pannello Ufficio a schede grandi (immagine, tacche, prima → dopo, prezzo), aperto solo stando sul tappetino viola (D10, D11)
 - [ ] Potenziamenti della tabella, Cassone compreso (D5)
