@@ -49,7 +49,14 @@ export function clampToAreas(p: MapPoint, r: number, areas: readonly Rect[]): Ma
   let best: MapPoint = p;
   let bestD = Infinity;
   for (const a of areas) {
-    const q = { x: Math.min(Math.max(p.x, a.x0 + r), a.x1 - r), y: Math.min(Math.max(p.y, a.y0 + r), a.y1 - r) };
+    // Un lato in comune con un altro lotto aperto non è una staccionata: lì non si stringe.
+    const touches = (o: Rect, side: 'w' | 'e' | 's' | 'n'): boolean =>
+      o !== a &&
+      (side === 'w' || side === 'e'
+        ? (side === 'w' ? o.x1 === a.x0 : o.x0 === a.x1) && o.y0 <= p.y && o.y1 >= p.y
+        : (side === 's' ? o.y1 === a.y0 : o.y0 === a.y1) && o.x0 <= p.x && o.x1 >= p.x);
+    const inset = (side: 'w' | 'e' | 's' | 'n'): number => (areas.some((o) => touches(o, side)) ? 0 : r);
+    const q = { x: Math.min(Math.max(p.x, a.x0 + inset('w')), a.x1 - inset('e')), y: Math.min(Math.max(p.y, a.y0 + inset('s')), a.y1 - inset('n')) };
     const d = (q.x - p.x) ** 2 + (q.y - p.y) ** 2;
     if (d === 0) return p;
     if (d < bestD) {

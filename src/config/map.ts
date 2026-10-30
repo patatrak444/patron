@@ -56,10 +56,10 @@ export const ROAD: PathStrip = { from: { x: -30, y: 18 }, to: { x: 70, y: 18 }, 
 export const VALLEY_CENTER: MapPoint = { x: VALLEY.width / 2, y: VALLEY.depth / 2 };
 
 /** Punto di partenza: dentro la Hacienda, con l'arco e la sagoma del Campo 1 in vista. */
-export const PLAYER_SPAWN: MapPoint = { x: 19.6, y: 8.2 };
+export const PLAYER_SPAWN: MapPoint = { x: 19.8, y: 11.4 };
 
 /** Il regalo di El Gordo: $25 in mazzette a due passi dal giocatore (GDD sezione 5). */
-export const GIFT_SPOT: MapPoint = { x: 20.6, y: 9.6 };
+export const GIFT_SPOT: MapPoint = { x: 21.6, y: 9.9 };
 
 export type FieldId = 'field1' | 'field2' | 'field3';
 
@@ -67,7 +67,7 @@ export type FieldId = 'field1' | 'field2' | 'field3';
 export const FIELD_SIZE = 3;
 export const FIELD_PLOTS: readonly (MapPoint & { readonly id: FieldId; readonly mat: MapPoint })[] = [
   { id: 'field1', x: 16.2, y: 8.6, mat: { x: 18.4, y: 8.6 } },
-  { id: 'field2', x: 16.2, y: 12.6, mat: { x: 18.4, y: 12.6 } },
+  { id: 'field2', x: 16.2, y: 12.2, mat: { x: 18.4, y: 12.2 } },
   { id: 'field3', x: 28.6, y: 8.6, mat: { x: 30.8, y: 8.6 } },
 ];
 
@@ -93,10 +93,10 @@ export const PRESSES: readonly PressLayout[] = [
 export const BONFIRE: MapPoint & { readonly r: number; readonly mat: MapPoint } = { x: 24.8, y: 14.3, r: 0.7, mat: { x: 24.8, y: 12.6 } };
 
 /**
- * Camion di El Gordo: arriva da ovest sulla strada e si ferma davanti all'arco. Si carica dal
- * tappetino appena dentro l'arco; le mazzette compaiono sul tappetino accanto.
+ * Camion di El Gordo: arriva da ovest sulla strada e si ferma a ovest dell'arco, così non copre
+ * l'insegna. Si carica dal tappetino dietro la staccionata; le mazzette compaiono vicino all'arco.
  */
-export const TRUCK = { x: 20, y: 18.2, deposit: { x: 20, y: 14.9 }, cash: { x: 17.8, y: 14.9 } } as const;
+export const TRUCK = { x: 15.6, y: 18.2, deposit: { x: 16.4, y: 15.0 }, cash: { x: 18.4, y: 15.0 } } as const;
 
 /** Casetta dei Raccoglitori, decorativa, nell'angolo del lotto 2. */
 export const PICKER_HUT: MapPoint = { x: 34.6, y: 14.6 };
@@ -110,7 +110,7 @@ export type UnlockId = 'field1' | 'press1' | 'field2' | 'bonfire' | 'picker1' | 
 export const UNLOCK_PADS: Readonly<Record<UnlockId, MapPoint>> = {
   field1: { x: 16.2, y: 8.6 },
   press1: { x: 22.2, y: 10.4 },
-  field2: { x: 16.2, y: 12.6 },
+  field2: { x: 16.2, y: 12.2 },
   bonfire: { x: 24.8, y: 14.3 },
   picker1: { x: 24.6, y: 7.2 },
   zone2: { x: 25.2, y: 9.6 },

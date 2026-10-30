@@ -151,11 +151,14 @@ async function boot(root: HTMLElement): Promise<void> {
         zoom: (step: number) => camera.zoom(step),
         /** Prepara una situazione di gioco per gli screenshot (src/debug/scenarios.ts). */
         prepare(name: Scenario) {
+          view.holdFesta = name === 'festa';
           prepareScenario(state, name, bus);
           Object.assign(moveCtx, createMoveContext(state.phase1));
           view.syncUnlocked(state.phase1);
           const w = toWorld(state.player);
-          camera.follow(w.x, w.z, true);
+          const f = view.festaFocus();
+          camera.closeUp(f ? BALANCE.feel.festaWidth : null);
+          camera.follow(f?.x ?? w.x, f?.z ?? w.z, true);
         },
         state,
         budget: () => ({ view: budget(scene, camera.camera), shadow: budget(scene, lights.sun.shadow.camera, true) }),

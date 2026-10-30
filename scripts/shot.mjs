@@ -17,17 +17,18 @@ const base = useDev ? 'http://localhost:5173/' : `http://localhost:${PORT}/`;
  * (−1 vicino, +1 lontano) e secondi di attesa. La partenza usa il punto di partenza vero.
  */
 const SHOTS = [
+  // M2b: la Hacienda vuota, con il regalo e la sagoma del Campo 1 (skill arcade-idle, PS1–PS4).
   { name: '01-partenza', wait: 3 },
-  { name: '02-campo1', at: [20, 9.5], wait: 2 },
-  { name: '03-pressa-camion', at: [10, 23], wait: 2 },
-  { name: '04-ufficio', at: [26, 23.5], wait: 2 },
-  { name: '05-lontano', zoom: 1, wait: 2 },
-  { name: '06-vicino', zoom: -2, wait: 2 },
-  // Fase 1 (M2): situazioni preparate con window.__patron.prepare (src/debug/scenarios.ts).
-  { name: '07-pila', zoom: 1, prepare: 'pila', wait: 2 },
-  { name: '08-camion', prepare: 'camion', wait: 2 },
-  { name: '09-pagamento', prepare: 'pagamento', wait: 1 },
-  { name: '10-raccoglitore', prepare: 'raccoglitore', wait: 2 },
+  // Situazioni preparate con window.__patron.prepare (src/debug/scenarios.ts).
+  { name: '02-festa', prepare: 'festa', wait: 0.45 },
+  { name: '03-primo-minuto', prepare: 'primo', wait: 2.5 },
+  { name: '04-lontano', zoom: 1, wait: 2 },
+  { name: '05-vicino', zoom: -2, wait: 2 },
+  { name: '06-pila', zoom: 1, prepare: 'pila', wait: 2.5 },
+  { name: '07-camion', prepare: 'camion', wait: 2 },
+  { name: '08-pagamento', prepare: 'pagamento', wait: 1.5 },
+  { name: '09-raccoglitore', prepare: 'raccoglitore', wait: 2.5 },
+  { name: '10-lotto2', prepare: 'lotto2', wait: 2.5 },
   { name: '11-avanzato', prepare: 'avanzato', zoom: 1, wait: 3 },
 ];
 

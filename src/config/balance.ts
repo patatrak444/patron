@@ -180,7 +180,7 @@ export const BALANCE: Balance = {
     pitchDeg: 50,
     yawDeg: 45,
     fovDeg: 22,
-    zoomWidths: [10, 13, 20],
+    zoomWidths: [14, 19, 26],
     followLerp: 0.1,
   },
   player: {

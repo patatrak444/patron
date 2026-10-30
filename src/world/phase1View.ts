@@ -184,11 +184,11 @@ export class Phase1View {
   private openLot2(animate: boolean): void {
     const v = this.valley;
     const l2 = v.lots.lot2;
-    v.lots.lot1.fences.e.visible = false;
+    v.fences.shared.visible = false;
     l2.floor.visible = true;
     v.hut.visible = true;
-    const sides = [l2.fences.n, l2.fences.s, l2.fences.e];
-    for (const f of sides) f.visible = true;
+    v.fences.lot2.visible = true;
+    const sides = [v.fences.lot2];
     if (!animate) return;
     const w = l2.floor.position.x;
     const half = 5;
@@ -206,13 +206,15 @@ export class Phase1View {
 
   /** Punto da inquadrare da vicino durante la festa, o null. */
   festaFocus(): { x: number; z: number } | null {
-    return this.festa && this.time < this.festa.until ? this.festa : null;
+    return this.festa && (this.holdFesta || this.time < this.festa.until) ? this.festa : null;
   }
+
+  /** Solo debug (screenshot): tiene ferma la festa, che negli scatti lenti finirebbe prima della foto. */
+  holdFesta = false;
 
   /** Allinea il disegno a uno stato caricato o preparato (debug, screenshot). */
   syncUnlocked(s: Phase1State): void {
     const v = this.valley;
-    this.festa = null;
     for (const f of s.fields) {
       v.plants[f.id]!.visible = f.unlocked;
       v.soils[f.id]!.visible = f.unlocked;
@@ -221,7 +223,6 @@ export class Phase1View {
     v.bonfire.visible = s.bonfire;
     v.truck.visible = s.truck.arrived;
     if (s.lots.includes('lot2')) this.openLot2(false);
-    for (const o of [...Object.values(v.plants), ...Object.values(v.soils), ...Object.values(v.presses), v.bonfire, v.hut]) o.scale.setScalar(1);
     this.lastPaid = s.padPaid;
   }
 
@@ -271,6 +272,7 @@ export class Phase1View {
       this.dust.puff(player.x - Math.sin(player.rotY) * 0.25, player.z - Math.cos(player.rotY) * 0.25);
     }
     this.dust.update(dt);
+    if (this.holdFesta && this.festa && Math.floor(this.time * 2) !== Math.floor((this.time - dt) * 2)) this.confetti.burst(this.festa.x, this.festa.z, 30);
     this.confetti.update(dt);
 
     // Tappetini delle zone.
@@ -280,7 +282,7 @@ export class Phase1View {
       else if (z.kind === 'pressDeposit' || z.kind === 'bonfire' || z.kind === 'truck') this.mats.add('deposit', w.x, w.z);
       else if (z.kind === 'cash' && z.pile === 'truck') this.mats.add('cash', w.x, w.z);
     }
-    if (!s.piles.some((p) => p.id === 'truck')) {
+    if (s.truck.arrived && !s.piles.some((p) => p.id === 'truck')) {
       const w = toWorld(TRUCK.cash);
       this.mats.add('cash', w.x, w.z);
     }

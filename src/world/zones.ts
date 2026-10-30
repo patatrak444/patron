@@ -92,13 +92,14 @@ export class UnlockPad {
     this.texture.anisotropy = 4;
     const plane = new THREE.Mesh(
       new THREE.PlaneGeometry(2.1, 2.1).rotateX(-Math.PI / 2),
-      new THREE.MeshBasicMaterial({ map: this.texture, transparent: true, depthWrite: false }),
+      // Grigio chiaro al posto del bianco: sotto la soglia del bloom, il tappetino non abbaglia.
+      new THREE.MeshBasicMaterial({ map: this.texture, color: 0xd6d6d6, transparent: true, depthWrite: false }),
     );
     plane.position.y = 0.03;
     plane.renderOrder = 2;
     this.ring = new THREE.Mesh(
       new THREE.BufferGeometry(),
-      new THREE.MeshBasicMaterial({ color: PALETTE.white, depthWrite: false, side: THREE.DoubleSide }),
+      new THREE.MeshBasicMaterial({ color: 0xffd23a, depthWrite: false, side: THREE.DoubleSide }),
     );
     this.ring.position.y = 0.04;
     this.ring.renderOrder = 3;

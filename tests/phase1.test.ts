@@ -26,6 +26,22 @@ function run(s: Phase1State, at: MapPoint, seconds: number): void {
 
 const FAR: MapPoint = { x: 35, y: 40 };
 
+/** Compra in ordine gli sblocchi fino a `id` compreso, pagando ognuno sul suo tappetino. */
+function openUpTo(s: Phase1State, id: string): void {
+  s.piles = s.piles.filter((p) => p.id !== 'gift');
+  for (const u of cfg.unlocks) {
+    if (cfg.unlocks.indexOf(u) < s.nextUnlock) continue;
+    const cash = s.cash;
+    s.cash = u.cost;
+    run(s, UNLOCK_PADS[u.id], 2);
+    s.cash = cash;
+    if (u.id === id) break;
+  }
+  s.piles = [];
+  s.truck.away = 0;
+  s.truck.arrived = true;
+}
+
 describe('pila (GDD 3)', () => {
   it('tiene merci miste e scarica per tipo dove sono', () => {
     const st = createStack(4);
@@ -42,47 +58,82 @@ describe('pila (GDD 3)', () => {
 });
 
 describe('regalo e sblocchi (GDD 5)', () => {
-  it('il regalo di $20 si raccoglie in mezzo secondo e paga il Campo 2', () => {
+  it('all\'inizio è tutto da comprare: solo il regalo e la sagoma del Campo 1', () => {
+    const s = createPhase1();
+    expect(s.fields.every((f) => !f.unlocked)).toBe(true);
+    expect(s.presses.every((p) => !p.unlocked)).toBe(true);
+    expect(s.truck.arrived).toBe(false);
+    expect(s.lots).toEqual(['lot1']);
+    expect(s.piles.find((p) => p.id === 'gift')!.value).toBe(cfg.gift);
+  });
+
+  it('il regalo di $25 si raccoglie in mezzo secondo e paga Campo 1 e Pressa 1', () => {
     const s = createPhase1();
     run(s, GIFT_SPOT, 0.5);
     expect(s.cash).toBe(cfg.gift);
     expect(s.piles.find((p) => p.id === 'gift')).toBeUndefined();
-    run(s, UNLOCK_PADS.field2, 2);
-    expect(s.fields.find((f) => f.id === 'field2')!.unlocked).toBe(true);
-    expect(s.cash).toBe(cfg.gift - 15);
-    expect(s.stars).toBe(cfg.respect.starsPerUnlock);
+    run(s, UNLOCK_PADS.field1, 2);
+    expect(s.fields.find((f) => f.id === 'field1')!.unlocked).toBe(true);
+    run(s, UNLOCK_PADS.press1, 2);
+    expect(s.presses[0]!.unlocked).toBe(true);
+    expect(s.cash).toBe(cfg.gift - 5 - 15);
+    expect(s.stars).toBe(2 * cfg.respect.starsPerUnlock);
+  });
+
+  it('con la prima Pressa arriva il camion lungo la strada', () => {
+    const s = createPhase1();
+    const bus = createBus<GameEvents>();
+    let honk = 0;
+    bus.on('truck:arriving', () => honk++);
+    const ctx = { grid: createMoveContext(s).grid, rng: createRng(7) };
+    s.piles = [];
+    s.nextUnlock = 1;
+    s.cash = 15;
+    for (let t = 0; t < 2; t += DT) stepPhase1(s, UNLOCK_PADS.press1, DT, bus, ctx);
+    expect(honk).toBe(1);
+    expect(s.truck.arrived).toBe(false);
+    for (let t = 0; t < cfg.truck.firstArrival; t += DT) stepPhase1(s, FAR, DT, bus, ctx);
+    expect(s.truck.arrived).toBe(true);
   });
 
   it('il versato resta sul tappetino se esci a metà', () => {
     const s = createPhase1();
     s.piles = [];
+    s.nextUnlock = 1;
     s.cash = 10;
-    run(s, UNLOCK_PADS.field2, 2);
+    run(s, UNLOCK_PADS.press1, 2);
     expect(s.padPaid).toBe(10);
-    expect(s.nextUnlock).toBe(0);
-    s.cash = 20;
-    run(s, UNLOCK_PADS.field2, 2);
     expect(s.nextUnlock).toBe(1);
+    s.cash = 20;
+    run(s, UNLOCK_PADS.press1, 2);
+    expect(s.nextUnlock).toBe(2);
     expect(s.cash).toBe(15);
   });
 
   it('il pagamento dura circa 1,5 s anche per un prezzo alto', () => {
     const s = createPhase1();
-    s.piles = [];
-    s.nextUnlock = 4;
+    openUpTo(s, 'picker2');
     s.cash = 1000;
+    const i = s.nextUnlock;
     run(s, UNLOCK_PADS.press2, 1.2);
-    expect(s.nextUnlock).toBe(4);
+    expect(s.nextUnlock).toBe(i);
     run(s, UNLOCK_PADS.press2, 0.5);
-    expect(s.nextUnlock).toBe(5);
+    expect(s.nextUnlock).toBe(i + 1);
     expect(s.presses[1]!.unlocked).toBe(true);
     expect(s.navDirty).toBe(true);
+  });
+
+  it('la Nuova zona apre il lotto 2', () => {
+    const s = createPhase1();
+    openUpTo(s, 'zone2');
+    expect(s.lots).toEqual(['lot1', 'lot2']);
   });
 });
 
 describe('Campo e Pressa (GDD 4)', () => {
   it('un Campo fa una Foglia ogni 3 s fino a 8', () => {
     const s = createPhase1();
+    openUpTo(s, 'field1');
     run(s, FAR, 9.05);
     expect(s.fields[0]!.ready).toBe(3);
     run(s, FAR, 60);
@@ -91,6 +142,7 @@ describe('Campo e Pressa (GDD 4)', () => {
 
   it('3 Foglie diventano 1 Pasta in 4 s; ogni 2 Paste un sacco di Scarti', () => {
     const s = createPhase1();
+    openUpTo(s, 'press1');
     s.presses[0]!.leaves = 6;
     run(s, FAR, 8.1);
     expect(s.presses[0]!.pastes).toBe(2);
@@ -99,6 +151,7 @@ describe('Campo e Pressa (GDD 4)', () => {
 
   it('a cassone pieno la Pressa si ferma; gli Scarti si bruciano nel Falò', () => {
     const s = createPhase1();
+    openUpTo(s, 'bonfire');
     const p = s.presses[0]!;
     p.scraps = cfg.press.scrapCap;
     p.leaves = 12;
@@ -114,13 +167,15 @@ describe('Campo e Pressa (GDD 4)', () => {
 
   it('camminare tra le piante del Campo le raccoglie', () => {
     const s = createPhase1();
+    openUpTo(s, 'field1');
     s.fields[0]!.ready = 8;
-    run(s, { x: 20.5, y: 12.5 }, 0.5);
+    run(s, { x: 16.6, y: 9.0 }, 0.5);
     expect(s.stack.items.length).toBe(cfg.stack.capacity);
   });
 
   it('raccolta per prossimità: un oggetto ogni 0,08 s, fino alla capacità', () => {
     const s = createPhase1();
+    openUpTo(s, 'field1');
     s.fields[0]!.ready = 8;
     run(s, fieldMat('field1'), 0.2);
     expect(s.stack.items.length).toBe(3);
@@ -132,7 +187,7 @@ describe('Campo e Pressa (GDD 4)', () => {
 describe('mani piene (GDD 4)', () => {
   it('con la Pressa piena le Foglie in mano si bruciano al Falò, e la frase lo dice', () => {
     const s = createPhase1();
-    s.piles = [];
+    openUpTo(s, 'bonfire');
     s.sold = 3;
     s.presses[0]!.leaves = cfg.press.inCap;
     s.presses[0]!.pastes = cfg.press.outCap;
@@ -144,6 +199,7 @@ describe('mani piene (GDD 4)', () => {
 
   it('se la Pressa ha posto le Foglie non si bruciano', () => {
     const s = createPhase1();
+    openUpTo(s, 'bonfire');
     s.stack.items = ['leaf', 'leaf'];
     run(s, BONFIRE.mat, 0.5);
     expect(s.stack.items.length).toBe(2);
@@ -153,6 +209,7 @@ describe('mani piene (GDD 4)', () => {
 describe('camion di El Gordo (GDD 4)', () => {
   it('paga $5 a Pasta in mazzette; a cassone pieno parte e torna dopo 20 s', () => {
     const s = createPhase1();
+    openUpTo(s, 'press1');
     s.truck.load = cfg.truck.capacity - 2;
     s.stack.items = ['paste', 'paste', 'paste'];
     run(s, TRUCK.deposit, 1);
@@ -194,8 +251,8 @@ describe('Rispetto (GDD 5)', () => {
     const s = createPhase1();
     s.piles = [];
     s.stars = 12;
-    s.cash = 15;
-    run(s, UNLOCK_PADS.field2, 2);
+    s.cash = 5;
+    run(s, UNLOCK_PADS.field1, 2);
     expect(s.level).toBe(2);
     expect(s.piles.some((p) => p.value === 40)).toBe(true);
   });
@@ -204,10 +261,7 @@ describe('Rispetto (GDD 5)', () => {
 describe('Raccoglitori (GDD 6)', () => {
   it('portano le Foglie dal Campo alla Pressa da soli', () => {
     const s = createPhase1();
-    s.piles = [];
-    s.nextUnlock = 1;
-    s.cash = 30;
-    run(s, UNLOCK_PADS.picker1, 2);
+    openUpTo(s, 'picker1');
     expect(s.workers.length).toBe(1);
     run(s, FAR, 40);
     expect(s.presses[0]!.pastes + s.presses[0]!.leaves).toBeGreaterThan(0);
@@ -215,10 +269,7 @@ describe('Raccoglitori (GDD 6)', () => {
 
   it('si addormentano e si svegliano quando il giocatore passa vicino', () => {
     const s = createPhase1();
-    s.piles = [];
-    s.nextUnlock = 1;
-    s.cash = 30;
-    run(s, UNLOCK_PADS.picker1, 2);
+    openUpTo(s, 'picker1');
     const w = s.workers[0]!;
     w.untilSleep = 0.1;
     run(s, FAR, 1);
@@ -233,10 +284,7 @@ describe('Raccoglitori (GDD 6)', () => {
 
   it('portano via gli Scarti quando il cassone è pieno per metà', () => {
     const s = createPhase1();
-    s.piles = [];
-    s.nextUnlock = 1;
-    s.cash = 30;
-    run(s, UNLOCK_PADS.picker1, 2);
+    openUpTo(s, 'picker1');
     s.presses[0]!.scraps = 3;
     run(s, FAR, 30);
     expect(s.burned).toBeGreaterThanOrEqual(3);
@@ -248,8 +296,13 @@ describe('frase dell\'obiettivo (GDD 8)', () => {
     const s = createPhase1();
     expect(objective(s).text).toBe('Raccogli i soldi!');
     run(s, GIFT_SPOT, 0.5);
-    expect(objective(s).text).toBe('Compra il Campo 2!');
-    run(s, UNLOCK_PADS.field2, 2);
+    expect(objective(s).text).toBe('Compra il campo!');
+    run(s, UNLOCK_PADS.field1, 2);
+    expect(objective(s).text).toBe('Compra la pressa!');
+    run(s, UNLOCK_PADS.press1, 2);
+    s.truck.away = 0;
+    s.truck.arrived = true;
+    s.cash = 0;
     expect(objective(s).text).toBe('Raccogli le foglie!');
     s.stack.items = ['leaf'];
     expect(objective(s).text).toBe('Porta le foglie qui!');
@@ -257,10 +310,10 @@ describe('frase dell\'obiettivo (GDD 8)', () => {
     expect(objective(s).text).toBe('Vendi a El Gordo!');
     s.stack.items = [];
     s.sold = 1;
-    // Senza i soldi per il Raccoglitore la frase guida il ciclo che li fa guadagnare.
+    // Senza i soldi per il Campo 2 la frase guida il ciclo che li fa guadagnare.
     expect(objective(s).text).toBe('Raccogli le foglie!');
-    s.cash = 30;
-    expect(objective(s).text).toBe('Assumi un raccoglitore!');
+    s.cash = 20;
+    expect(objective(s).text).toBe('Compra il Campo 2!');
     for (const u of cfg.unlocks) expect(u.goal.split(' ').length).toBeLessThanOrEqual(4);
   });
 });

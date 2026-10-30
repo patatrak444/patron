@@ -64,7 +64,8 @@ class Placements {
     for (const shadow of [true, false]) {
       const entries = [...this.map.values()].filter((e) => e.shadow === shadow).map((e) => ({ prop: assets.props[e.id], list: e.list }));
       if (entries.length === 0) continue;
-      const b = createBatches(entries, { castShadow: shadow });
+      // Blocchi da 20 m: la valle a lotti è piccola, meno blocchi vuol dire meno disegni (GDD sezione 10).
+      const b = createBatches(entries, { castShadow: shadow, chunkSize: 20 });
       b.name = `${name} ${shadow ? 'con ombra' : 'senza ombra'}`;
       root.add(b);
     }
@@ -83,6 +84,11 @@ function rbox(w: number, h: number, d: number, color: number, r = 0.05): THREE.M
   m.castShadow = true;
   m.receiveShadow = true;
   return m;
+}
+
+function moved<T extends THREE.Object3D>(o: T, x: number, y: number, z: number): T {
+  o.position.set(x, y, z);
+  return o;
 }
 
 /** Pavimento di un lotto: terra battuta chiara con il bordo più scuro, appena sopra il prato. */
@@ -109,7 +115,9 @@ function createLotFloor(lot: Rect): THREE.Group {
 /** Terra di un appezzamento, con il contorno e i solchi: compare quando il Campo si compra. */
 function createFieldSoil(): THREE.Group {
   const g = new THREE.Group();
-  g.add(Object.assign(rbox(FIELD_SIZE + 0.2, 0.08, FIELD_SIZE + 0.2, PALETTE.fieldEarthDark, 0.04), { castShadow: false }));
+  const base = rbox(FIELD_SIZE + 0.2, 0.08, FIELD_SIZE + 0.2, PALETTE.fieldEarthDark, 0.04);
+  base.castShadow = false;
+  g.add(base);
   const top = rbox(FIELD_SIZE, 0.1, FIELD_SIZE, PALETTE.fieldEarth, 0.05);
   top.castShadow = false;
   top.position.y = 0.02;
@@ -156,6 +164,14 @@ function createFence(from: MapPoint, to: MapPoint, gap?: { at: number; width: nu
       g.add(rail);
     }
   }
+  return g;
+}
+
+/** Più lati di staccionata in un solo disegno. */
+function fenceSides(name: string, sides: THREE.Group[]): THREE.Group {
+  const g = new THREE.Group();
+  g.name = name;
+  g.add(...sides);
   return bakeGroup(g);
 }
 
@@ -168,10 +184,10 @@ function createArch(): THREE.Group {
   g.name = 'arco';
   const half = ARCH.width / 2;
   for (const sx of [-1, 1]) {
-    g.add(Object.assign(rbox(0.36, 3.6, 0.36, WOOD_DARK, 0.06), { position: new THREE.Vector3(sx * half, 1.8, 0) }));
-    g.add(Object.assign(rbox(0.6, 0.3, 0.6, 0x9c958a, 0.05), { position: new THREE.Vector3(sx * half, 0.15, 0) }));
+    g.add(moved(rbox(0.36, 3.6, 0.36, WOOD_DARK, 0.06), sx * half, 1.8, 0));
+    g.add(moved(rbox(0.6, 0.3, 0.6, 0x9c958a, 0.05), sx * half, 0.15, 0));
   }
-  g.add(Object.assign(rbox(ARCH.width + 0.9, 0.3, 0.42, WOOD, 0.06), { position: new THREE.Vector3(0, 3.55, 0) }));
+  g.add(moved(rbox(ARCH.width + 0.9, 0.3, 0.42, WOOD, 0.06), 0, 3.55, 0));
   // Insegna: tavola di legno con le lettere oro e l'accento di Lumina sulla Ó.
   const canvas = document.createElement('canvas');
   canvas.width = 512;
@@ -211,7 +227,7 @@ function createArch(): THREE.Group {
   // Due lanterne: le poche cose che brillano, insieme alla Lumina.
   for (const sx of [-1, 1]) {
     const lamp = new THREE.Mesh(new THREE.OctahedronGeometry(0.16, 0), flat(0xffd27a, 0xffb347, 2.2));
-    lamp.name = 'lanterna';
+    lamp.castShadow = false;
     lamp.position.set(sx * (half + 0.05), 3.15, 0.25);
     g.add(lamp);
   }
@@ -221,18 +237,26 @@ function createArch(): THREE.Group {
 /** Casetta dei Raccoglitori (decorativa) per il lotto 2. */
 function createHut(): THREE.Group {
   const g = new THREE.Group();
-  g.add(Object.assign(rbox(2.2, 1.6, 1.8, PALETTE.villageWall, 0.05), { position: new THREE.Vector3(0, 0.8, 0) }));
+  g.add(moved(rbox(2.2, 1.6, 1.8, PALETTE.villageWall, 0.05), 0, 0.8, 0));
   const roof = rbox(2.6, 0.2, 2.2, PALETTE.roofTile, 0.06);
   roof.position.set(0, 1.75, 0);
   g.add(roof);
-  g.add(Object.assign(rbox(0.6, 1.1, 0.08, 0x5a3a24, 0.02), { position: new THREE.Vector3(0, 0.55, 0.92) }));
+  g.add(moved(rbox(0.6, 1.1, 0.08, 0x5a3a24, 0.02), 0, 0.55, 0.92));
   return bakeGroup(g);
 }
 
 export interface LotView {
   readonly floor: THREE.Group;
-  /** Lati della staccionata del lotto, per nome: 'n', 's', 'e', 'w'. */
-  readonly fences: Readonly<Record<'n' | 's' | 'e' | 'w', THREE.Group>>;
+}
+
+/**
+ * Staccionate in tre disegni: il giro del lotto 1 senza il lato est, il lato in comune (sparisce
+ * quando si apre il lotto 2) e il giro esterno del lotto 2.
+ */
+export interface Fences {
+  readonly lot1: THREE.Group;
+  readonly shared: THREE.Group;
+  readonly lot2: THREE.Group;
 }
 
 export interface Valley {
@@ -240,6 +264,7 @@ export interface Valley {
   /** Oggetti che diventano trasparenti quando coprono il giocatore. */
   readonly occluders: readonly THREE.Object3D[];
   readonly lots: Readonly<Record<LotId, LotView>>;
+  readonly fences: Fences;
   readonly arch: THREE.Group;
   /** Stazioni: nascoste finché non si comprano. */
   readonly presses: Readonly<Record<string, THREE.Group>>;
@@ -262,29 +287,32 @@ export function createValley(assets: Assets): Valley {
   // Lotti: pavimento e staccionata. Il lotto 2 resta prato finché non si apre.
   const lots = {} as Record<LotId, LotView>;
   for (const id of Object.keys(LOTS) as LotId[]) {
-    const r = LOTS[id];
-    const floor = createLotFloor(r);
+    const floor = createLotFloor(LOTS[id]);
     floor.name = `pavimento:${id}`;
-    const fences = {
-      n: createFence({ x: r.x0, y: r.y1 }, { x: r.x1, y: r.y1 }, id === 'lot1' ? { at: ARCH.x - r.x0, width: ARCH.width } : undefined),
-      s: createFence({ x: r.x0, y: r.y0 }, { x: r.x1, y: r.y0 }),
-      e: createFence({ x: r.x1, y: r.y0 }, { x: r.x1, y: r.y1 }),
-      w: createFence({ x: r.x0, y: r.y0 }, { x: r.x0, y: r.y1 }),
-    };
-    const open = id === 'lot1';
-    floor.visible = open;
-    for (const [side, f] of Object.entries(fences)) {
-      f.name = `staccionata:${id}:${side}`;
-      // Il lato ovest del lotto 2 è il lato est del lotto 1: non si duplica.
-      f.visible = open;
-      root.add(f);
-    }
+    floor.visible = id === 'lot1';
     root.add(floor);
-    lots[id] = { floor, fences };
+    lots[id] = { floor };
   }
+  const a = LOTS.lot1;
+  const b = LOTS.lot2;
+  const fences: Fences = {
+    lot1: fenceSides('staccionata:lot1', [
+      createFence({ x: a.x0, y: a.y1 }, { x: a.x1, y: a.y1 }, { at: ARCH.x - a.x0, width: ARCH.width }),
+      createFence({ x: a.x0, y: a.y0 }, { x: a.x1, y: a.y0 }),
+      createFence({ x: a.x0, y: a.y0 }, { x: a.x0, y: a.y1 }),
+    ]),
+    shared: fenceSides('staccionata:comune', [createFence({ x: a.x1, y: a.y0 }, { x: a.x1, y: a.y1 })]),
+    lot2: fenceSides('staccionata:lot2', [
+      createFence({ x: b.x0, y: b.y1 }, { x: b.x1, y: b.y1 }),
+      createFence({ x: b.x0, y: b.y0 }, { x: b.x1, y: b.y0 }),
+      createFence({ x: b.x1, y: b.y0 }, { x: b.x1, y: b.y1 }),
+    ]),
+  };
+  fences.lot2.visible = false;
+  root.add(fences.lot1, fences.shared, fences.lot2);
 
   // L'arco della Hacienda, sul lato nord, verso la strada.
-  const arch = placeAt(createArch(), ARCH);
+  const arch = placeAt(bakeGroup(createArch()), ARCH);
   root.add(arch);
 
   // Stazioni: tutte nascoste, compaiono allo sblocco.
@@ -360,9 +388,10 @@ export function createValley(assets: Assets): Valley {
       continue;
     }
     const t = pickWeighted(rng, FRAME_TREES);
-    P.add(t.id, true, s, t.h[0] + s.jitter * (t.h[1] - t.h[0]), s.jitter * 6.3);
+    // Oltre il bordo della valle gli alberi non fanno ombra: la mappa d'ombra segue il giocatore.
+    P.add(t.id, false, s, t.h[0] + s.jitter * (t.h[1] - t.h[0]), s.jitter * 6.3);
   }
   P.build(assets, root, 'vegetazione');
 
-  return { root, occluders, lots, arch, presses, plants, soils, truck, bonfire, hut };
+  return { root, occluders, lots, fences, arch, presses, plants, soils, truck, bonfire, hut };
 }
