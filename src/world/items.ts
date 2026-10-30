@@ -83,9 +83,11 @@ function scrapGeometry(): THREE.BufferGeometry {
 
 function moneyGeometry(): THREE.BufferGeometry {
   // Mazzetta verde acceso con la fascia chiara: l'unico verde di quel tono nella scena (GDD sezione 10).
-  const bill = painted(new RoundedBoxGeometry(0.36, 0.11, 0.22, 1, 0.025), PALETTE.money);
+  // Spigoli vivi: con la camera lontana gli arrotondamenti non si vedono, e una mazzetta passa da 216 a 24
+  // triangoli (la torre del regalo ne ha 60).
+  const bill = painted(new THREE.BoxGeometry(0.36, 0.11, 0.22), PALETTE.money);
   bill.translate(0, 0.055, 0);
-  const band = painted(new RoundedBoxGeometry(0.09, 0.115, 0.225, 1, 0.015), PALETTE.moneyBand);
+  const band = painted(new THREE.BoxGeometry(0.09, 0.115, 0.225), PALETTE.moneyBand);
   band.translate(0, 0.055, 0);
   return mergeGeometries([bill, band])!;
 }
@@ -132,12 +134,12 @@ export class ItemBatch {
   }
 
   /** Un pezzo con la base nel punto (x, y, z) del mondo, ruotato attorno alla verticale. */
-  add(kind: VisualItem, x: number, y: number, z: number, rotY = 0, scale = 1, tiltX = 0, tiltZ = 0): void {
+  add(kind: VisualItem, x: number, y: number, z: number, rotY = 0, scale = 1, tiltX = 0, tiltZ = 0, scaleY = scale): void {
     const i = this.counts[kind];
     if (i >= MAX_PER_KIND) return;
     this.q.setFromAxisAngle(this.up, rotY);
     if (tiltX !== 0 || tiltZ !== 0) this.q.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(tiltX, 0, tiltZ)));
-    this.m.compose(this.v.set(x, y, z), this.q, scale === 1 ? this.one : this.sc.setScalar(scale));
+    this.m.compose(this.v.set(x, y, z), this.q, scale === 1 && scaleY === 1 ? this.one : this.sc.set(scale, scaleY, scale));
     this.meshes[kind].setMatrixAt(i, this.m);
     this.counts[kind] = i + 1;
   }

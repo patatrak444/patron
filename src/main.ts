@@ -206,6 +206,11 @@ async function boot(root: HTMLElement): Promise<void> {
           camera.follow(w.x, w.z);
         },
         zoom: (step: number) => camera.zoom(step),
+        /** Gira il giocatore e gli mette in mano questa merce (controllo UX 10: pila nelle 8 direzioni). */
+        pose(facing: number, items: string[]) {
+          Object.assign(state.player, { facing, prevFacing: facing, vx: 0, vy: 0, path: [] });
+          state.phase1.stack.items = items as typeof state.phase1.stack.items;
+        },
         /** Prepara una situazione di gioco per gli screenshot (src/debug/scenarios.ts). */
         prepare(name: Scenario) {
           view.holdFesta = name === 'festa';

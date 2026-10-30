@@ -46,16 +46,21 @@ class StackSway {
   }
 }
 
-function drawStack(batch: ItemBatch, items: readonly VisualItem[], pose: Pose, sway: { x: number; z: number }, front = 0.62, base = 0.9): void {
-  // Davanti al petto, tra le braccia: +z locale del modello.
+/**
+ * Pila tra le braccia, davanti al corpo all'altezza delle mani. `scale` ingrandisce solo la merce in
+ * mano: per il giocatore è più larga del corpo (GDD sezione 3, UX4). Restituisce l'altezza della cima.
+ */
+function drawStack(batch: ItemBatch, items: readonly VisualItem[], pose: Pose, sway: { x: number; z: number }, front: number, base: number, scale = 1, scaleY = scale): number {
+  // Davanti al corpo: +z locale del modello.
   const bx = pose.x + Math.sin(pose.rotY) * front;
   const bz = pose.z + Math.cos(pose.rotY) * front;
   let y = base;
   items.forEach((kind, i) => {
     const f = (i + 1) / Math.max(4, items.length);
-    batch.add(kind, bx + sway.x * f * i, y, bz + sway.z * f * i, pose.rotY + Math.PI / 2);
-    y += ITEM_HEIGHT[kind];
+    batch.add(kind, bx + sway.x * f * i, y, bz + sway.z * f * i, pose.rotY + Math.PI / 2, scale, 0, 0, scaleY);
+    y += ITEM_HEIGHT[kind] * scaleY;
   });
+  return y;
 }
 
 /** Banconota in volo da sopra la testa al riquadro d'acquisto (skill arcade-idle, PS16). */
@@ -104,6 +109,7 @@ export class Phase1View {
   private lastPaid = 0;
   private readonly pilePos = new Map<string, { x: number; z: number; top: number }>();
   private readonly headTop = new THREE.Vector3();
+  private readonly playerMax = new Label();
 
   constructor(
     private readonly valley: Valley,
@@ -111,6 +117,7 @@ export class Phase1View {
     bus: Bus<GameEvents>,
   ) {
     this.root.name = 'fase 1';
+    this.root.add(this.playerMax.sprite);
     this.root.add(this.batch.root, this.contours.root, this.pad.root, this.arrow.root, this.confetti.mesh, this.dust.mesh);
     for (const f of FIELD_PLOTS) {
       const l = new Label();
@@ -306,7 +313,11 @@ export class Phase1View {
     // Pila del giocatore: solo merce tra le braccia. I soldi non si portano addosso (GDD sezione 3, UX3):
     // pagando, le banconote partono da sopra la testa.
     const sway = this.playerSway.update(player.vx, player.vz, dt);
-    drawStack(this.batch, playerItems, player, sway);
+    const top = drawStack(this.batch, playerItems, player, sway, feel.carryFront, feel.carryBase, feel.carryScale, feel.carryScaleY);
+    // Pila piena: MAX rosso sopra la cima, mai coperto dalla pila (GDD sezione 3).
+    const full = playerItems.length >= s.stack.capacity;
+    this.playerMax.set(full && Math.floor(this.time * 3) % 3 !== 0 ? 'MAX' : null, 'max');
+    this.playerMax.sprite.position.set(player.x, Math.max(top, 2.2) + 0.45, player.z);
     this.headTop.set(player.x, feel.payFromHeight, player.z);
     // Sbuffi di polvere mentre si corre (skill arcade-idle, PS19).
     this.dustTimer -= dt;

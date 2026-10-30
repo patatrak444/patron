@@ -173,6 +173,15 @@ export interface FeelConfig {
   /** Festa dello sblocco: secondi di primo piano e altezza inquadrata, in metri (UX8). */
   readonly festaSeconds: number;
   readonly festaHeight: number;
+  /**
+   * Merce in mano al giocatore (GDD sezione 3, UX4): ingrandimento rispetto ai ripiani in larghezza (così
+   * sporge ai lati del corpo, testa compresa, e si vede anche di spalle) e in altezza (0,36 m a pezzo),
+   * distanza davanti al centro del corpo e altezza delle mani, in metri.
+   */
+  readonly carryScale: number;
+  readonly carryScaleY: number;
+  readonly carryFront: number;
+  readonly carryBase: number;
   /** Strati della torre di mazzette del regalo: 10 strati da 0,19 m = 1,9 m, l'altezza del personaggio. */
   readonly giftTowerLayers: number;
   /** Banconote che volano al contatore per ogni mucchio, al massimo, e dollari di una banconota. */
@@ -244,6 +253,10 @@ export const BALANCE: Balance = {
   feel: {
     festaSeconds: 3,
     festaHeight: 12,
+    carryScale: 2.3,
+    carryScaleY: 1.5,
+    carryFront: 0.85,
+    carryBase: 1.15,
     giftTowerLayers: 10,
     collectBills: 12,
     billValue: 5,
