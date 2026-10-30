@@ -1,6 +1,6 @@
 # PATRÓN — Documento di design della Beta
 
-Oct 23, 2026 · @luca · aggiornato il 29 ottobre 2026 con le regole della skill `arcade-idle` (regalo iniziale, Rispetto, scarti e Falò, camion con cassone, mazzette solo al giocatore, spinte, niente stipendi ma lavoratori che si addormentano, Ufficio solo a piedi, interfaccia del genere, clienti che non se ne vanno, missioni, forma dell'informazione nel mondo); il 30 ottobre 2026 con la missione, il mondo a lotti e la prima sessione del genere (skill `arcade-idle`, Fase 6)
+Oct 23, 2026 · @luca · aggiornato il 29 ottobre 2026 con le regole della skill `arcade-idle` (regalo iniziale, Rispetto, scarti e Falò, camion con cassone, mazzette solo al giocatore, spinte, niente stipendi ma lavoratori che si addormentano, Ufficio solo a piedi, interfaccia del genere, clienti che non se ne vanno, missioni, forma dell'informazione nel mondo); il 30 ottobre 2026 con la missione, il mondo a lotti e la prima sessione del genere (skill `arcade-idle`, Fase 6), poi con la storia (sezione 1, «La storia»)
 
 PATRÓN è un arcade idle 3D da giocare nel browser del computer in cui un contadino senza niente scala la filiera di un traffico stilizzato, dal campo allo spaccio, fino a diventare il Patrón. Questo documento descrive la **Beta**: le Fasi 0–3 della progressione più il sistema del Calore, abbastanza per capire se il loop diverte. È scritto per essere eseguito da Claude Code passo per passo (sezione 15).
 
@@ -35,6 +35,53 @@ PATRÓN è un arcade idle 3D da giocare nel browser del computer in cui un conta
 | Calore, Quota, perquisizioni, banda rivale | Classifica tra amici online         |
 | Ordini speciali di El Gordo                | Pubblicità e acquisti in-app        |
 | Salvataggio, guadagni offline              | Versione per telefono e App Store   |
+
+### La storia
+
+La storia serve a una cosa sola: far capire **chi sei, chi ti paga e dove vuoi arrivare** senza far leggere. Si racconta con il mondo, con tre vignette all'inizio e con le battute brevi dei personaggi, mai con muri di testo. Il tono è quello di una telenovela anni '80 vista con ironia: colori caldi, personaggi caricaturali, nessuna violenza in scena.
+
+**L'antefatto.** Valle de Sombra, 1981. **Tito**, diciannove anni, eredita dal padre la Hacienda La Esperanza: un lotto di terra battuta, una staccionata storta, un arco di legno con l'insegna mezza caduta, e un debito con **El Gordo**, il compratore della valle. Nel campo abbandonato è cresciuta da sola la **Lumina**, una pianta con le punte che brillano d'azzurro. El Gordo passa con il suo camion, lascia cadere a terra qualche mazzetta e dice: «Il debito di tuo padre lo paghi con quello che cresce qui. Tu coltivi, io compro». Tito prende un pennello e sull'arco, sopra LA ESPERANZA, scrive **PATRÓN**: è la promessa che il giocatore deve mantenere.
+
+**I personaggi.** Pochi, riconoscibili dalla sagoma anche allo zoom lontano.
+
+| Personaggio | Chi è | Come si riconosce | Dove compare |
+|---|---|---|---|
+| Tito (il giocatore) | Il contadino che diventerà il Patrón | Cappello di paglia rosso, camicia verde; a fine Beta completo bianco | Sempre |
+| El Gordo | Il compratore: prima benefattore, poi concorrente | Grosso, cappello bianco, occhiali scuri, sigaro; sporge dal finestrino del camion giallo | Al camion, nelle vignette, nelle battute dei primi minuti |
+| I Raccoglitori | I primi aiutanti, ragazzi del paese | Cappello di paglia, canottiera | Lotto 2, dalla Fase 1 |
+| Doña Rosa | La "chimica" del paese, insegna a fare i Cristalli | Grembiule, occhiali tondi, capelli raccolti | Laboratorio, Fase 2 |
+| Comandante Vargas | Il capo della polizia: si fa pagare per guardare altrove | Divisa kaki, baffi, cappello a tesa rigida | Auto della polizia e perquisizioni, Fase 3 |
+| Los Cuervos | La banda rivale, mandata da El Gordo quando Tito gli fa concorrenza | Giacche nere, cappellini neri | Bordo della Plaza, Fase 3 |
+
+**I capitoli.** Ogni Fase della progressione è un capitolo con un obiettivo che si dice in quattro parole. Il nome del capitolo compare all'apertura e resta piccolo accanto alla barra del Rispetto.
+
+| Capitolo | Fase | Obiettivo | Cosa cambia nel mondo | Chiusura |
+|---|---|---|---|---|
+| 1 · Il debito | 1 | Ripaga El Gordo | La Hacienda si riempie di campi e Torchi; arrivano i Raccoglitori; si apre il lotto 2 | El Gordo straccia la cambiale: «Adesso lavori per te, chico» |
+| 2 · Il cristallo | 2 | Impara da Doña Rosa | Si apre la radura del Laboratorio; dalla Lumina nascono i Cristalli, che El Gordo paga molto di più | Doña Rosa consegna a Tito la ricetta |
+| 3 · La piazza | 3 | Vendi senza El Gordo | Si apre il paese con la Plaza; la gente compra direttamente da Tito; arrivano il Comandante e Los Cuervos | Tito indossa il completo bianco: è il Patrón della valle |
+
+**Cosa capisce il giocatore, e quando.** Ogni momento della storia ha un segno nel mondo, così si capisce anche senza leggere.
+
+| Momento | Cosa vede | Cosa capisce |
+|---|---|---|
+| Schermata principale | La valle al tramonto con l'impero già costruito, il logo PATRÓN con l'accento-foglia | Dove arriverà |
+| Tre vignette (meno di 15 s, un clic le salta) | 1) Il campo abbandonato e l'arco cadente; 2) El Gordo dal camion lascia le mazzette; 3) Tito scrive PATRÓN sull'arco | Chi è, chi lo paga, cosa vuole diventare |
+| Primo fotogramma di gioco | Il lotto vuoto, l'arco PATRÓN, le mazzette di El Gordo, la sagoma del primo campo | Cosa fare adesso: raccogliere e comprare |
+| Prima vendita | El Gordo sporge dal camion: «¡Bravo, chico!» | Chi compra la merce |
+| Ogni sblocco | Festa, e l'oggetto nuovo nella Hacienda | La Hacienda cresce |
+| Fine capitolo | Breve scena con il personaggio del capitolo e la frase di chiusura | La storia va avanti |
+
+**Prova di percezione.** Ogni tappa che tocca storia, grafica o prima sessione si chiude chiedendo a chi guarda gli screenshot (e a Luca, che gioca) sei domande. Se una risposta è sbagliata, la tappa non è finita.
+
+1. Chi sono? (Un contadino che vuole diventare il capo.)
+2. Dove sono? (Nella mia fattoria, in una valle sudamericana.)
+3. Chi mi paga? (El Gordo, con il camion.)
+4. Cosa devo fare adesso? (Quello che indica il tappetino o la freccia.)
+5. Cosa fa questa macchina? (Ogni stazione: cosa entra e cosa esce.)
+6. Cosa sto portando? (La pila si vede sempre.)
+
+**Scarto dalla skill.** La regola PS1 della skill `arcade-idle` dice di entrare in partita senza menu né storia. Qui la schermata principale e le tre vignette restano, su richiesta di Luca: PATRÓN si regge su una storia, e senza introduzione il giocatore vedeva solo frecce. Il compromesso con il genere è la durata: meno di 15 s, saltabili con un clic, e poi subito la Hacienda.
 
 ## 2. Stack tecnico e distribuzione
 
@@ -287,7 +334,7 @@ Ogni foglia vale circa 6 volte di più se la porti fino alla Plaza invece di ven
 
 L'ultimo sblocco cambia l'abito del personaggio in completo bianco e apre una scena che mostra, chiusa da un lucchetto, la prima attività di copertura: "Prossimamente: il denaro sporco". È il gancio verso la versione successiva.
 
-**Il regalo di El Gordo.** La partita non parte da zero: dentro la Hacienda, a due passi dal giocatore, c'è una pila di \$25 in mazzette ("El Gordo ti anticipa \$20", che si lega al debito del testo d'apertura). Basta per il Campo 1 e la Pressa 1 nei primi 20 secondi. Lo sblocco successivo costa più di quanto resta e va guadagnato: è lo schema del genere, primo acquisto quasi regalato e secondo che costa quanto hai ([skill arcade-idle](../.claude/skills/arcade-idle/04-sintesi/regole-contenuto.md), RC4).
+**Il regalo di El Gordo.** La partita non parte da zero: dentro la Hacienda, a due passi dal giocatore, c'è una pila di \$25 in mazzette ("El Gordo ti anticipa \$25": sono le mazzette che lascia cadere nella seconda vignetta, sezione 1). Basta per il Campo 1 e la Pressa 1 nei primi 20 secondi. Lo sblocco successivo costa più di quanto resta e va guadagnato: è lo schema del genere, primo acquisto quasi regalato e secondo che costa quanto hai ([skill arcade-idle](../.claude/skills/arcade-idle/04-sintesi/regole-contenuto.md), RC4).
 
 **Verifica del flusso nei primi minuti.** Nel primo minuto il gioco costruisce il ciclo un pezzo alla volta, come Pizza Ready (PS12): Campo, Pressa, arrivo del camion, prima vendita. Un Campo produce 0,33 foglie/s. Con lo zaino da 4 e un viaggio Campo–Pressa di circa 8 s, il giocatore muove al massimo 0,5 foglie/s: il primo collo di bottiglia è il trasporto, ed è voluto. Il Campo 2 a \$20 arriva intorno al minuto 1,5; con due Campi il Raccoglitore a \$30 richiede 18 foglie, cioè circa 1,5 minuti di lavoro: arriva intorno al minuto 3.
 

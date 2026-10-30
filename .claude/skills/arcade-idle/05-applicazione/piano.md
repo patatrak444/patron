@@ -88,6 +88,25 @@ Il mondo di M2 è stato buttato e rifatto da zero secondo `../06-prima-sessione/
 - [x] Disegni ≤ 144, partenza 59k triangoli, ovunque ≤ 114k
 - [ ] Sull'iMac: almeno 50 fps; dal minuto 0 alla Pressa 2 senza aiuto (Luca)
 
+### M2c · Storia e leggibilità (dal giudizio di Luca sulla M2b, 30 ottobre 2026)
+
+**Cosa funziona già (da non rompere):** spazio iniziale piccolo che si allarga con gli acquisti; tappetino di sblocco con l'icona e il prezzo; barra del Rispetto in alto con la frase dell'obiettivo.
+
+**Cosa non funziona:** nessuna introduzione né schermata con il logo, solo frecce; merce e soldi si confondono con il personaggio e spuntano solo da certe angolature; tappetini quadrati a tinta unita; non si capisce cosa sia la Pressa né a cosa serva; grafica ancora lontana dal genere.
+
+Una voce per volta, nell'ordine. Ognuna si chiude con test, screenshot, la prova di percezione (GDD sezione 1, «La storia») e la prova di Luca sull'iMac, prima di passare alla successiva.
+
+| # | Voce | Perché a questo punto | Fatta quando |
+|---|---|---|---|
+| 1 | **Storia** nel GDD: antefatto, personaggi, capitoli, segni nel mondo, prova di percezione | Decide nomi, personaggi e scene di tutto il resto | [x] Scritta; attende l'ok di Luca |
+| 2 | **Stazioni che si spiegano da sole**: la Pressa diventa il Torchio, con le foglie che entrano da una parte e i panetti che escono dall'altra; cartello con «foglia → panetto» sopra ogni stazione | È la domanda 5 della prova: se non si capisce la macchina, non si capisce il gioco | [ ] |
+| 3 | **Tappetini con l'icona**: ogni tappetino ha la forma e lo stile di quello di sblocco, con l'icona di cosa si lascia o si prende e una freccia dentro/fuori; niente quadrati a tinta unita | Stesso linguaggio visivo per tutto quello che si calpesta | [ ] |
+| 4 | **Pila sempre visibile**: merce e soldi disegnati sopra il personaggio da ogni angolatura, più alti delle spalle e mai coperti dal corpo | Domanda 6 della prova; è il feedback continuo del genere | [ ] |
+| 5 | **Schermata principale e tre vignette**: logo, GIOCA, impero dimostrativo al tramonto, tre vignette saltabili, poi la Hacienda (GDD sezione 8) | Domande 1–3: chi sono, dove sono, chi mi paga | [ ] |
+| 6 | **El Gordo in scena**: al finestrino del camion, con battute brevi nei primi minuti al posto delle sole frecce | La guida diventa un personaggio; la storia si sente giocando | [ ] |
+| 7 | **Capitoli**: nome del capitolo nell'interfaccia e scena di chiusura del capitolo 1 («Il debito») | Dà una meta alla Fase 1 | [ ] |
+| 8 | **Grafica del genere**: confronto fianco a fianco con Pizza Ready e My Mini Mart, scheda di punteggio, interventi su personaggi, luce, contorni e materiali | Si fa per ultima, su un mondo che ormai si capisce | [ ] |
+
 ### M3 · Ufficio e Cargador
 - [ ] Pannello Ufficio a schede grandi (immagine, tacche, prima → dopo, prezzo), aperto solo stando sul tappetino viola (D10, D11)
 - [ ] Potenziamenti della tabella, Cassone compreso (D5)
