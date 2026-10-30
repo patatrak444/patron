@@ -1,70 +1,9 @@
-// Tappetini e guida nel mondo (GDD sezioni 3, 9, 10 e 12): tappetini colorati delle zone, tappetino
-// di sblocco con icona e prezzo, freccia gialla 3D sul prossimo obiettivo con un anello a terra.
+// Guida nel mondo (GDD sezioni 3, 9, 10 e 12): riquadro d'acquisto con icona e prezzo, freccia gialla 3D
+// sul prossimo obiettivo con un anello a terra. Presa e consegna stanno in contours.ts.
 
 import * as THREE from 'three';
+import { PAD_SIZE } from '../config/map';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { PALETTE } from './palette';
-
-export type MatKind = 'pickup' | 'deposit' | 'cash';
-
-function roundedSquare(size: number, r: number): THREE.ShapeGeometry {
-  const s = size / 2;
-  const sh = new THREE.Shape();
-  sh.moveTo(-s + r, -s);
-  sh.lineTo(s - r, -s);
-  sh.quadraticCurveTo(s, -s, s, -s + r);
-  sh.lineTo(s, s - r);
-  sh.quadraticCurveTo(s, s, s - r, s);
-  sh.lineTo(-s + r, s);
-  sh.quadraticCurveTo(-s, s, -s, s - r);
-  sh.lineTo(-s, -s + r);
-  sh.quadraticCurveTo(-s, -s, -s + r, -s);
-  const g = new THREE.ShapeGeometry(sh, 4);
-  g.rotateX(-Math.PI / 2);
-  return g;
-}
-
-/** Tappetini delle zone: un disegno per colore (GDD sezione 3). */
-export class ZoneMats {
-  readonly root = new THREE.Group();
-  private readonly meshes: Record<MatKind, THREE.InstancedMesh>;
-  private readonly counts: Record<MatKind, number> = { pickup: 0, deposit: 0, cash: 0 };
-  private readonly m = new THREE.Matrix4();
-
-  constructor() {
-    this.root.name = 'tappetini';
-    const geo = roundedSquare(1.5, 0.3);
-    const colors: Record<MatKind, number> = { pickup: PALETTE.matPickup, deposit: PALETTE.matDeposit, cash: PALETTE.matCash };
-    this.meshes = {} as Record<MatKind, THREE.InstancedMesh>;
-    for (const k of Object.keys(colors) as MatKind[]) {
-      const mat = new THREE.MeshLambertMaterial({ color: colors[k], transparent: true, opacity: 0.92, depthWrite: false });
-      const mesh = new THREE.InstancedMesh(geo, mat, 24);
-      mesh.receiveShadow = true;
-      mesh.renderOrder = 1;
-      mesh.frustumCulled = false;
-      mesh.count = 0;
-      this.meshes[k] = mesh;
-      this.root.add(mesh);
-    }
-  }
-
-  begin(): void {
-    for (const k of Object.keys(this.counts) as MatKind[]) this.counts[k] = 0;
-  }
-
-  add(kind: MatKind, x: number, z: number): void {
-    const i = this.counts[kind]++;
-    this.m.makeTranslation(x, 0.025, z);
-    this.meshes[kind].setMatrixAt(i, this.m);
-  }
-
-  end(): void {
-    for (const k of Object.keys(this.counts) as MatKind[]) {
-      this.meshes[k].count = this.counts[k];
-      this.meshes[k].instanceMatrix.needsUpdate = true;
-    }
-  }
-}
 
 export type PadIcon = 'field' | 'worker' | 'press' | 'bonfire' | 'zone' | 'office';
 
@@ -113,18 +52,20 @@ export class UnlockPad {
    * `at` null nasconde il tappetino. Con `ghost` (lato in metri) è la sagoma dell'oggetto futuro:
    * impronta chiara con le parentesi agli angoli e il prezzo nel fumetto (skill arcade-idle, PS11).
    */
-  update(at: { x: number; z: number } | null, icon: PadIcon, price: number, paid: number, dt: number, ghost?: number): void {
+  update(at: { x: number; z: number } | null, icon: PadIcon, price: number, paid: number, dt: number, ghost?: { w: number; h: number }): void {
     this.root.visible = at !== null;
     if (!at) return;
     this.time += dt;
     this.root.position.set(at.x, 0, at.z);
-    const side = ghost ? Math.max(2.1, ghost + 0.3) : 2.1;
-    this.inner.scale.set(side / 2.1, 1, side / 2.1);
+    // Il disegno è grande quanto l'area d'attivazione: l'impronta dell'oggetto, almeno PAD_SIZE (UX1).
+    const w = Math.max(PAD_SIZE, ghost?.w ?? 0);
+    const h = Math.max(PAD_SIZE, ghost?.h ?? 0);
+    this.inner.scale.set(w / 2.1, 1, h / 2.1);
     // Respira piano: è il prossimo passo (GDD sezione 9).
     const s = 1 + 0.035 * Math.sin(this.time * 4);
     this.root.scale.set(s, 1, s);
     const left = Math.max(0, price - paid);
-    const key = `${icon}:${left}:${ghost ?? 0}`;
+    const key = `${icon}:${left}:${ghost ? 1 : 0}`;
     if (key !== this.key) {
       this.key = key;
       this.draw(icon, left, ghost !== undefined);

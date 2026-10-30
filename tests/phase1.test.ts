@@ -24,7 +24,7 @@ function run(s: Phase1State, at: MapPoint, seconds: number): void {
   for (let t = 0; t < seconds; t += DT) stepPhase1(s, at, DT, bus, ctx);
 }
 
-const FAR: MapPoint = { x: 35, y: 40 };
+const FAR: MapPoint = { x: 60, y: 60 };
 
 /** Compra in ordine gli sblocchi fino a `id` compreso, pagando ognuno sul suo tappetino. */
 function openUpTo(s: Phase1State, id: string): void {
@@ -33,7 +33,7 @@ function openUpTo(s: Phase1State, id: string): void {
     if (cfg.unlocks.indexOf(u) < s.nextUnlock) continue;
     const cash = s.cash;
     s.cash = u.cost;
-    run(s, UNLOCK_PADS[u.id], 2);
+    run(s, UNLOCK_PADS[u.id], 2.5);
     s.cash = cash;
     if (u.id === id) break;
   }
@@ -110,14 +110,23 @@ describe('regalo e sblocchi (GDD 5)', () => {
     expect(s.cash).toBe(15);
   });
 
-  it('il pagamento dura circa 1,5 s anche per un prezzo alto', () => {
+  it('passando sul riquadro per meno di 0,25 s non si paga nulla (controllo UX 8)', () => {
+    const s = createPhase1();
+    s.piles = [];
+    s.cash = 30;
+    run(s, UNLOCK_PADS.field1, 0.2);
+    expect(s.padPaid).toBe(0);
+    expect(s.cash).toBe(30);
+  });
+
+  it('il pagamento dura 0,25 s di attesa più circa 2 s, anche per un prezzo alto (GDD 3)', () => {
     const s = createPhase1();
     openUpTo(s, 'picker2');
     s.cash = 1000;
     const i = s.nextUnlock;
-    run(s, UNLOCK_PADS.press2, 1.2);
+    run(s, UNLOCK_PADS.press2, 1.8);
     expect(s.nextUnlock).toBe(i);
-    run(s, UNLOCK_PADS.press2, 0.5);
+    run(s, UNLOCK_PADS.press2, 0.6);
     expect(s.nextUnlock).toBe(i + 1);
     expect(s.presses[1]!.unlocked).toBe(true);
     expect(s.navDirty).toBe(true);

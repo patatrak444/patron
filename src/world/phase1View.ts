@@ -3,9 +3,9 @@
 
 import * as THREE from 'three';
 import { BALANCE } from '../config/balance';
-import { FIELD_PLOTS, GHOSTS, LOTS, PRESSES, TRUCK, UNLOCK_PADS, toWorld, type MapPoint, type UnlockId } from '../config/map';
+import { BONFIRE, FIELD_PLOTS, GHOSTS, LOTS, OFFICE, PRESSES, TRUCK, UNLOCK_PADS, toWorld, type MapPoint, type UnlockId } from '../config/map';
 import type { Bus, GameEvents } from '../core/bus';
-import { activeZones, nextUnlockDef, objective, pressBlocked, pressCanWork, type Phase1State, type WorkerState } from '../sim/phase1';
+import { nextUnlockDef, objective, pressBlocked, pressCanWork, type Phase1State, type WorkerState } from '../sim/phase1';
 import type { Assets, CharacterId } from './assets';
 import { addMoneyPile, ITEM_HEIGHT, ITEM_SCALE as S, ItemBatch, type VisualItem } from './items';
 import { Label } from './labels';
@@ -13,7 +13,8 @@ import type { Valley } from './map';
 import { Confetti, Dust } from './effects';
 import { TORCHIO } from './models/stations';
 import { Character } from './models/character';
-import { GoalArrow, UnlockPad, ZoneMats, type PadIcon } from './zones';
+import { GoalArrow, UnlockPad, type PadIcon } from './zones';
+import { ContourLayer, type ContourSpec } from './contours';
 
 const cfg = BALANCE.phase1;
 const feel = BALANCE.feel;
@@ -79,7 +80,7 @@ interface WorkerView {
 export class Phase1View {
   readonly root = new THREE.Group();
   private readonly batch = new ItemBatch();
-  private readonly mats = new ZoneMats();
+  private readonly contours = new ContourLayer(BALANCE.camera.yawDeg);
   private readonly pad = new UnlockPad();
   private readonly arrow = new GoalArrow();
   private readonly playerSway = new StackSway();
@@ -110,7 +111,7 @@ export class Phase1View {
     bus: Bus<GameEvents>,
   ) {
     this.root.name = 'fase 1';
-    this.root.add(this.batch.root, this.mats.root, this.pad.root, this.arrow.root, this.confetti.mesh, this.dust.mesh);
+    this.root.add(this.batch.root, this.contours.root, this.pad.root, this.arrow.root, this.confetti.mesh, this.dust.mesh);
     for (const f of FIELD_PLOTS) {
       const l = new Label();
       const w = toWorld({ x: f.x, y: f.y });
@@ -301,7 +302,6 @@ export class Phase1View {
     }
 
     this.batch.begin();
-    this.mats.begin();
 
     // Pila del giocatore: merce tra le braccia, mazzette sulla schiena (GDD sezione 4, «Le mazzette addosso»).
     const sway = this.playerSway.update(player.vx, player.vz, dt);
@@ -324,17 +324,17 @@ export class Phase1View {
     if (this.holdFesta && this.festa && Math.floor(this.time * 2) !== Math.floor((this.time - dt) * 2)) this.confetti.burst(this.festa.x, this.festa.z, 30);
     this.confetti.update(dt);
 
-    // Tappetini delle zone.
-    for (const z of activeZones(s)) {
-      const w = toWorld(z);
-      if (z.kind === 'fieldPickup' || z.kind === 'pressOutput' || z.kind === 'pressScrap') this.mats.add('pickup', w.x, w.z);
-      else if (z.kind === 'pressDeposit' || z.kind === 'bonfire' || z.kind === 'truck') this.mats.add('deposit', w.x, w.z);
-      else if (z.kind === 'cash' && z.pile === 'truck') this.mats.add('cash', w.x, w.z);
+    // Presa e consegna sulla macchina: contorni bianchi con l'icona e la freccia (GDD sezione 3, UX2).
+    const specs: ContourSpec[] = [];
+    for (const p of s.presses) {
+      if (!p.unlocked) continue;
+      const l = PRESSES.find((x) => x.id === p.id)!;
+      specs.push({ contour: l.deposit, icon: 'leaf', into: true }, { contour: l.output, icon: 'paste', into: false }, { contour: l.scrap, icon: 'scrap', into: false });
     }
-    if (s.truck.arrived && !s.piles.some((p) => p.id === 'truck')) {
-      const w = toWorld(TRUCK.cash);
-      this.mats.add('cash', w.x, w.z);
-    }
+    if (s.bonfire) specs.push({ contour: BONFIRE.mat, icon: 'scrap', into: true });
+    if (s.truck.arrived) specs.push({ contour: TRUCK.deposit, icon: 'paste', into: true });
+    if (s.office) specs.push({ contour: OFFICE.door, icon: 'office', into: true });
+    this.contours.set(specs);
 
     // Campi: le piante crescono con le Foglie pronte; contatore "n/8", MAX quando è pieno.
     for (const f of s.fields) {
@@ -483,12 +483,11 @@ export class Phase1View {
     });
 
     this.batch.end();
-    this.mats.end();
 
     // Tappetino del prossimo sblocco.
     const next = nextDef;
     const icon: PadIcon = next?.kind ?? 'field';
-    this.pad.update(next ? toWorld(UNLOCK_PADS[next.id]) : null, icon, next?.cost ?? 0, s.padPaid, dt, next ? GHOSTS[next.id]?.w : undefined);
+    this.pad.update(next ? toWorld(UNLOCK_PADS[next.id]) : null, icon, next?.cost ?? 0, s.padPaid, dt, next ? GHOSTS[next.id] : undefined);
 
     // Freccia sul prossimo obiettivo.
     const goal = objective(s);

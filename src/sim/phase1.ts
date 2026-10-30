@@ -377,7 +377,10 @@ function stepPlayerZones(s: Phase1State, pos: MapPoint, dt: number, cfg: Phase1C
       continue;
     }
     if (z.kind === 'pad') {
-      payPad(s, z.unlock, dt, cfg, bus);
+      // Si paga solo dopo essere rimasti un attimo sul riquadro (GDD sezione 3).
+      const stay = (s.zoneTimers[z.key] ?? 0) + dt;
+      s.zoneTimers[z.key] = stay;
+      if (stay >= cfg.stack.unlockPayDelay) payPad(s, z.unlock, dt, cfg, bus);
       continue;
     }
     // Un oggetto ogni transferInterval finché resti sulla zona e c'è qualcosa da spostare.

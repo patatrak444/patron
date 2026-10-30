@@ -80,8 +80,10 @@ export interface StackConfig {
   readonly rewardDistance: number;
   /** Secondi tra un oggetto e il successivo trasferito da o verso una zona. */
   readonly transferInterval: number;
-  /** Durata del pagamento di un tappetino di sblocco, qualunque sia il prezzo. */
+  /** Durata del pagamento di un riquadro d'acquisto, qualunque sia il prezzo (Pizza Ready ≈ 2 s, UX1). */
   readonly unlockPaySeconds: number;
+  /** Attesa sul riquadro prima di prendere soldi: non si paga per sbaglio passando (controllo UX 8). */
+  readonly unlockPayDelay: number;
   /** Secondi per raccogliere un mucchio di mazzette, qualunque sia il valore. */
   readonly cashCollectSeconds: number;
 }
@@ -241,7 +243,7 @@ export const BALANCE: Balance = {
   },
   phase1: {
     gift: 40,
-    stack: { capacity: 4, cashPileSize: 1.4, rewardDistance: 3, transferInterval: 0.08, unlockPaySeconds: 1.5, cashCollectSeconds: 0.5 },
+    stack: { capacity: 4, cashPileSize: 1.4, rewardDistance: 3, transferInterval: 0.08, unlockPaySeconds: 2, unlockPayDelay: 0.25, cashCollectSeconds: 0.5 },
     field: { cycle: 3, outCap: 8 },
     press: { leavesPerPaste: 3, cycle: 4, inCap: 12, outCap: 10, pastesPerScrap: 2, scrapCap: 6 },
     truck: { pastePrice: 5, capacity: 10, awaySeconds: 20, firstArrival: 4 },
