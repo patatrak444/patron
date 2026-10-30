@@ -124,49 +124,63 @@ export function createHut(): THREE.Group {
   return g;
 }
 
+/** Lato della mappa verso cui guardano le parti del Torchio (GDD sezione 4, «Il Torchio»). */
+export const TORCHIO = {
+  /** Tramoggia delle Foglie, verso il tappetino di consegna a ovest. */
+  hopper: { x: -0.95, z: 0 },
+  /** Ripiano dei Panetti, verso il tappetino di ritiro a sud (+z). */
+  shelf: { x: 0.15, z: 1.0 },
+  /** Cassone degli Scarti a nord (−z). */
+  crate: { x: 0.15, z: -1.05 },
+  /** Centro della vite. */
+  screw: { x: 0.15, z: 0 },
+} as const;
+
 /**
- * Pressa 2,4 × 2,4 m, alta 1,8 m (GDD sezione 10), nei colori di marca: basamento giallo, telaio
- * azzurro. Sopra, come insegna, una Pasta gigante: la stazione si legge dal suo prodotto, come il
- * forno con la pizza in vetrina di Pizza Ready. A ovest (−x) il cassone degli Scarti; a nord (−z)
- * il ripiano dove si impila la Pasta prodotta; a sud la tramoggia delle Foglie.
+ * Torchio a vite (GDD sezione 4): le Foglie entrano da ovest in una tramoggia verde, la vite
+ * scende sulla vasca, i Panetti escono a sud sul ripiano, gli Scarti finiscono nel cassone a nord.
+ * Si costruisce già orientato sulla mappa: x verso est, +z verso sud.
  */
 export function createPress(): THREE.Group {
   const g = new THREE.Group();
   g.name = 'press';
+  const { hopper, shelf, crate, screw } = TORCHIO;
   // Basamento giallo con zoccolo scuro.
-  g.add(at(rbox(1.8, 0.2, 2.3, PALETTE.brandYellowDark, 0.06), 0.25, 0.1, 0));
-  g.add(at(rbox(1.7, 0.5, 2.1, PALETTE.brandYellow, 0.1), 0.25, 0.45, 0));
-  // Tramoggia delle Foglie verso sud (+z).
-  g.add(at(rbox(1.2, 0.12, 0.55, PALETTE.brandBlueDark, 0.04), 0.25, 0.76, 0.75));
-  // Vasca sotto il pistone.
-  g.add(at(rbox(1.1, 0.12, 1.0, WOOD_DARK, 0.04), 0.25, 0.76, -0.05));
-  g.add(at(rbox(0.9, 0.04, 0.8, 0x3f5a2c, 0.02), 0.25, 0.83, -0.05));
-  // Telaio azzurro.
-  for (const sx of [-1, 1]) g.add(at(rbox(0.22, 1.2, 0.32, PALETTE.brandBlue, 0.06), 0.25 + sx * 0.72, 1.3, -0.05));
-  g.add(at(rbox(1.75, 0.26, 0.42, PALETTE.brandBlueDark, 0.08), 0.25, 1.92, -0.05));
-  const screw = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.6, 8), flat(STEEL));
-  screw.castShadow = true;
-  screw.name = 'pressScrew';
-  g.add(at(screw, 0.25, 1.45, -0.05));
-  const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.12, 12), flat(STEEL_DARK));
+  g.add(at(rbox(1.5, 0.2, 1.5, PALETTE.brandYellowDark, 0.06), screw.x, 0.1, 0));
+  g.add(at(rbox(1.4, 0.5, 1.4, PALETTE.brandYellow, 0.1), screw.x, 0.45, 0));
+  // Vasca sotto la vite.
+  g.add(at(rbox(1.0, 0.12, 1.0, WOOD_DARK, 0.04), screw.x, 0.76, 0));
+  g.add(at(rbox(0.8, 0.04, 0.8, 0x3f5a2c, 0.02), screw.x, 0.83, 0));
+  // Telaio azzurro: due montanti a nord e a sud, traversa in alto.
+  for (const sz of [-1, 1]) g.add(at(rbox(0.3, 1.25, 0.22, PALETTE.brandBlue, 0.06), screw.x, 1.3, sz * 0.6));
+  g.add(at(rbox(0.42, 0.26, 1.5, PALETTE.brandBlueDark, 0.08), screw.x, 1.95, 0));
+  // Volantino della vite, rosso: si riconosce il torchio.
+  const wheel = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.05, 6, 16), flat(0xe0483e));
+  wheel.rotation.x = Math.PI / 2;
+  g.add(at(wheel, screw.x, 2.35, 0));
+  const screwMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.9, 8), flat(STEEL));
+  screwMesh.castShadow = true;
+  screwMesh.name = 'pressScrew';
+  g.add(at(screwMesh, screw.x, 1.6, 0));
+  const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.12, 12), flat(STEEL_DARK));
   plate.castShadow = true;
   plate.name = 'pressPlate';
-  g.add(at(plate, 0.25, 1.1, -0.05));
-  // Ripiano della Pasta a nord.
-  g.add(at(rbox(1.3, 0.1, 0.5, WOOD, 0.03), 0.25, 0.72, -1.0));
-  // Cassone degli Scarti a ovest: cassa di legno aperta.
-  g.add(at(rbox(0.7, 0.08, 1.2, WOOD_DARK, 0.03), -0.85, 0.04, 0));
-  for (const sz of [-1, 1]) g.add(at(rbox(0.7, 0.5, 0.08, WOOD, 0.02), -0.85, 0.3, sz * 0.56));
-  g.add(at(rbox(0.08, 0.5, 1.2, WOOD, 0.02), -1.18, 0.3, 0));
-  // Insegna: palo e Pasta gigante con la fascia azzurra.
-  g.add(at(rbox(0.12, 1.0, 0.12, WOOD_DARK, 0.03), 0.25, 2.5, -0.05));
-  const sign = new THREE.Group();
-  sign.name = 'pressSign';
-  sign.add(rbox(1.0, 0.4, 0.8, 0xe8d3a6, 0.1));
-  sign.add(rbox(0.26, 0.41, 0.81, PALETTE.brandBlue, 0.05));
-  sign.position.set(0.25, 3.2, -0.05);
-  sign.rotation.y = Math.PI / 4;
-  g.add(sign);
+  g.add(at(plate, screw.x, 1.1, 0));
+  // Tramoggia verde delle Foglie a ovest: cassa aperta e inclinata verso la vasca.
+  g.add(at(rbox(0.75, 0.1, 1.1, 0x2f9a48, 0.03), hopper.x, 0.62, hopper.z));
+  for (const sz of [-1, 1]) g.add(at(rbox(0.75, 0.45, 0.08, 0x3fc24a, 0.02), hopper.x, 0.85, hopper.z + sz * 0.52));
+  g.add(at(rbox(0.08, 0.45, 1.1, 0x3fc24a, 0.02), hopper.x - 0.34, 0.85, hopper.z));
+  g.add(at(rbox(0.6, 0.62, 0.9, PALETTE.brandYellowDark, 0.04), hopper.x, 0.31, hopper.z));
+  // Ripiano dei Panetti a sud, con lo scivolo che esce dalla vasca.
+  g.add(at(rbox(1.3, 0.1, 0.6, WOOD, 0.03), shelf.x, 0.72, shelf.z));
+  for (const sx of [-1, 1]) g.add(at(rbox(0.1, 0.68, 0.1, WOOD_DARK, 0.02), shelf.x + sx * 0.55, 0.34, shelf.z + 0.2));
+  const chute = rbox(0.5, 0.06, 0.5, STEEL, 0.02);
+  chute.rotation.x = 0.35;
+  g.add(at(chute, shelf.x, 0.82, 0.62));
+  // Cassone degli Scarti a nord: cassa di legno aperta.
+  g.add(at(rbox(1.2, 0.08, 0.7, WOOD_DARK, 0.03), crate.x, 0.04, crate.z));
+  for (const sx of [-1, 1]) g.add(at(rbox(0.08, 0.5, 0.7, WOOD, 0.02), crate.x + sx * 0.56, 0.3, crate.z));
+  g.add(at(rbox(1.2, 0.5, 0.08, WOOD, 0.02), crate.x, 0.3, crate.z - 0.33));
   return g;
 }
 

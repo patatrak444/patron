@@ -298,14 +298,14 @@ describe('frase dell\'obiettivo (GDD 8)', () => {
     run(s, GIFT_SPOT, 0.5);
     expect(objective(s).text).toBe('Compra il campo!');
     run(s, UNLOCK_PADS.field1, 2);
-    expect(objective(s).text).toBe('Compra la pressa!');
+    expect(objective(s).text).toBe('Compra il torchio!');
     run(s, UNLOCK_PADS.press1, 2);
     s.truck.away = 0;
     s.truck.arrived = true;
     s.cash = 0;
     expect(objective(s).text).toBe('Raccogli le foglie!');
     s.stack.items = ['leaf'];
-    expect(objective(s).text).toBe('Porta le foglie qui!');
+    expect(objective(s).text).toBe('Foglie al torchio!');
     s.stack.items = ['paste'];
     expect(objective(s).text).toBe('Vendi a El Gordo!');
     s.stack.items = [];

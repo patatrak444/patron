@@ -689,11 +689,11 @@ export function objective(s: Phase1State, cfg: Phase1Config = BALANCE.phase1): O
     if (countOf(s.stack, 'paste') > 0 && s.truck.arrived && s.truck.away === 0) return { text: 'Vendi a El Gordo!', target: TRUCK.deposit };
     const out = s.presses.find((p) => p.unlocked && p.pastes > 0);
     if (out && !isFull(s.stack) && (countOf(s.stack, 'leaf') === 0 || leavesStuck(s, cfg))) {
-      return { text: 'Prendi la Pasta!', target: PRESSES.find((p) => p.id === out.id)!.output };
+      return { text: 'Prendi i panetti!', target: PRESSES.find((p) => p.id === out.id)!.output };
     }
     if (countOf(s.stack, 'leaf') > 0 && !leavesStuck(s, cfg)) {
       const press = s.presses.filter((p) => p.unlocked).sort((a, b) => a.leaves - b.leaves)[0]!;
-      return { text: 'Porta le foglie qui!', target: PRESSES.find((p) => p.id === press.id)!.deposit };
+      return { text: 'Foglie al torchio!', target: PRESSES.find((p) => p.id === press.id)!.deposit };
     }
     const field = s.fields.filter((f) => f.unlocked).sort((a, b) => b.ready - a.ready)[0]!;
     return { text: 'Raccogli le foglie!', target: fieldMat(field.id) };

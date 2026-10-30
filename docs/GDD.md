@@ -29,7 +29,7 @@ PATRÓN è un arcade idle 3D da giocare nel browser del computer in cui un conta
 | Dentro la Beta                             | Fuori dalla Beta (sezione 16)       |
 |--------------------------------------------|-------------------------------------|
 | Fase 0: onboarding                         | Fase 4: riciclaggio e denaro pulito |
-| Fase 1: il Campo e la Pressa               | Fase 5: rotte di esportazione       |
+| Fase 1: il Campo e il Torchio               | Fase 5: rotte di esportazione       |
 | Fase 2: il Laboratorio                     | Fase 6: impero, Caduta e prestigio  |
 | Fase 3: la Plaza e lo spaccio              | Lealtà e informatori                |
 | Calore, Quota, perquisizioni, banda rivale | Classifica tra amici online         |
@@ -203,8 +203,8 @@ L'azione principale del gioco è muoversi: ogni azione parte da sola quando il p
 
 | Lotto | Rettangolo | Contenuto | Si apre |
 |---|---|---|---|
-| 1 · La Hacienda | da (14, 6) a (26, 16) | Arco PATRÓN sul lato nord, Campo 1 e Campo 2, Pressa 1, Falò, regalo di El Gordo | Inizio |
-| 2 · I campi | da (26, 6) a (36, 16) | Campo 3, Campo 4, Pressa 2, casetta dei Raccoglitori | Sblocco "Nuova zona" (Fase 1) |
+| 1 · La Hacienda | da (14, 6) a (26, 16) | Arco PATRÓN sul lato nord, Campo 1 e Campo 2, Torchio 1, Falò, regalo di El Gordo | Inizio |
+| 2 · I campi | da (26, 6) a (36, 16) | Campo 3, Campo 4, Torchio 2, casetta dei Raccoglitori | Sblocco "Nuova zona" (Fase 1) |
 | 3 · L'ufficio | da (14, 0) a (36, 6) | Ufficio con i potenziamenti, posto del Cargador | Con l'Ufficio (tappa M3) |
 | 4 · La radura | da (4, 22) a (18, 34) | Laboratorio 1 e 2, nella giungla oltre la strada | Fase 2 |
 | 5 · Il paese | da (20, 22) a (38, 40) | Banco di confezionamento, Plaza con bancone e fila | Fase 3 |
@@ -220,7 +220,7 @@ L'azione principale del gioco è muoversi: ogni azione parte da sola quando il p
 | Oggetto   | Aspetto                              | Valore di riferimento |
 |-----------|--------------------------------------|-----------------------|
 | Foglia    | Mazzo di foglie verde brillante      | Non vendibile         |
-| Pasta     | Mattonella beige avvolta in tela     | \$5 da El Gordo       |
+| Panetto     | Mattonella beige avvolta in tela     | \$5 da El Gordo       |
 | Cristallo | Blocco azzurro luminescente          | \$24 da El Gordo      |
 | Dose      | Bustina piccola con riflesso azzurro | \$15 in Plaza         |
 | Scarti    | Sacco di juta grigio-marrone         | Non vendibile: si brucia nel Falò |
@@ -230,11 +230,11 @@ L'azione principale del gioco è muoversi: ogni azione parte da sola quando il p
 | Stazione                 | Input             | Output      | Ciclo       | Buffer in / out | Note                                                             |
 |--------------------------|-------------------|-------------|-------------|-----------------|------------------------------------------------------------------|
 | Campo                    | —                 | 1 Foglia    | 3 s         | — / 8           | Le piantine crescono a vista; si vedono le foglie pronte         |
-| Pressa                   | 3 Foglie          | 1 Pasta     | 4 s         | 12 / 10         | Animazione di pressa che scende. Ogni 2 Paste esce 1 sacco di Scarti nel cassone accanto (contatore "0/6"): a cassone pieno la Pressa si ferma |
-| Laboratorio              | 2 Paste           | 1 Cristallo | 6 s         | 10 / 8          | Fumo dal camino mentre lavora; genera Calore                     |
+| Torchio                   | 3 Foglie          | 1 Panetto     | 4 s         | 12 / 10         | Pistone a vite che scende. Ogni 2 Panetti esce 1 sacco di Scarti nel cassone accanto (contatore "0/6"): a cassone pieno il Torchio si ferma |
+| Laboratorio              | 2 Panetti           | 1 Cristallo | 6 s         | 10 / 8          | Fumo dal camino mentre lavora; genera Calore                     |
 | Banco di confezionamento | 1 Cristallo       | 4 Dosi      | 3 s         | 6 / 24          |                                                                  |
-| Camion di El Gordo       | Pasta o Cristallo | Soldi       | Istantaneo  | Cassone 10 ("n/max") | Paga poco, ma non genera Calore. A cassone pieno parte e torna dopo 20 s |
-| Falò                     | Scarti            | —           | Istantaneo  | Illimitato      | Non produce niente: brucia i sacchi con una fiammata. È il "lavoretto" del tema. Accetta anche le Foglie che non hanno dove andare (tutte le Presse piene), come il cestino di My Mini Mart |
+| Camion di El Gordo       | Panetto o Cristallo | Soldi       | Istantaneo  | Cassone 10 ("n/max") | Paga poco, ma non genera Calore. A cassone pieno parte e torna dopo 20 s |
+| Falò                     | Scarti            | —           | Istantaneo  | Illimitato      | Non produce niente: brucia i sacchi con una fiammata. È il "lavoretto" del tema. Accetta anche le Foglie che non hanno dove andare (tutte i Torchi pieni), come il cestino di My Mini Mart |
 | Bancone della Plaza      | Dosi              | Soldi       | Per cliente | 30 dosi         | Vende solo se c'è un venditore sulla zona (tu o uno spacciatore) |
 
 ![filiera della Beta · 5 stazioni e il camion di El Gordo](media/image1.png)
@@ -243,9 +243,11 @@ L'azione principale del gioco è muoversi: ogni azione parte da sola quando il p
 
 Vendere a El Gordo è sicuro ma rende poco; portare la merce fino alla Plaza rende sei volte tanto per foglia, e attira la polizia.
 
-**Il camion di El Gordo.** Ha un cassone con capienza scritta sopra ("7/10"). Ogni Pasta o Cristallo caricato, dal giocatore o dal Cargador, si paga subito come prima. Quando il cassone è pieno il camion suona il clacson, parte lungo la strada e torna dopo 20 s; sul posto resta un cerchio con il conto alla rovescia, e nel frattempo non si vende. All'inizio il cassone non si riempie quasi mai: diventa un limite quando la produzione cresce, e si allarga con il potenziamento Cassone (sezione 5).
+**Il Torchio.** È un torchio a vite, la macchina più antica per spremere: il nome dice cosa fa. Le Foglie entrano da ovest, in una tramoggia verde rivolta al tappetino di consegna, e restano visibili in mucchio; la vite scende sulla vasca; i Panetti escono a sud su un ripiano di legno, dove si impilano fino a 10; il cassone degli Scarti sta a nord. Sopra, un cartello con «🌿 → panetto» si legge da ogni punto dello schermo. A ogni Panetto la vite fa un colpo e il Panetto nuovo salta sul ripiano.
 
-**Gli scarti.** Ogni Pressa riempie un cassone di sacchi di Scarti (uno ogni 2 Paste, massimo 6). Gli Scarti si prendono dal cassone come una merce qualunque, viaggiano nella stessa pila e si lasciano nel Falò, che li brucia. Non rendono niente: sono il compito che il tema porta con sé, come la spazzatura in pizzeria. Più avanti se ne occupano i Raccoglitori (sezione 6).
+**Il camion di El Gordo.** Ha un cassone con capienza scritta sopra ("7/10"). Ogni Panetto o Cristallo caricato, dal giocatore o dal Cargador, si paga subito come prima. Quando il cassone è pieno il camion suona il clacson, parte lungo la strada e torna dopo 20 s; sul posto resta un cerchio con il conto alla rovescia, e nel frattempo non si vende. All'inizio il cassone non si riempie quasi mai: diventa un limite quando la produzione cresce, e si allarga con il potenziamento Cassone (sezione 5).
+
+**Gli scarti.** Ogni Torchio riempie un cassone di sacchi di Scarti (uno ogni 2 Panetti, massimo 6). Gli Scarti si prendono dal cassone come una merce qualunque, viaggiano nella stessa pila e si lasciano nel Falò, che li brucia. Non rendono niente: sono il compito che il tema porta con sé, come la spazzatura in pizzeria. Più avanti se ne occupano i Raccoglitori (sezione 6).
 
 Regole comuni:
 
@@ -273,7 +275,7 @@ Ogni foglia vale circa 6 volte di più se la porti fino alla Plaza invece di ven
 
 | Anello controllato | Dove vendi                                | Ricavo per foglia | Moltiplicatore sul passo prima | Calore                  |
 |--------------------|-------------------------------------------|-------------------|--------------------------------|-------------------------|
-| Pressa             | Pasta a El Gordo (\$5 ogni 3 foglie)      | \$1,67            | —                              | Nessuno                 |
+| Torchio             | Panetto a El Gordo (\$5 ogni 3 foglie)      | \$1,67            | —                              | Nessuno                 |
 | Laboratorio        | Cristallo a El Gordo (\$24 ogni 6 foglie) | \$4,00            | ×2,4                           | Sì, dal Laboratorio     |
 | Spaccio            | Dosi in Plaza (4 × \$15 ogni 6 foglie)    | \$10,00           | ×2,5                           | Sì, Laboratorio e Plaza |
 
@@ -304,7 +306,7 @@ Ogni foglia vale circa 6 volte di più se la porti fino alla Plaza invece di ven
 | Zaino         | +2 capacità della pila (da 4 a 20)               | \$40       | 8       | Fase 1                   |
 | Scarpe        | +6% velocità del giocatore                       | \$60       | 8       | Fase 1                   |
 | Fertilizzante | −10% ciclo di tutti i Campi                      | \$50       | 5       | Fase 1                   |
-| Ingranaggi    | −10% ciclo delle Presse                          | \$150      | 5       | Fase 1                   |
+| Ingranaggi    | −10% ciclo dei Torchi                          | \$150      | 5       | Fase 1                   |
 | Attrezzatura  | −10% ciclo dei Laboratori                        | \$600      | 5       | Fase 2                   |
 | Purezza       | +10% prezzo, +8% Calore                          | \$1.000    | 5       | Fase 2                   |
 | Bilance       | −10% ciclo del Banco di confezionamento          | \$1.500    | 5       | Fase 3                   |
@@ -317,7 +319,7 @@ Ogni foglia vale circa 6 volte di più se la porti fino alla Plaza invece di ven
 | \#  | Sblocco                                  | Fase | Costo    | Minuto obiettivo |
 |-----|------------------------------------------|------|----------|------------------|
 | 1   | Campo 1                                  | 1    | \$5      | 0,1              |
-| 2   | Pressa 1                                 | 1    | \$15     | 0,3              |
+| 2   | Torchio 1                                 | 1    | \$15     | 0,3              |
 | —   | Arriva il camion di El Gordo (gratis)    | 1    | —        | 0,4              |
 | 3   | Campo 2                                  | 1    | \$20     | 1,5              |
 | 4   | Falò                                     | 1    | \$10     | 2                |
@@ -325,10 +327,10 @@ Ogni foglia vale circa 6 volte di più se la porti fino alla Plaza invece di ven
 | 6   | Nuova zona: lotto 2                      | 1    | \$60     | 5                |
 | 7   | Campo 3                                  | 1    | \$80     | 6,5              |
 | 8   | Secondo raccoglitore                     | 1    | \$120    | 8                |
-| 9   | Pressa 2                                 | 1    | \$200    | 10               |
+| 9   | Torchio 2                                 | 1    | \$200    | 10               |
 | 9b  | Cargador di El Gordo (ritiro automatico) | 1    | \$250    | 11,5             |
 | 6   | Laboratorio 1                            | 2    | \$350    | 12               |
-| 7   | Corriere Pressa → Laboratorio            | 2    | \$500    | 15               |
+| 7   | Corriere Torchio → Laboratorio            | 2    | \$500    | 15               |
 | 8   | Campo 4                                  | 2    | \$800    | 19               |
 | 9   | Banco di confezionamento + Plaza         | 3    | \$1.200  | 25               |
 | 10  | Primo spacciatore                        | 3    | \$1.500  | 29               |
@@ -345,9 +347,9 @@ Ogni foglia vale circa 6 volte di più se la porti fino alla Plaza invece di ven
 
 L'ultimo sblocco cambia l'abito del personaggio in completo bianco e apre una scena che mostra, chiusa da un lucchetto, la prima attività di copertura: "Prossimamente: il denaro sporco". È il gancio verso la versione successiva.
 
-**Il regalo di El Gordo.** La partita non parte da zero: dentro la Hacienda, a due passi dal giocatore, c'è una pila di \$25 in mazzette ("El Gordo ti anticipa \$25", sezione 1). Basta per il Campo 1 e la Pressa 1 nei primi 20 secondi. Lo sblocco successivo costa più di quanto resta e va guadagnato: è lo schema del genere, primo acquisto quasi regalato e secondo che costa quanto hai ([skill arcade-idle](../.claude/skills/arcade-idle/04-sintesi/regole-contenuto.md), RC4).
+**Il regalo di El Gordo.** La partita non parte da zero: dentro la Hacienda, a due passi dal giocatore, c'è una pila di \$25 in mazzette ("El Gordo ti anticipa \$25", sezione 1). Basta per il Campo 1 e il Torchio 1 nei primi 20 secondi. Lo sblocco successivo costa più di quanto resta e va guadagnato: è lo schema del genere, primo acquisto quasi regalato e secondo che costa quanto hai ([skill arcade-idle](../.claude/skills/arcade-idle/04-sintesi/regole-contenuto.md), RC4).
 
-**Verifica del flusso nei primi minuti.** Nel primo minuto il gioco costruisce il ciclo un pezzo alla volta, come Pizza Ready (PS12): Campo, Pressa, arrivo del camion, prima vendita. Un Campo produce 0,33 foglie/s. Con lo zaino da 4 e un viaggio Campo–Pressa di circa 8 s, il giocatore muove al massimo 0,5 foglie/s: il primo collo di bottiglia è il trasporto, ed è voluto. Il Campo 2 a \$20 arriva intorno al minuto 1,5; con due Campi il Raccoglitore a \$30 richiede 18 foglie, cioè circa 1,5 minuti di lavoro: arriva intorno al minuto 3.
+**Verifica del flusso nei primi minuti.** Nel primo minuto il gioco costruisce il ciclo un pezzo alla volta, come Pizza Ready (PS12): Campo, Torchio, arrivo del camion, prima vendita. Un Campo produce 0,33 foglie/s. Con lo zaino da 4 e un viaggio Campo–Torchio di circa 8 s, il giocatore muove al massimo 0,5 foglie/s: il primo collo di bottiglia è il trasporto, ed è voluto. Il Campo 2 a \$20 arriva intorno al minuto 1,5; con due Campi il Raccoglitore a \$30 richiede 18 foglie, cioè circa 1,5 minuti di lavoro: arriva intorno al minuto 3.
 
 **Il Rispetto.** È il livello del giocatore, come il livello del locale nei giochi del genere (10 su 11 ne hanno uno). Si guadagnano stelle: **+4 per ogni sblocco** della tabella e **+1 per ogni livello di potenziamento** comprato. Le soglie sono cumulative e si allungano:
 
@@ -368,13 +370,13 @@ Ogni lavoratore ripete un tratto della catena che prima facevi tu, e alla fine d
 
 | Ruolo                | Cosa fa                                                                                                                                                                                                                                                                  | Capacità | Velocità | Sonno                             | Aspetto                           |
 |----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|----------|-----------------------------------|-----------------------------------|
-| Raccoglitore         | Campo con più foglie pronte → Pressa con spazio. Se il cassone degli Scarti di una Pressa è pieno per metà o più, porta prima gli Scarti al Falò | 3        | 2,8 m/s  | ogni 90–150 s                     | Cappello di paglia                |
-| Corriere A           | Pressa → Laboratorio                                                                                                                                                                                                                                                     | 4        | 3,2 m/s  | ogni 90–150 s                     | Cappellino e zaino                |
+| Raccoglitore         | Campo con più foglie pronte → Torchio con spazio. Se il cassone degli Scarti di un Torchio è pieno per metà o più, porta prima gli Scarti al Falò | 3        | 2,8 m/s  | ogni 90–150 s                     | Cappello di paglia                |
+| Corriere A           | Torchio → Laboratorio                                                                                                                                                                                                                                                     | 4        | 3,2 m/s  | ogni 90–150 s                     | Cappellino e zaino                |
 | Corriere B           | Laboratorio → Banco; poi Banco → bancone della Plaza                                                                                                                                                                                                                     | 6        | 3,2 m/s  | ogni 90–150 s                     | Cappellino rosso                  |
 | Spacciatore          | Resta sulla zona di vendita e serve 1 cliente ogni 1,5 s                                                                                                                                                                                                                 | —        | —        | ogni 90–150 s                     | Occhiali da sole, camicia a fiori |
 | Guardia              | Pattuglia la Plaza; allontana i rivali; −20% Calore dalle vendite                                                                                                                                                                                                        | —        | 3 m/s    | mai                               | Canottiera, più massiccio         |
 | Capo squadra         | Uno per area; +25% velocità ai lavoratori dell'area, che con lui non si addormentano più                                                                                                                                                                                                               | —        | —        | mai                               | Cappello a tesa larga, sigaro     |
-| Cargador di El Gordo | Uomo di El Gordo, non tuo: ritira e vende al camion pagando il 10% in meno. Priorità: Cristalli dal Laboratorio solo se il Banco non esiste o ha l'ingresso pieno; Pasta dalla Pressa solo se non c'è Laboratorio o ha l'ingresso pieno. Così non ruba merce alla catena | 6        | 3 m/s    | mai (non è tuo)                   | Grembiule e berretto di lana      |
+| Cargador di El Gordo | Uomo di El Gordo, non tuo: ritira e vende al camion pagando il 10% in meno. Priorità: Cristalli dal Laboratorio solo se il Banco non esiste o ha l'ingresso pieno; Panetti dal Torchio solo se non c'è Laboratorio o ha l'ingresso pieno. Così non ruba merce alla catena | 6        | 3 m/s    | mai (non è tuo)                   | Grembiule e berretto di lana      |
 
 **Regole del Cargador.**
 
@@ -406,7 +408,7 @@ Ogni lavoratore ripete un tratto della catena che prima facevi tu, e alla fine d
 
 | Momento             | Cosa fa il giocatore                                                        |
 |---------------------|-----------------------------------------------------------------------------|
-| Minuti 0–3          | Tutto a mano: raccoglie, pressa, vende                                      |
+| Minuti 0–3          | Tutto a mano: raccoglie, pressa nel Torchio, vende                                      |
 | Minuti 3–25         | Porta la merce dove i lavoratori non arrivano ancora, incassa               |
 | Minuti 25–85        | Copre i buchi della catena, gestisce Calore, rivali e ordini speciali       |
 | Dopo i capi squadra | Non trasporta più: raccoglie le mazzette e decide potenziamenti, Purezza, Quota |
@@ -465,7 +467,7 @@ Nessun evento parte mentre il gioco è chiuso. Offline il Calore scende solo con
 
 | Fase | Esempio di ordine | Tempo | Premio              |
 |------|-------------------|-------|---------------------|
-| 2    | 15 Paste          | 2 min | Prezzo × 2          |
+| 2    | 15 Panetti          | 2 min | Prezzo × 2          |
 | 2–3  | 10 Cristalli      | 3 min | Prezzo × 2          |
 | 3    | 25 Cristalli      | 4 min | Prezzo × 2 + 5 Fama |
 
@@ -573,10 +575,10 @@ In 3 minuti il giocatore deve aver fatto un giro completo della catena, incassat
 | 0:05  | Dentro la Hacienda vuota, con l'arco PATRÓN sullo sfondo. Tasti W A S D disegnati a schermo accanto alla frase "Muoviti con WASD". Freccia verso le mazzette a due passi: "Raccogli i soldi!" | I comandi; la missione |
 | 0:08  | Le mazzette volano sulla schiena del personaggio e nel contatore: "El Gordo ti anticipa \$25" | Il contante |
 | 0:10  | Sagoma del Campo 1 con il fumetto "\$5": "Compra il campo!". La festa: camera vicina, piantine che spuntano, stelle | Gli sblocchi |
-| 0:18  | Sagoma della Pressa con "\$15": "Compra la pressa!". Seconda festa | Le stazioni |
+| 0:18  | Sagoma del Torchio con "\$15": "Compra il torchio!". Seconda festa | Le stazioni |
 | 0:24  | Clacson: il camion di El Gordo arriva lungo la strada e si ferma accanto all'arco | Il compratore |
 | 0:28  | "Raccogli le foglie!": camminando tra le piante le foglie volano tra le braccia una a una | La raccolta e la pila |
-| 0:40  | "Porta le foglie qui!": la pressa scende, esce la prima Pasta | Le stazioni trasformano |
+| 0:40  | "Foglie al torchio!": la vite scende, esce il primo Panetto | Le stazioni trasformano |
 | 0:55  | "Vendi a El Gordo!": il cassone segna "1/10", le mazzette compaiono sul tappetino accanto al camion. "Prendi i soldi!" | Prima ricompensa |
 | 1:30  | Sagoma del Campo 2 | Crescere |
 | 2:00  | Primo sacco di Scarti: sagoma del Falò, "Compra il falò!" | Il lavoretto del tema |
@@ -616,11 +618,11 @@ Il giocatore resta finché ha sempre un passo successivo chiaro, vicino e divers
 | Traguardo sempre vicino          | Ritmo della tabella degli sblocchi: mai più di 3–4 minuti tra uno sblocco e l'altro nella prima ora                                                               | Ogni sessione chiude almeno un obiettivo            |
 | Collo di bottiglia che si sposta | Ogni sblocco risolve un limite e ne mostra un altro. La stazione ferma ha un'icona di stop ben visibile                                                           | C'è sempre un problema da risolvere, e si vede dove |
 | Crescita visibile                | Più lavoratori in giro, pile di soldi, mappa che si apre, abito del personaggio che cambia (camicia logora → camicia hawaiana → giacca di lino → completo bianco) | Il progresso si vede senza leggere numeri           |
-| Missioni                         | Tre missioni sempre attive nel menu ("Vendi 20 Paste", "Compra 2 potenziamenti"), come le missioni di Monkey Mart, My Perfect Hotel e altri 4 giochi su 11. Premio in contante e 2 stelle di Rispetto; completata una, ne arriva subito un'altra. Nessun timer e nessuna scadenza | Un obiettivo di medio termine anche quando il prossimo sblocco è lontano |
+| Missioni                         | Tre missioni sempre attive nel menu ("Vendi 20 Panetti", "Compra 2 potenziamenti"), come le missioni di Monkey Mart, My Perfect Hotel e altri 4 giochi su 11. Premio in contante e 2 stelle di Rispetto; completata una, ne arriva subito un'altra. Nessun timer e nessuna scadenza | Un obiettivo di medio termine anche quando il prossimo sblocco è lontano |
 | Ritmo degli eventi               | Dopo la Fase 2 succede qualcosa ogni 2–5 minuti: ordine speciale, rivale, posto di blocco                                                                         | La routine non diventa monotona                     |
 | Rischio dosabile                 | Purezza e Quota sono leve: guadagni di più accettando più Calore                                                                                                  | Decisioni vere, non solo acquisti                   |
 | Ritorno ricompensato             | All'apertura, schermata "Mentre eri via" con il contante guadagnato offline che si conta in animazione                                                            | Tornare dà subito una ricompensa                    |
-| Lavoro lasciato a metà           | Nella stessa schermata, una riga sul primo collo di bottiglia offline (es. "Il Laboratorio si è fermato: mancava Pasta")                                          | Si rientra con un compito preciso                   |
+| Lavoro lasciato a metà           | Nella stessa schermata, una riga sul primo collo di bottiglia offline (es. "Il Laboratorio si è fermato: mancavano Panetti")                                          | Si rientra con un compito preciso                   |
 | Confronto tra amici              | Schermata "Valore dell'impero" (contante guadagnato in tutto, tempo di gioco, fase) con un pulsante che copia il riepilogo da incollare in chat                   | Competizione senza server                           |
 
 **La curva della difficoltà.** La difficoltà è la prima causa meccanica di abbandono: troppo dura e si molla, troppo facile e ci si annoia. Va fatta salire con momenti di pressione, ma senza fallimenti veri all'inizio ([Pocket Gamer.biz](https://www.pocketgamer.biz/the-universal-guide-to-retention/)). Nella Beta:
@@ -653,7 +655,7 @@ Il giocatore resta finché ha sempre un passo successivo chiaro, vicino e divers
 | Il giocatore si distingue | È l'unico personaggio con un colore acceso; i lavoratori e i clienti hanno colori più spenti |
 | Il gioco parla con oggetti nel mondo | Tappetini con l'icona di ciò che sbloccano e il prezzo grande; mazzette a terra in blocchi da 2 × 3 che crescono in altezza; contatori "n/max" sopra stazioni, cassoni e camion; scritta MAX a stazione piena; fumetti tondi con un'icona e un numero, mai frasi; freccia gialla 3D sopra il prossimo tappetino e un anello a terra (da M2) |
 | Due colori di marca | L'azzurro della Lumina (#5CE1E6) e il giallo anni '80 (#FFC94A) si ripetono su tutte le stazioni, i tappetini e le insegne: la filiera si riconosce come una cosa sola |
-| Le stazioni sono macchine | Ogni stazione porta sopra il suo prodotto in grande, come insegna (una Pasta gigante sulla Pressa, un Cristallo sul Laboratorio), e mostra la merce prodotta impilata in vista sull'uscita |
+| Le stazioni sono macchine che si spiegano da sole | Sopra ogni stazione c'è un cartello con cosa entra e cosa esce, a icone: «🌿 → panetto» sul Torchio, «panetto → cristallo» sul Laboratorio. La merce in entrata si vede accumulata dal lato del tappetino di consegna, quella prodotta impilata sul lato del ritiro: il flusso attraversa la macchina da una parte all'altra (prova di percezione, domanda 5) |
 | I soldi si vedono | Mazzette verde acceso con un bordo chiaro: nessun altro oggetto ha quel verde, che deve staccarsi dal prato pastello |
 
 **Palette.**
@@ -677,7 +679,7 @@ Il giocatore resta finché ha sempre un passo successivo chiaro, vicino e divers
 - I modelli stanno in `public/models/` in formato glTF (`.glb`) e si caricano con il GLTFLoader di Three.js (incluso in Three.js, non è un framework in più). I colori dei modelli si riportano alla palette di questa sezione.
 - Pacchetti usati nella Beta: Kenney **Nature Kit** (alberi, palme, cespugli, rocce, ceppi, tronchi, fiori, staccionata), **Car Kit** (camion di El Gordo, `truck_flat`) e **Mini Characters** (personaggi animati, 32 animazioni). I file vengono dalla raccolta `@netforge/asset-library-files` su npm, che contiene copie ottimizzate (compressione meshopt) dei pacchetti originali con la licenza verificata per ciascuno: scaricarli da npm funziona anche dalle sessioni cloud, dove kenney.nl non è raggiungibile. L'elenco dei file e la provenienza sono in `public/models/CREDITS.md`.
 - I materiali "non illuminati" del Nature Kit diventano Lambert con ombreggiatura piatta, così ricevono luce e ombre. Le rocce si ricolorano in grigio pietra.
-- Le stazioni (Pressa, Laboratorio, Banco, bancone della Plaza) si costruiscono da codice con le stesse regole dei pacchetti: forme semplici smussate, colori pieni, nessuna texture fotografica.
+- Le stazioni (Torchio, Laboratorio, Banco, bancone della Plaza) si costruiscono da codice con le stesse regole dei pacchetti: forme semplici smussate, colori pieni, nessuna texture fotografica.
 
 **Luce e atmosfera.**
 
@@ -696,7 +698,7 @@ Il giocatore resta finché ha sempre un passo successivo chiaro, vicino e divers
 | Personaggio adulto | 1,7 m di altezza (il giocatore 1,9 m: è il protagonista e deve spiccare) |
 | Porta | 2,0 m di altezza |
 | Capanna | 5 × 4 m di pianta, gronda a 2,4 m, colmo a 3,6 m |
-| Pressa | 2,4 × 2,4 m, alta 1,8 m |
+| Torchio | 2,4 × 2,4 m, alto 1,8 m |
 | Camion di El Gordo | 2,3 × 5,5 m, alto 2,6 m |
 | Appezzamento | 4 × 4 m, piante alte 0,7–1,0 m in file regolari |
 | Cespugli | 0,5–1,2 m |
@@ -714,7 +716,7 @@ Il giocatore resta finché ha sempre un passo successivo chiaro, vicino e divers
 | Personaggi         | Dal pacchetto CC0, con scheletro e animazioni di camminata e di attesa | Il cappello dice il ruolo (sezione 6)    |
 | Giocatore          | Come sopra, alto 1,9 m, con cappellino rosso e ombra tonda sotto i piedi | L'abito cambia con le fasi (sezione 9); il cappellino rosso lo distingue sempre |
 | Piante di Lumina   | Gruppi di coni e piani                                        | Le foglie pronte hanno un bordo azzurro  |
-| Pressa             | Da codice: basamento, telaio e pistone che scende             | Pistone animato                          |
+| Torchio             | Da codice: basamento, telaio e pistone che scende             | Pistone animato                          |
 | Laboratorio        | Da codice: baracca di legno con camino                        | Fumo e luce azzurra dalle finestre       |
 | Camion di El Gordo | Dal pacchetto se c'è un camion adatto, altrimenti da codice   | Motore che vibra quando arriva un ordine |
 | Plaza              | Case dal pacchetto, bancone e tenda a strisce da codice       | Lampadine appese                         |
@@ -826,11 +828,11 @@ Il calcolo considera solo ciò che è automatizzato, perché il giocatore non c'
 
 3.  Contante offline = ritmo di vendita × prezzo × tempo × 0,8 (i lavoratori dormono senza nessuno che li svegli), meno la Quota dello stesso periodo. Il risultato non scende mai sotto zero.
 
-4.  I buffer delle stazioni si riempiono con la produzione offline, fino alla loro capacità. Una Pressa conta solo se un Raccoglitore porta via gli Scarti; il camion vende al massimo un cassone ogni (tempo per riempirlo + 20 s).
+4.  I buffer delle stazioni si riempiono con la produzione offline, fino alla loro capacità. Un Torchio conta solo se un Raccoglitore porta via gli Scarti; il camion vende al massimo un cassone ogni (tempo per riempirlo + 20 s).
 
 5.  Il Calore scende col calo naturale e la Quota. Offline non partono eventi e non si sblocca nulla.
 
-La schermata "Mentre eri via" mostra il contante che si conta in animazione, il tempo passato e una riga sul tratto più lento ("Il Laboratorio si è fermato: mancava Pasta"). Il pulsante "Incassa" aggiunge il contante con l'animazione delle mazzette.
+La schermata "Mentre eri via" mostra il contante che si conta in animazione, il tempo passato e una riga sul tratto più lento ("Il Laboratorio si è fermato: mancavano Panetti"). Il pulsante "Incassa" aggiunge il contante con l'animazione delle mazzette.
 
 Il calcolo vive in una funzione pura, separata dal rendering, con test automatici (sezione 14): è la parte dove un errore si nota meno e fa più danni.
 
@@ -889,7 +891,7 @@ patron/
       offline.ts           calcolo dei guadagni offline
     world/
       scene.ts  camera.ts  lights.ts  map.ts
-      models/              personaggi, piante, pressa, laboratorio, camion, plaza, merci
+      models/              personaggi, piante, torchio, laboratorio, camion, plaza, merci
     fx/
       tweens.ts  particles.ts  floatingText.ts  shake.ts
     audio/
@@ -935,7 +937,7 @@ La Beta si costruisce in 10 tappe, una per sessione di Claude Code, e ognuna fin
 
 5.  Quando cambi idea su una regola, aggiorna prima questo documento, poi chiedi la modifica citando la sezione.
 
-6.  Ogni tappa che tocca la grafica si chiude con gli screenshot automatici: `npm run shot` fotografa sei inquadrature fisse (partenza, Campo 1, Pressa e camion, Ufficio, zoom lontano, zoom vicino) e salva in `artifacts/report.json` disegni e triangoli di ciascuna, con la ripartizione per gruppo di oggetti. Lo stesso controllo gira su GitHub a ogni pull request (workflow `screenshots.yml`) e allega le immagini. Gli screenshot mostrano l'aspetto, non la fluidità: i fotogrammi al secondo si misurano solo sull'iMac, con il pannello debug.
+6.  Ogni tappa che tocca la grafica si chiude con gli screenshot automatici: `npm run shot` fotografa sei inquadrature fisse (partenza, Campo 1, Torchio e camion, Ufficio, zoom lontano, zoom vicino) e salva in `artifacts/report.json` disegni e triangoli di ciascuna, con la ripartizione per gruppo di oggetti. Lo stesso controllo gira su GitHub a ogni pull request (workflow `screenshots.yml`) e allega le immagini. Gli screenshot mostrano l'aspetto, non la fluidità: i fotogrammi al secondo si misurano solo sull'iMac, con il pannello debug.
 
 **Le tappe.**
 
@@ -944,8 +946,8 @@ La Beta si costruisce in 10 tappe, una per sessione di Claude Code, e ognuna fin
 | M0 · Fondamenta             | Progetto Vite + TypeScript + Three.js, pubblicazione su GitHub Pages, CLAUDE.md, scheletro del pannello debug                                    | Il link pubblico si apre in Chrome e mostra una scena 3D a 60 fps                                |
 | M1 · Muoversi               | Terreno della valle, tastiera, clic per muoversi, zoom, personaggio, camera, collisioni                                                          | Il movimento è fluido; il clic porta il personaggio a destinazione; la camera segue senza scatti |
 | M1b · Direzione visiva      | Modelli dai pacchetti CC0, stazioni da codice nello stesso stile, luce e atmosfera, terreno ed erba, bordi morbidi, bloom, proporzioni, oggetti trasparenti davanti al giocatore, inquadratura di partenza, budget dei triangoli | L'angolo capanna + Campo 1 sembra il gioco finito; meno di 60.000 triangoli lì; almeno 50 fps sull'iMac |
-| M2 · Fase 1 a mano          | Campi, Pressa, camion con cassone, Scarti e Falò, pila, zone, contante, regalo di El Gordo, Rispetto, tappetini di sblocco, Raccoglitori con percorsi e sonno; informazione nel mondo, colori di marca e interfaccia del genere (sezioni 10 e 12) | Si gioca dal minuto 0 allo sblocco della Pressa 2, con i due Raccoglitori; gli screenshot passano la parte A della lista di controllo della skill arcade-idle |
-| M2b · Rifondazione          | Mondo ricostruito da zero secondo la skill arcade-idle (Fase 6): lotti recintati che si allargano, arco PATRÓN, sagome degli sblocchi con la festa, camion che arriva sulla strada, mazzette sulla schiena, camera a 19 m, sequenza del primo minuto | Gli screenshot superano la lista di controllo e le regole PS1–PS20; si gioca dal minuto 0 alla Pressa 2 senza aiuto |
+| M2 · Fase 1 a mano          | Campi, Torchio, camion con cassone, Scarti e Falò, pila, zone, contante, regalo di El Gordo, Rispetto, tappetini di sblocco, Raccoglitori con percorsi e sonno; informazione nel mondo, colori di marca e interfaccia del genere (sezioni 10 e 12) | Si gioca dal minuto 0 allo sblocco del Torchio 2, con i due Raccoglitori; gli screenshot passano la parte A della lista di controllo della skill arcade-idle |
+| M2b · Rifondazione          | Mondo ricostruito da zero secondo la skill arcade-idle (Fase 6): lotti recintati che si allargano, arco PATRÓN, sagome degli sblocchi con la festa, camion che arriva sulla strada, mazzette sulla schiena, camera a 19 m, sequenza del primo minuto | Gli screenshot superano la lista di controllo e le regole PS1–PS20; si gioca dal minuto 0 al Torchio 2 senza aiuto |
 | M3 · Ufficio e Cargador     | Cargador di El Gordo, pannello Ufficio e potenziamenti a schede, lavoratori extra dall'Ufficio, spinte nel mondo                                  | La Fase 1 gira da sola; i potenziamenti cambiano i numeri come in tabella                        |
 | M4 · Fase 2                 | Laboratorio (con Rispetto 3), Corriere A, barra del Calore, Purezza, ordini speciali e spinta ×2                                                 | Il Calore sale e scende come da sezione 7; un ordine si completa, paga doppio e dà 60 s di velocità doppia |
 | M5 · Fase 3                 | Banco, Plaza (con Rispetto 4), clienti e Fama, spacciatore, Corriere B, Quota, posti di blocco, perquisizioni, retate, rivale, Guardia, capi squadra, finale Beta | Tutta la sequenza degli sblocchi si completa con la modalità debug a tempo × 10; il test "produrre di più conviene sempre" è verde |

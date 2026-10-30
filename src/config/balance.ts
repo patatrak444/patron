@@ -220,14 +220,14 @@ export const BALANCE: Balance = {
     truck: { pastePrice: 5, capacity: 10, awaySeconds: 20, firstArrival: 4 },
     unlocks: [
       { id: 'field1', cost: 5, goal: 'Compra il campo!', kind: 'field' },
-      { id: 'press1', cost: 15, goal: 'Compra la pressa!', kind: 'press' },
+      { id: 'press1', cost: 15, goal: 'Compra il torchio!', kind: 'press' },
       { id: 'field2', cost: 20, goal: 'Compra il Campo 2!', kind: 'field' },
       { id: 'bonfire', cost: 10, goal: 'Compra il falò!', kind: 'bonfire' },
       { id: 'picker1', cost: 30, goal: 'Assumi un raccoglitore!', kind: 'worker' },
       { id: 'zone2', cost: 60, goal: 'Apri una nuova zona!', kind: 'zone' },
       { id: 'field3', cost: 80, goal: 'Compra il Campo 3!', kind: 'field' },
       { id: 'picker2', cost: 120, goal: 'Assumi un raccoglitore!', kind: 'worker' },
-      { id: 'press2', cost: 200, goal: 'Compra la Pressa 2!', kind: 'press' },
+      { id: 'press2', cost: 200, goal: 'Compra il Torchio 2!', kind: 'press' },
     ],
     respect: {
       starsPerUnlock: 4,

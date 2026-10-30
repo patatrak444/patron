@@ -12,7 +12,8 @@ import type { Assets, PropId } from './assets';
 import { bakeGroup, createBatches } from './batching';
 import { createGround } from './ground';
 import { createSingle, type Placement } from './instancing';
-import { createBonfire, createLuminaPlants, createPress, flat } from './models/stations';
+import { createBonfire, createLuminaPlants, createPress, flat, TORCHIO } from './models/stations';
+import { createRecipeSign } from './signs';
 import { PALETTE } from './palette';
 
 /** Profondità della cornice di giungla oltre i bordi della valle. */
@@ -318,7 +319,10 @@ export function createValley(assets: Assets): Valley {
   // Stazioni: tutte nascoste, compaiono allo sblocco.
   const presses: Record<string, THREE.Group> = {};
   for (const l of PRESSES) {
-    const press = placeAt(bakeGroup(createPress()), l, Math.PI / 2);
+    const press = placeAt(bakeGroup(createPress()), l);
+    const sign = createRecipeSign('leaf', 'paste', 2.3);
+    sign.position.set(TORCHIO.screw.x, 2.65, 0);
+    press.add(sign);
     press.name = l.id;
     press.visible = false;
     presses[l.id] = press;
