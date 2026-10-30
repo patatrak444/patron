@@ -68,6 +68,26 @@ Ogni voce si spunta solo quando la verifica indicata è passata.
 - [x] Partenza sotto 60.000 triangoli, ovunque sotto 150.000 e 150 disegni
 - [ ] Sull'iMac: almeno 50 fps con `?debug=1`; dal minuto 0 alla Pressa 2 senza aiuto (Luca)
 
+### M2b · Rifondazione (fatta il 30 ottobre 2026, in attesa della prova sull'iMac)
+
+Il mondo di M2 è stato buttato e rifatto da zero secondo `../06-prima-sessione/regole.md`.
+
+- [x] Missione leggibile all'avvio: lotto vuoto con l'arco PATRÓN in vista (PS1–PS3)
+- [x] Spazio iniziale piccolo: lotto 1 di 12 × 10 m recintato; si cammina solo nei lotti aperti (PS5)
+- [x] Il lotto 2 si apre accanto: il pavimento si srotola, la staccionata in comune sparisce (PS6)
+- [x] Un solo sblocco visibile alla volta, come sagoma dell'oggetto futuro con parentesi agli angoli e prezzo (PS10, PS11)
+- [x] Tutto da comprare: Campo 1 a $5, Pressa 1 a $15, poi la sequenza del GDD (PS8)
+- [x] Regalo di $25 a due passi dal giocatore (PS9)
+- [x] Festa dello sblocco: primo piano di 1,1 s, coriandoli, oggetto che salta fuori (PS13)
+- [x] Camion che arriva da ovest sulla strada con la prima Pressa e riparte verso est (PS14)
+- [x] Merce tra le braccia, mazzette sulla schiena (una ogni $10, fino a 20) che volano al tappetino (PS15, PS16)
+- [x] Sbuffi di polvere mentre si corre (PS19)
+- [x] Camera 14/19/26 m: scarto da PS18 motivato nel GDD sezione 3
+- [ ] Schermata di caricamento con logo e missione; tasti WASD disegnati a schermo (rimandati a M7, onboarding)
+- [x] `npm test` verde (89), `npm run shot` con 11 scatti, nessun errore nel browser
+- [x] Disegni ≤ 144, partenza 59k triangoli, ovunque ≤ 114k
+- [ ] Sull'iMac: almeno 50 fps; dal minuto 0 alla Pressa 2 senza aiuto (Luca)
+
 ### M3 · Ufficio e Cargador
 - [ ] Pannello Ufficio a schede grandi (immagine, tacche, prima → dopo, prezzo), aperto solo stando sul tappetino viola (D10, D11)
 - [ ] Potenziamenti della tabella, Cassone compreso (D5)

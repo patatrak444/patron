@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { BALANCE } from '../src/config/balance';
-import { BONFIRE, PRESSES, TRUCK, UNLOCK_PADS, type MapPoint } from '../src/config/map';
+import { BONFIRE, FIELD_PLOTS, FIELD_SIZE, PRESSES, TRUCK, UNLOCK_PADS, VALLEY, type MapPoint } from '../src/config/map';
 import { createBus, type GameEvents } from '../src/core/bus';
 import { createRng } from '../src/core/rng';
-import { findPath } from '../src/sim/pathfinding';
-import { fieldMat, nextUnlockDef, stepPhase1 } from '../src/sim/phase1';
+import { createNavGrid, findPath } from '../src/sim/pathfinding';
+import { fieldMat, handsStuck, leavesStuck, nextUnlockDef, stepPhase1 } from '../src/sim/phase1';
 import { countOf } from '../src/sim/stack';
 import { createInitialState, createMoveContext } from '../src/sim/state';
 
@@ -19,7 +19,13 @@ const cfg = BALANCE.phase1;
 function playPhase1(maxSeconds: number) {
   const state = createInitialState(42);
   const s = state.phase1;
-  const ctx = createMoveContext(s);
+  // Il giocatore automatico cammina sui sentieri: attraversare i Campi raccoglie Foglie per caso.
+  const botGrid = () => {
+    const m = createMoveContext(s);
+    const fields = FIELD_PLOTS.filter((f) => s.fields.find((x) => x.id === f.id)!.unlocked).map((f) => ({ kind: 'rect' as const, x: f.x, y: f.y, w: FIELD_SIZE, h: FIELD_SIZE }));
+    return createNavGrid(VALLEY.width, VALLEY.depth, [...m.shapes, ...fields], BALANCE.nav.pad, m.areas);
+  };
+  const ctx = { grid: botGrid() };
   const bus = createBus<GameEvents>();
   const rng = createRng(1);
   const unlockedAt: Record<string, number> = {};
@@ -42,15 +48,16 @@ function playPhase1(maxSeconds: number) {
     if (full && s.stack.items.length === 0) return PRESSES.find((p) => p.id === full.id)!.scrap;
     const sleeper = s.workers.find((w) => w.asleep);
     if (sleeper && s.stack.items.length === 0) return sleeper;
-    if (countOf(s.stack, 'paste') > 0 && s.truck.away === 0) return TRUCK.deposit;
+    if (countOf(s.stack, 'paste') > 0 && s.truck.away === 0 && s.truck.arrived) return TRUCK.deposit;
+    if (handsStuck(s)) return BONFIRE.mat;
     const out = s.presses.find((p) => p.unlocked && p.pastes > 0);
-    if (out && s.stack.items.length < s.stack.capacity && countOf(s.stack, 'leaf') === 0) return PRESSES.find((p) => p.id === out.id)!.output;
-    if (countOf(s.stack, 'leaf') > 0 && (s.stack.items.length >= s.stack.capacity || s.fields.every((f) => !f.unlocked || f.ready === 0))) {
+    if (out && s.stack.items.length < s.stack.capacity && (countOf(s.stack, 'leaf') === 0 || leavesStuck(s))) return PRESSES.find((p) => p.id === out.id)!.output;
+    if (countOf(s.stack, 'leaf') > 0 && !leavesStuck(s) && (s.stack.items.length >= s.stack.capacity || s.fields.every((f) => !f.unlocked || f.ready === 0))) {
       const press = s.presses.filter((p) => p.unlocked).sort((a, b) => a.leaves - b.leaves)[0]!;
       return PRESSES.find((p) => p.id === press.id)!.deposit;
     }
-    const field = s.fields.filter((f) => f.unlocked).sort((a, b) => b.ready - a.ready)[0]!;
-    return fieldMat(field.id);
+    const field = s.fields.filter((f) => f.unlocked).sort((a, b) => b.ready - a.ready)[0];
+    return field ? fieldMat(field.id) : UNLOCK_PADS.field1;
   };
 
   let target: MapPoint | null = null;
@@ -81,7 +88,7 @@ function playPhase1(maxSeconds: number) {
     stepPhase1(s, pos, DT, bus, { grid: ctx.grid, rng });
     if (s.navDirty) {
       s.navDirty = false;
-      ctx.grid = createMoveContext(s).grid;
+      ctx.grid = botGrid();
     }
   }
   return { unlockedAt, firstSale, time: state.time, level: s.level };
@@ -95,8 +102,9 @@ describe('ritmo della Fase 1 con un giocatore automatico (GDD 5 e 8)', () => {
     expect(r.unlockedAt.press2).toBeDefined();
   });
 
-  it('il Campo 2 si compra con il regalo entro 30 s; la prima vendita entro il primo minuto e mezzo', () => {
-    expect(r.unlockedAt.field2!).toBeLessThan(30);
+  it('Campo 1 e Pressa 1 si comprano con il regalo entro 30 s; la prima vendita entro il primo minuto e mezzo', () => {
+    expect(r.unlockedAt.field1!).toBeLessThan(15);
+    expect(r.unlockedAt.press1!).toBeLessThan(30);
     expect(r.firstSale).toBeGreaterThan(0);
     expect(r.firstSale).toBeLessThan(90);
   });
@@ -104,9 +112,10 @@ describe('ritmo della Fase 1 con un giocatore automatico (GDD 5 e 8)', () => {
   it('gli sblocchi non arrivano oltre una volta e mezza i minuti obiettivo', () => {
     // Il giocatore automatico non impara i comandi e non esita: è più rapido di una persona, quindi il
     // limite basso è largo (un terzo). La taratura fine dei prezzi si fa in M8 con partite vere.
-    const goals: Record<string, number> = { picker1: 3, field3: 5, picker2: 7, press2: 9 };
+    // Minuti obiettivo della tabella degli sblocchi (GDD sezione 5).
+    const goals: Record<string, number> = { field2: 1.5, bonfire: 2, picker1: 3, zone2: 5, field3: 6.5, picker2: 8, press2: 10 };
     const report = Object.entries(goals).map(([id, m]) => `${id}: ${min(id).toFixed(1)} min (obiettivo ${m})`);
-    console.log(report.join('\n'));
+    console.info(report.join("\n"));
     for (const [id, m] of Object.entries(goals)) {
       expect(min(id)).toBeGreaterThan(m / 3);
       expect(min(id)).toBeLessThan(m * 1.5);

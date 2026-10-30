@@ -40,6 +40,8 @@ export class GameCamera {
   private readonly desiredTarget = new THREE.Vector3();
   private distance = 0;
   private readonly offsetDir: THREE.Vector3;
+  /** Larghezza imposta per un primo piano (festa dello sblocco); null torna allo zoom scelto. */
+  private override: number | null = null;
 
   constructor(private readonly cfg: CameraConfig, aspect: number) {
     this.camera = new THREE.PerspectiveCamera(cfg.fovDeg, aspect, 0.5, 300);
@@ -55,6 +57,11 @@ export class GameCamera {
   /** Scatto di zoom: −1 avvicina, +1 allontana. */
   zoom(step: number): void {
     this.zoomIndex = Math.min(Math.max(this.zoomIndex + step, 0), this.cfg.zoomWidths.length - 1);
+  }
+
+  /** Primo piano temporaneo: `width` metri inquadrati, null per tornare allo zoom del giocatore. */
+  closeUp(width: number | null): void {
+    this.override = width;
   }
 
   /** Imposta il punto da seguire; `snap` salta l'interpolazione. */
@@ -76,7 +83,7 @@ export class GameCamera {
   }
 
   private desiredDistance(): number {
-    const width = this.cfg.zoomWidths[this.zoomIndex] ?? this.cfg.zoomWidths[1];
+    const width = this.override ?? this.cfg.zoomWidths[this.zoomIndex] ?? this.cfg.zoomWidths[1];
     return distanceForWidth(width, this.cfg.fovDeg, this.camera.aspect);
   }
 }

@@ -1,7 +1,7 @@
 // Griglia dei percorsi e ricerca A* (GDD sezione 6).
 // Celle da 1 m; una cella è bloccata se il suo centro sta dentro un ostacolo allargato del raggio di chi cammina.
 
-import type { MapPoint, Shape } from '../config/map';
+import { inRect, type MapPoint, type Rect, type Shape } from '../config/map';
 import { insideShape } from './geometry';
 
 export interface NavGrid {
@@ -19,7 +19,8 @@ export interface PathResult {
   readonly reachedTarget: boolean;
 }
 
-export function createNavGrid(width: number, depth: number, shapes: readonly Shape[], pad: number): NavGrid {
+/** `areas`, se date, sono le sole zone percorribili (i lotti aperti, GDD sezione 4). */
+export function createNavGrid(width: number, depth: number, shapes: readonly Shape[], pad: number, areas?: readonly Rect[]): NavGrid {
   const cellSize = 1;
   const cols = Math.ceil(width / cellSize);
   const rows = Math.ceil(depth / cellSize);
@@ -28,7 +29,8 @@ export function createNavGrid(width: number, depth: number, shapes: readonly Sha
     for (let col = 0; col < cols; col++) {
       const c = { x: (col + 0.5) * cellSize, y: (row + 0.5) * cellSize };
       const outside = c.x < pad || c.y < pad || c.x > width - pad || c.y > depth - pad;
-      if (outside || shapes.some((s) => insideShape(c, s, pad))) blocked[row * cols + col] = 1;
+      const offArea = areas !== undefined && !areas.some((a) => inRect(c, a, pad));
+      if (outside || offArea || shapes.some((s) => insideShape(c, s, pad))) blocked[row * cols + col] = 1;
     }
   }
   return { cols, rows, cellSize, blocked };

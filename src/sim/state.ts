@@ -1,7 +1,7 @@
 // Stato di gioco e passo di logica. Nessuna dipendenza da Three.js o dal DOM.
 
 import { BALANCE } from '../config/balance';
-import { BONFIRE, LOCKED_AREAS, OBSTACLES, PLAYER_SPAWN, PRESSES, PRESS_SIZE, VALLEY, type Shape } from '../config/map';
+import { BONFIRE, LOTS, OBSTACLES, PLAYER_SPAWN, PRESSES, PRESS_SIZE, VALLEY, type Rect, type Shape } from '../config/map';
 import type { Bus, GameEvents } from '../core/bus';
 import { createRng, type Rng } from '../core/rng';
 import { createNavGrid } from './pathfinding';
@@ -35,28 +35,31 @@ export function createInitialState(seed: number): GameState {
   };
 }
 
-/** Ostacoli del momento: ingombri fissi, aree ancora chiuse, stazioni sbloccate, Falò. */
+/** Ostacoli del momento: le stazioni comprate (le sagome si calpestano). */
 export function obstacleShapes(p1?: Phase1State): Shape[] {
-  const open = new Set<string>();
-  for (const f of p1?.fields ?? []) if (f.unlocked) open.add(f.id);
-  for (const p of p1?.presses ?? []) if (p.unlocked) open.add(p.id);
   const shapes: Shape[] = OBSTACLES.map((o) => o.shape);
-  for (const a of LOCKED_AREAS) if (!open.has(a.id)) shapes.push(a.shape);
   for (const p of PRESSES) {
-    if (p.id !== 'press1' && open.has(p.id)) shapes.push({ kind: 'rect', x: p.x, y: p.y, w: PRESS_SIZE, h: PRESS_SIZE });
+    if (p1?.presses.find((x) => x.id === p.id)?.unlocked) shapes.push({ kind: 'rect', x: p.x, y: p.y, w: PRESS_SIZE, h: PRESS_SIZE });
   }
-  shapes.push({ kind: 'circle', x: BONFIRE.x, y: BONFIRE.y, r: BONFIRE.r });
+  if (p1?.bonfire) shapes.push({ kind: 'circle', x: BONFIRE.x, y: BONFIRE.y, r: BONFIRE.r });
   return shapes;
+}
+
+/** Zone percorribili: i lotti aperti. */
+export function walkableAreas(p1?: Phase1State): Rect[] {
+  return (p1?.lots ?? ['lot1']).map((id) => LOTS[id]);
 }
 
 export function createMoveContext(p1?: Phase1State): MoveContext {
   const shapes = obstacleShapes(p1);
+  const areas = walkableAreas(p1);
   return {
     cfg: BALANCE.player,
     width: VALLEY.width,
     depth: VALLEY.depth,
     shapes,
-    grid: createNavGrid(VALLEY.width, VALLEY.depth, shapes, BALANCE.nav.pad),
+    areas,
+    grid: createNavGrid(VALLEY.width, VALLEY.depth, shapes, BALANCE.nav.pad, areas),
   };
 }
 
@@ -68,10 +71,11 @@ export function stepSim(state: GameState, dt: number, bus: Bus<GameEvents>, inpu
   stepPhase1(state.phase1, state.player, dt, bus, { grid: ctx.grid, rng: r });
   state.rngState = r.getState();
   if (state.phase1.navDirty) {
-    // Uno sblocco ha cambiato gli ostacoli: si ricostruisce la griglia dei percorsi.
+    // Uno sblocco ha cambiato ostacoli o lotti: si ricostruisce la griglia dei percorsi.
     state.phase1.navDirty = false;
     const next = createMoveContext(state.phase1);
     ctx.shapes = next.shapes;
+    ctx.areas = next.areas;
     ctx.grid = next.grid;
   }
   bus.emit('sim:step', { time: state.time });

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { BALANCE } from '../src/config/balance';
-import { PATHS, PLAYER_SPAWN } from '../src/config/map';
+import { PLAYER_SPAWN, ROAD } from '../src/config/map';
 import { screenToMap } from '../src/core/input';
 import { cameraOffset } from '../src/world/camera';
 import { scaleToHeight } from '../src/world/assets';
@@ -84,11 +84,10 @@ describe('sentieri e campi sul terreno', () => {
     expect(distanceToStrip({ x: -4, y: 3 }, s)).toBeCloseTo(5, 6);
   });
 
-  it('riconosce i punti sopra sentieri e campi', () => {
-    const p = PATHS[0]!;
-    expect(isOnGroundFeature({ x: p.from.x, y: (p.from.y + p.to.y) / 2 })).toBe(true);
-    expect(isOnGroundFeature({ x: 20, y: 12 })).toBe(true); // Campo 1
-    expect(isOnGroundFeature({ x: 36, y: 4 })).toBe(false);
+  it('riconosce i punti sopra la strada e i lotti', () => {
+    expect(isOnGroundFeature({ x: 5, y: ROAD.from.y })).toBe(true);
+    expect(isOnGroundFeature({ x: 20, y: 12 })).toBe(true); // Hacienda
+    expect(isOnGroundFeature({ x: 6, y: 4 })).toBe(false);
   });
 });
 

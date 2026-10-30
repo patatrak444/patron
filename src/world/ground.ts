@@ -3,7 +3,7 @@
 // Il suolo è una sola texture dipinta all'avvio: un piano, una chiamata di disegno.
 
 import * as THREE from 'three';
-import { FIELD_PLOTS, FIELD_SIZE, OBSTACLES, PATHS, ROAD, VALLEY, type MapPoint, type PathStrip } from '../config/map';
+import { FIELD_PLOTS, FIELD_SIZE, LOTS, ROAD, VALLEY, inRect, type MapPoint, type PathStrip } from '../config/map';
 import { PALETTE } from './palette';
 
 /** Area dipinta, in coordinate della mappa: la valle più la fascia di giungla decorativa. */
@@ -26,22 +26,12 @@ export function distanceToStrip(p: MapPoint, s: PathStrip): number {
   return Math.hypot(p.x - (s.from.x + t * dx), p.y - (s.from.y + t * dy));
 }
 
-/** Vero se il punto è su un sentiero, sulla strada o su un campo, con un margine in metri. */
+/** Vero se il punto è sulla strada, dentro un lotto o su un appezzamento, con un margine in metri. */
 export function isOnGroundFeature(p: MapPoint, margin = 0): boolean {
-  for (const s of [ROAD, ...PATHS]) if (distanceToStrip(p, s) < s.width / 2 + margin) return true;
+  if (distanceToStrip(p, ROAD) < ROAD.width / 2 + margin) return true;
+  for (const lot of Object.values(LOTS)) if (inRect(p, lot, -margin)) return true;
   const h = FIELD_SIZE / 2 + margin;
   for (const f of FIELD_PLOTS) if (Math.abs(p.x - f.x) < h && Math.abs(p.y - f.y) < h) return true;
-  return false;
-}
-
-/** Vero se il punto cade dentro un ostacolo fisso (con margine). */
-export function isInsideObstacle(p: MapPoint, margin = 0): boolean {
-  for (const o of OBSTACLES) {
-    const s = o.shape;
-    if (s.kind === 'rect') {
-      if (Math.abs(p.x - s.x) < s.w / 2 + margin && Math.abs(p.y - s.y) < s.h / 2 + margin) return true;
-    } else if (Math.hypot(p.x - s.x, p.y - s.y) < s.r + margin) return true;
-  }
   return false;
 }
 
@@ -84,56 +74,29 @@ function paint(): HTMLCanvasElement {
   ctx.fillStyle = hex(PALETTE.grass);
   ctx.fill();
 
-  // Sentieri: prima tutti i contorni, poi tutti i pieni, così gli incroci restano puliti.
-  const strips = [ROAD, ...PATHS];
+  // La strada di El Gordo: terra chiara con il contorno e due solchi leggeri.
   const stroke = (st: PathStrip, color: number, extra: number): void => {
     ctx.strokeStyle = hex(color);
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    ctx.lineCap = 'butt';
     ctx.lineWidth = M(st.width + extra);
     ctx.beginPath();
     ctx.moveTo(X(st.from.x), Y(st.from.y));
     ctx.lineTo(X(st.to.x), Y(st.to.y));
     ctx.stroke();
   };
-  for (const st of strips) stroke(st, PALETTE.pathEdge, EDGE * 2);
-  for (const st of strips) stroke(st, PALETTE.path, 0);
-  // Due solchi leggeri sulla strada di El Gordo: dicono "qui passano i camion".
+  stroke(ROAD, PALETTE.pathEdge, EDGE * 2);
+  stroke(ROAD, PALETTE.path, 0);
   ctx.strokeStyle = hex(PALETTE.pathEdge);
-  ctx.lineWidth = M(0.3);
+  ctx.lineWidth = M(0.25);
   ctx.setLineDash([M(1.2), M(0.8)]);
-  for (const off of [-0.8, 0.8]) {
+  for (const off of [-0.6, 0.6]) {
     ctx.beginPath();
-    ctx.moveTo(X(ROAD.from.x + off), Y(ROAD.from.y - 30));
-    ctx.lineTo(X(ROAD.to.x + off), Y(ROAD.to.y + 30));
+    ctx.moveTo(X(ROAD.from.x), Y(ROAD.from.y + off));
+    ctx.lineTo(X(ROAD.to.x), Y(ROAD.to.y + off));
     ctx.stroke();
   }
   ctx.setLineDash([]);
-
-  // Campi: terra con angoli arrotondati, contorno scuro e solchi regolari.
-  for (const f of FIELD_PLOTS) {
-    roundRect(f.x, f.y, FIELD_SIZE + EDGE * 2, FIELD_SIZE + EDGE * 2, 0.45);
-    ctx.fillStyle = hex(PALETTE.fieldEarthDark);
-    ctx.fill();
-    roundRect(f.x, f.y, FIELD_SIZE, FIELD_SIZE, 0.4);
-    ctx.fillStyle = hex(PALETTE.fieldEarth);
-    ctx.fill();
-    ctx.fillStyle = hex(PALETTE.fieldEarthDark, 0.55);
-    for (let r = 0; r < 4; r++) {
-      const y = f.y - FIELD_SIZE / 2 + 0.5 + r;
-      roundRect(f.x, y, FIELD_SIZE - 0.7, 0.16, 0.08);
-      ctx.fill();
-    }
-  }
-
-  // Ombra di contatto sotto le stazioni: un alone leggero che le appoggia al pavimento.
-  for (const o of OBSTACLES) {
-    const sh = o.shape;
-    if (sh.kind !== 'rect') continue;
-    roundRect(sh.x, sh.y, sh.w + 0.4, sh.h + 0.4, 0.4);
-    ctx.fillStyle = 'rgba(40, 70, 30, 0.12)';
-    ctx.fill();
-  }
+  void roundRect;
   return canvas;
 }
 

@@ -10,6 +10,7 @@ export interface GameEvents {
   'truck:sale': { amount: number };
   'truck:depart': Record<string, never>;
   'truck:return': Record<string, never>;
+  'truck:arriving': Record<string, never>;
   'cash:collect': { amount: number; pile: string };
   unlock: { id: string };
   'respect:level': { level: number };

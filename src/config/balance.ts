@@ -98,14 +98,16 @@ export interface TruckConfig {
   readonly capacity: number;
   /** Secondi di viaggio quando il cassone è pieno. */
   readonly awaySeconds: number;
+  /** Secondi dal suono del clacson all'arrivo davanti all'arco, la prima volta (GDD sezione 8). */
+  readonly firstArrival: number;
 }
 
 export interface UnlockDef {
-  readonly id: 'field2' | 'picker1' | 'field3' | 'picker2' | 'press2';
+  readonly id: 'field1' | 'press1' | 'field2' | 'bonfire' | 'picker1' | 'zone2' | 'field3' | 'picker2' | 'press2';
   readonly cost: number;
-  /** Nome breve per la frase dell'obiettivo e l'icona del tappetino. */
-  readonly label: string;
-  readonly kind: 'field' | 'worker' | 'press';
+  /** Frase dell'obiettivo, 4 parole al massimo (GDD sezione 8). */
+  readonly goal: string;
+  readonly kind: 'field' | 'worker' | 'press' | 'bonfire' | 'zone';
 }
 
 export interface RespectConfig {
@@ -141,6 +143,22 @@ export interface Phase1Config {
   readonly picker: WorkerConfig;
 }
 
+/** Sensazione di gioco (GDD sezione 10; skill arcade-idle, PS13–PS19): numeri solo visivi. */
+export interface FeelConfig {
+  /** Festa dello sblocco: secondi di primo piano e larghezza inquadrata, in metri. */
+  readonly festaSeconds: number;
+  readonly festaWidth: number;
+  /** Dollari per mazzetta della pila sulla schiena, e tetto di mazzette disegnate. */
+  readonly dollarsPerBundle: number;
+  readonly maxBackBundles: number;
+  /** Secondi di volo di una mazzetta (dal mucchio alla schiena, dalla schiena al tappetino). */
+  readonly flySeconds: number;
+  /** Secondi fra due sbuffi di polvere mentre si corre. */
+  readonly dustEvery: number;
+  /** Secondi di viaggio del camion lungo la strada, in arrivo e in partenza. */
+  readonly truckDriveSeconds: number;
+}
+
 export interface Balance {
   readonly sim: SimConfig;
   readonly camera: CameraConfig;
@@ -149,6 +167,7 @@ export interface Balance {
   readonly render: RenderConfig;
   readonly screen: ScreenConfig;
   readonly phase1: Phase1Config;
+  readonly feel: FeelConfig;
 }
 
 export const BALANCE: Balance = {
@@ -161,7 +180,7 @@ export const BALANCE: Balance = {
     pitchDeg: 50,
     yawDeg: 45,
     fovDeg: 22,
-    zoomWidths: [14, 20, 30],
+    zoomWidths: [14, 19, 26],
     followLerp: 0.1,
   },
   player: {
@@ -184,18 +203,31 @@ export const BALANCE: Balance = {
     minWidth: 1280,
     minHeight: 600,
   },
+  feel: {
+    festaSeconds: 1.1,
+    festaWidth: 9,
+    dollarsPerBundle: 10,
+    maxBackBundles: 20,
+    flySeconds: 0.35,
+    dustEvery: 0.14,
+    truckDriveSeconds: 3,
+  },
   phase1: {
-    gift: 20,
+    gift: 25,
     stack: { capacity: 4, zoneRadius: 1.2, transferInterval: 0.08, unlockPaySeconds: 1.5, cashCollectSeconds: 0.5 },
     field: { cycle: 3, outCap: 8 },
     press: { leavesPerPaste: 3, cycle: 4, inCap: 12, outCap: 10, pastesPerScrap: 2, scrapCap: 6 },
-    truck: { pastePrice: 5, capacity: 10, awaySeconds: 20 },
+    truck: { pastePrice: 5, capacity: 10, awaySeconds: 20, firstArrival: 4 },
     unlocks: [
-      { id: 'field2', cost: 15, label: 'il Campo 2', kind: 'field' },
-      { id: 'picker1', cost: 30, label: 'un raccoglitore', kind: 'worker' },
-      { id: 'field3', cost: 80, label: 'il Campo 3', kind: 'field' },
-      { id: 'picker2', cost: 120, label: 'un raccoglitore', kind: 'worker' },
-      { id: 'press2', cost: 200, label: 'la Pressa 2', kind: 'press' },
+      { id: 'field1', cost: 5, goal: 'Compra il campo!', kind: 'field' },
+      { id: 'press1', cost: 15, goal: 'Compra la pressa!', kind: 'press' },
+      { id: 'field2', cost: 20, goal: 'Compra il Campo 2!', kind: 'field' },
+      { id: 'bonfire', cost: 10, goal: 'Compra il falò!', kind: 'bonfire' },
+      { id: 'picker1', cost: 30, goal: 'Assumi un raccoglitore!', kind: 'worker' },
+      { id: 'zone2', cost: 60, goal: 'Apri una nuova zona!', kind: 'zone' },
+      { id: 'field3', cost: 80, goal: 'Compra il Campo 3!', kind: 'field' },
+      { id: 'picker2', cost: 120, goal: 'Assumi un raccoglitore!', kind: 'worker' },
+      { id: 'press2', cost: 200, goal: 'Compra la Pressa 2!', kind: 'press' },
     ],
     respect: {
       starsPerUnlock: 4,

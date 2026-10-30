@@ -1,7 +1,7 @@
 // Movimento del giocatore (GDD sezione 3): tastiera in 8 direzioni o clic per muoversi, collisioni semplici.
 
 import type { PlayerConfig } from '../config/balance';
-import type { MapPoint, Shape } from '../config/map';
+import type { MapPoint, Rect, Shape } from '../config/map';
 import { clampToBounds, pushOut } from './geometry';
 import { findPath, type NavGrid } from './pathfinding';
 
@@ -27,6 +27,8 @@ export interface MoveContext {
   readonly depth: number;
   shapes: readonly Shape[];
   grid: NavGrid;
+  /** Zone percorribili (lotti aperti); senza, tutta la valle. */
+  areas?: readonly Rect[];
 }
 
 export function createPlayer(spawn: MapPoint): PlayerState {
@@ -40,6 +42,29 @@ export function commandMoveTo(p: PlayerState, target: MapPoint, ctx: MoveContext
   const result = findPath(ctx.grid, { x: p.x, y: p.y }, target);
   p.path = result.points;
   return p.path.length > 0 ? p.path[p.path.length - 1]! : null;
+}
+
+/** Tiene il punto dentro l'unione dei rettangoli (con il raggio come margine): la staccionata dei lotti. */
+export function clampToAreas(p: MapPoint, r: number, areas: readonly Rect[]): MapPoint {
+  let best: MapPoint = p;
+  let bestD = Infinity;
+  for (const a of areas) {
+    // Un lato in comune con un altro lotto aperto non è una staccionata: lì non si stringe.
+    const touches = (o: Rect, side: 'w' | 'e' | 's' | 'n'): boolean =>
+      o !== a &&
+      (side === 'w' || side === 'e'
+        ? (side === 'w' ? o.x1 === a.x0 : o.x0 === a.x1) && o.y0 <= p.y && o.y1 >= p.y
+        : (side === 's' ? o.y1 === a.y0 : o.y0 === a.y1) && o.x0 <= p.x && o.x1 >= p.x);
+    const inset = (side: 'w' | 'e' | 's' | 'n'): number => (areas.some((o) => touches(o, side)) ? 0 : r);
+    const q = { x: Math.min(Math.max(p.x, a.x0 + inset('w')), a.x1 - inset('e')), y: Math.min(Math.max(p.y, a.y0 + inset('s')), a.y1 - inset('n')) };
+    const d = (q.x - p.x) ** 2 + (q.y - p.y) ** 2;
+    if (d === 0) return p;
+    if (d < bestD) {
+      bestD = d;
+      best = q;
+    }
+  }
+  return best;
 }
 
 /** Differenza d'angolo più breve, in (−π, π]. */
@@ -118,6 +143,7 @@ export function stepPlayer(p: PlayerState, moveX: number, moveY: number, dt: num
     for (const s of ctx.shapes) pos = pushOut(pos, cfg.radius, s);
     pos = clampToBounds(pos, cfg.radius, ctx.width, ctx.depth);
   }
+  if (ctx.areas && ctx.areas.length > 0) pos = clampToAreas(pos, cfg.radius, ctx.areas);
   p.x = pos.x;
   p.y = pos.y;
 

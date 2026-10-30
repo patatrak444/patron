@@ -3,7 +3,8 @@ import { BALANCE } from '../src/config/balance';
 import { createPlayer, commandMoveTo, stepPlayer, type MoveContext } from '../src/sim/player';
 import { createNavGrid } from '../src/sim/pathfinding';
 import { createMoveContext } from '../src/sim/state';
-import type { Shape } from '../src/config/map';
+import { LOTS, PRESSES, type Shape } from '../src/config/map';
+import { createPhase1 } from '../src/sim/phase1';
 
 const DT = 1 / 30;
 const cfg = BALANCE.player;
@@ -78,12 +79,23 @@ describe('collisioni', () => {
     }
   });
 
-  it('dalla capanna, tenendo premuti A e S, scivola lungo la capanna e arriva all\'angolo sud-ovest', () => {
+  it('nella Hacienda, tenendo premuti A e S, arriva all\'angolo sud-ovest della staccionata', () => {
     const ctx = createMoveContext();
-    const p = createPlayer({ x: 20, y: 4 });
+    const p = createPlayer({ x: 20, y: 10 });
     for (let i = 0; i < 300; i++) stepPlayer(p, -1, -1, DT, ctx);
-    expect(p.x).toBeCloseTo(cfg.radius);
-    expect(p.y).toBeCloseTo(cfg.radius);
+    expect(p.x).toBeCloseTo(LOTS.lot1.x0 + cfg.radius);
+    expect(p.y).toBeCloseTo(LOTS.lot1.y0 + cfg.radius);
+  });
+
+  it('il lotto 2 è chiuso finché non si compra la Nuova zona', () => {
+    const s = createPhase1();
+    const p = createPlayer({ x: 24, y: 10 });
+    for (let i = 0; i < 120; i++) stepPlayer(p, 1, 0, DT, createMoveContext(s));
+    expect(p.x).toBeCloseTo(LOTS.lot1.x1 - cfg.radius);
+    s.lots.push('lot2');
+    const ctx = createMoveContext(s);
+    for (let i = 0; i < 120; i++) stepPlayer(p, 1, 0, DT, ctx);
+    expect(p.x).toBeGreaterThan(LOTS.lot1.x1 + 3);
   });
 
   it('resta dentro i bordi della valle', () => {
@@ -127,10 +139,14 @@ describe('clic per muoversi', () => {
     expect(p.path).toHaveLength(0);
   });
 
-  it('nella valle vera va dalla capanna alla Pressa senza attraversare ostacoli', () => {
-    const ctx = createMoveContext();
-    const p = createPlayer({ x: 20, y: 4 });
-    commandMoveTo(p, { x: 14, y: 23.5 }, ctx);
+  it('nella Hacienda gira attorno alla Pressa per arrivare dall\'altra parte', () => {
+    const s = createPhase1();
+    s.presses[0]!.unlocked = true;
+    const ctx = createMoveContext(s);
+    const press = PRESSES[0]!;
+    const p = createPlayer({ x: press.x - 2.2, y: press.y });
+    const goal = { x: press.x + 2.2, y: press.y };
+    commandMoveTo(p, goal, ctx);
     for (let i = 0; i < 600 && p.path.length > 0; i++) {
       stepPlayer(p, 0, 0, DT, ctx);
       for (const s of ctx.shapes) {
@@ -139,7 +155,7 @@ describe('clic per muoversi', () => {
         expect(inside).toBe(false);
       }
     }
-    expect(p.x).toBeCloseTo(14);
-    expect(p.y).toBeCloseTo(23.5);
+    expect(p.x).toBeCloseTo(goal.x);
+    expect(p.y).toBeCloseTo(goal.y);
   });
 });

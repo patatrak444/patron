@@ -42,7 +42,8 @@ export class Label {
     this.texture = new THREE.CanvasTexture(this.canvas);
     this.texture.colorSpace = THREE.SRGBColorSpace;
     this.texture.anisotropy = 4;
-    const mat = new THREE.SpriteMaterial({ map: this.texture, depthWrite: false, transparent: true });
+    // Appena sotto il bianco pieno: le etichette non entrano nel bloom e il testo resta leggibile.
+    const mat = new THREE.SpriteMaterial({ map: this.texture, color: 0xe0e0e0, depthWrite: false, transparent: true });
     this.sprite = new THREE.Sprite(mat);
     this.sprite.renderOrder = 10;
     this.sprite.center.set(0.5, 0);
