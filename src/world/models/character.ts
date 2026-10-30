@@ -73,6 +73,13 @@ export class Character {
   private time = 0;
   /** I passi misurati valgono a 1,7 m: un personaggio più alto fa passi proporzionalmente più lunghi. */
   private readonly strideScale: number;
+  /** Braccia in avanti per portare la pila: la posa del clip 'holding-both', applicata solo alle braccia. */
+  private readonly arms: { bone: THREE.Object3D; pose: THREE.Quaternion }[] = [];
+  private carry = 0;
+  /** Vero se porta qualcosa: le braccia vanno sotto la pila (skill ux-ui-arcade-idle, raccolta-e-pila). */
+  carrying = false;
+  /** Fase del passo, per far rimbalzare la pila a ogni appoggio. */
+  stepPhase = 0;
 
   constructor(asset: CharacterAsset, options: CharacterOptions = {}) {
     const height = options.height ?? ADULT_HEIGHT;
@@ -108,6 +115,13 @@ export class Character {
       if (sprint) this.actions.sprint = this.mixer.clipAction(sprint);
       this.current = this.actions.idle;
       this.current.play();
+      // Posa delle braccia dal primo fotogramma di 'holding-both'.
+      const hold = pick('holding-both');
+      for (const side of ['arm-left', 'arm-right']) {
+        const bone = model.getObjectByName(side);
+        const track = hold?.tracks.find((tr) => tr.name === `${side}.quaternion`);
+        if (bone && track) this.arms.push({ bone, pose: new THREE.Quaternion().fromArray(track.values as unknown as number[], 0) });
+      }
     }
   }
 
@@ -141,6 +155,11 @@ export class Character {
         this.current.timeScale = 1;
       }
       this.mixer.update(dt);
+      // Fase del passo: un giro ogni due appoggi.
+      if (moving) this.stepPhase += speed * dt * 2.4;
+      // Braccia in posa di trasporto, con un passaggio morbido di 0,15 s.
+      this.carry += ((this.carrying ? 1 : 0) - this.carry) * (1 - Math.exp(-dt / 0.05));
+      if (this.carry > 0.01) for (const a of this.arms) a.bone.quaternion.slerp(a.pose, this.carry);
       return;
     }
 

@@ -281,11 +281,12 @@ async function boot(root: HTMLElement): Promise<void> {
     const facing = p.prevFacing + angleDelta(p.prevFacing, p.facing) * alpha;
     const w = toWorld({ x, y });
     const dt = stepper.paused ? 0 : frameSeconds;
+    player.carrying = state.phase1.stack.items.length > 0;
     player.update(w.x, w.z, facing, Math.hypot(p.vx, p.vy), BALANCE.player.speed, dt);
     const s1 = state.phase1;
     view.update(
       s1,
-      { x: w.x, z: w.z, rotY: player.root.rotation.y, vx: p.vx, vz: -p.vy },
+      { x: w.x, z: w.z, rotY: player.root.rotation.y, vx: p.vx, vz: -p.vy, stepPhase: player.stepPhase },
       s1.stack.items,
       alpha,
       dt,

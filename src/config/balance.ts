@@ -168,20 +168,33 @@ export interface TitleConfig {
   readonly descendSeconds: number;
 }
 
+export interface StackFeelConfig {
+  readonly front: number;
+  readonly base: number;
+  readonly sideways: { readonly leaf: number; readonly paste: number; readonly scrap: number; readonly money: number };
+  readonly depth: number;
+  readonly scaleY: number;
+  readonly bob: number;
+  readonly leanPerSpeed: number;
+  readonly maxLean: number;
+  readonly spring: number;
+  readonly damping: number;
+}
+
 /** Sensazione di gioco (GDD sezione 10; skill arcade-idle, PS13–PS19): numeri solo visivi. */
 export interface FeelConfig {
   /** Festa dello sblocco: secondi di primo piano e altezza inquadrata, in metri (UX8). */
   readonly festaSeconds: number;
   readonly festaHeight: number;
   /**
-   * Merce in mano al giocatore (GDD sezione 3, UX4): ingrandimento rispetto ai ripiani in larghezza (così
-   * sporge ai lati del corpo, testa compresa, e si vede anche di spalle) e in altezza (0,36 m a pezzo),
-   * distanza davanti al centro del corpo e altezza delle mani, in metri.
+   * Pila in mano (GDD sezione 3, UX4): distanza davanti al centro del corpo e altezza delle mani; ingrandimento
+   * della merce di traverso (per tipo), in profondità e in altezza rispetto ai ripiani; rimbalzo del passo e
+   * inclinazione a molla con il suo tetto, in metri. Il giocatore ha la merce più larga del corpo.
    */
-  readonly carryScale: number;
-  readonly carryScaleY: number;
-  readonly carryFront: number;
-  readonly carryBase: number;
+  readonly playerStack: StackFeelConfig;
+  readonly workerStack: StackFeelConfig;
+  /** Quanto sta MAX sopra la cima della pila, in metri. */
+  readonly maxAbove: number;
   /** Strati della torre di mazzette del regalo: 10 strati da 0,19 m = 1,9 m, l'altezza del personaggio. */
   readonly giftTowerLayers: number;
   /** Banconote che volano al contatore per ogni mucchio, al massimo, e dollari di una banconota. */
@@ -253,10 +266,31 @@ export const BALANCE: Balance = {
   feel: {
     festaSeconds: 3,
     festaHeight: 12,
-    carryScale: 2.3,
-    carryScaleY: 1.5,
-    carryFront: 0.85,
-    carryBase: 1.15,
+    playerStack: {
+      front: 0.68,
+      base: 1.05,
+      sideways: { leaf: 2.0, paste: 2.6, scrap: 2.2, money: 2.6 },
+      depth: 1.3,
+      scaleY: 1.5,
+      bob: 0.05,
+      leanPerSpeed: 0.03,
+      maxLean: 0.14,
+      spring: 90,
+      damping: 11,
+    },
+    workerStack: {
+      front: 0.6,
+      base: 0.9,
+      sideways: { leaf: 1.2, paste: 1.4, scrap: 1.3, money: 1.4 },
+      depth: 1.1,
+      scaleY: 1.2,
+      bob: 0.04,
+      leanPerSpeed: 0.03,
+      maxLean: 0.1,
+      spring: 90,
+      damping: 11,
+    },
+    maxAbove: 0.45,
     giftTowerLayers: 10,
     collectBills: 12,
     billValue: 5,

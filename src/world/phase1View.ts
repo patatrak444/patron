@@ -32,35 +32,69 @@ export interface Pose {
   readonly rotY: number;
   readonly vx: number;
   readonly vz: number;
-}
-
-/** Pila tra le braccia con un ritardo a molla: in curva ondeggia (GDD sezione 10). */
-class StackSway {
-  private sx = 0;
-  private sz = 0;
-  update(vx: number, vz: number, dt: number): { x: number; z: number } {
-    const k = 1 - Math.exp(-dt * 10);
-    this.sx += (-vx * 0.035 - this.sx) * k;
-    this.sz += (-vz * 0.035 - this.sz) * k;
-    return { x: this.sx, z: this.sz };
-  }
+  /** Fase del passo del personaggio, per il rimbalzo della pila. */
+  readonly stepPhase?: number;
 }
 
 /**
- * Pila tra le braccia, davanti al corpo all'altezza delle mani. `scale` ingrandisce solo la merce in
- * mano: per il giocatore è più larga del corpo (GDD sezione 3, UX4). Restituisce l'altezza della cima.
+ * Pila che si piega come una molla (GDD sezione 10): la cima si inclina all'indietro rispetto alla corsa e
+ * torna dritta quando ci si ferma, con un tetto all'inclinazione (skill ux-ui-arcade-idle, raccolta-e-pila).
  */
-function drawStack(batch: ItemBatch, items: readonly VisualItem[], pose: Pose, sway: { x: number; z: number }, front: number, base: number, scale = 1, scaleY = scale): number {
-  // Davanti al corpo: +z locale del modello.
-  const bx = pose.x + Math.sin(pose.rotY) * front;
-  const bz = pose.z + Math.cos(pose.rotY) * front;
-  let y = base;
+class StackSway {
+  private x = 0;
+  private z = 0;
+  private vx = 0;
+  private vz = 0;
+  update(velX: number, velZ: number, dt: number, cfg: StackFeel): { x: number; z: number } {
+    const step = Math.min(dt, 1 / 30);
+    let tx = -velX * cfg.leanPerSpeed;
+    let tz = -velZ * cfg.leanPerSpeed;
+    const len = Math.hypot(tx, tz);
+    if (len > cfg.maxLean) {
+      tx *= cfg.maxLean / len;
+      tz *= cfg.maxLean / len;
+    }
+    // Molla smorzata: oscilla un poco e si assesta.
+    this.vx += ((tx - this.x) * cfg.spring - this.vx * cfg.damping) * step;
+    this.vz += ((tz - this.z) * cfg.spring - this.vz * cfg.damping) * step;
+    this.x += this.vx * step;
+    this.z += this.vz * step;
+    return { x: this.x, z: this.z };
+  }
+}
+
+/** Misure della pila in mano: le stesse regole per il giocatore e per i lavoratori, con numeri diversi. */
+export interface StackFeel {
+  readonly front: number;
+  readonly base: number;
+  /** Ingrandimento di traverso per tipo di merce, in profondità e in altezza. */
+  readonly sideways: Readonly<Record<VisualItem, number>>;
+  readonly depth: number;
+  readonly scaleY: number;
+  readonly bob: number;
+  readonly leanPerSpeed: number;
+  readonly maxLean: number;
+  readonly spring: number;
+  readonly damping: number;
+}
+
+/**
+ * Pila tra le braccia, davanti al corpo all'altezza delle mani (GDD sezione 3, UX4). Il lato lungo di ogni
+ * merce sta di traverso, così sporge ai lati del corpo e si vede anche di spalle. La pila si inclina (la
+ * cima si sposta di più della base) e rimbalza a ogni passo. Restituisce il centro e l'altezza della cima.
+ */
+function drawStack(batch: ItemBatch, items: readonly VisualItem[], pose: Pose, lean: { x: number; z: number }, cfg: StackFeel, stepPhase: number): { x: number; z: number; top: number } {
+  const bx = pose.x + Math.sin(pose.rotY) * cfg.front;
+  const bz = pose.z + Math.cos(pose.rotY) * cfg.front;
+  const moving = Math.hypot(pose.vx, pose.vz) > 0.2;
+  let y = cfg.base + (moving ? Math.abs(Math.sin(stepPhase)) * cfg.bob : 0);
+  const n = Math.max(1, items.length - 1);
   items.forEach((kind, i) => {
-    const f = (i + 1) / Math.max(4, items.length);
-    batch.add(kind, bx + sway.x * f * i, y, bz + sway.z * f * i, pose.rotY + Math.PI / 2, scale, 0, 0, scaleY);
-    y += ITEM_HEIGHT[kind] * scaleY;
+    const f = items.length > 1 ? i / n : 0;
+    batch.add(kind, bx + lean.x * f, y, bz + lean.z * f, pose.rotY, cfg.sideways[kind], 0, 0, cfg.scaleY, cfg.depth);
+    y += ITEM_HEIGHT[kind] * cfg.scaleY;
   });
-  return y;
+  return { x: bx + lean.x, z: bz + lean.z, top: y };
 }
 
 /** Banconota in volo da sopra la testa al riquadro d'acquisto (skill arcade-idle, PS16). */
@@ -312,12 +346,12 @@ export class Phase1View {
 
     // Pila del giocatore: solo merce tra le braccia. I soldi non si portano addosso (GDD sezione 3, UX3):
     // pagando, le banconote partono da sopra la testa.
-    const sway = this.playerSway.update(player.vx, player.vz, dt);
-    const top = drawStack(this.batch, playerItems, player, sway, feel.carryFront, feel.carryBase, feel.carryScale, feel.carryScaleY);
-    // Pila piena: MAX rosso sopra la cima, mai coperto dalla pila (GDD sezione 3).
+    const sway = this.playerSway.update(player.vx, player.vz, dt, feel.playerStack);
+    const stack = drawStack(this.batch, playerItems, player, sway, feel.playerStack, player.stepPhase ?? 0);
+    // Pila piena: MAX rosso sopra la cima della pila, mai coperto (GDD sezione 3).
     const full = playerItems.length >= s.stack.capacity;
     this.playerMax.set(full && Math.floor(this.time * 3) % 3 !== 0 ? 'MAX' : null, 'max');
-    this.playerMax.sprite.position.set(player.x, Math.max(top, 2.2) + 0.45, player.z);
+    this.playerMax.sprite.position.set(stack.x, stack.top + feel.maxAbove, stack.z);
     this.headTop.set(player.x, feel.payFromHeight, player.z);
     // Sbuffi di polvere mentre si corre (skill arcade-idle, PS19).
     this.dustTimer -= dt;
@@ -493,7 +527,9 @@ export class Phase1View {
       v.character.update(pos.x, pos.z, w.facing, w.asleep ? 0 : w.speed, cfg.picker.speed, w.asleep ? 0 : dt);
       const rotY = v.character.root.rotation.y;
       const vel = { x: Math.cos(w.facing) * w.speed, z: -Math.sin(w.facing) * w.speed };
-      drawStack(this.batch, w.stack.items, { x: pos.x, z: pos.z, rotY, vx: vel.x, vz: vel.z }, v.sway.update(vel.x, vel.z, dt), 0.55, 0.8);
+      v.character.carrying = w.stack.items.length > 0;
+      const lean = v.sway.update(vel.x, vel.z, dt, feel.workerStack);
+      drawStack(this.batch, w.stack.items, { x: pos.x, z: pos.z, rotY, vx: vel.x, vz: vel.z }, lean, feel.workerStack, v.character.stepPhase);
       v.zzz.sprite.position.set(pos.x, 2.0 + (w.asleep ? Math.sin(this.time * 2) * 0.08 : 0), pos.z);
       v.zzz.set(w.asleep ? 'Zzz' : w.waiting ? 'zzz' : null, w.asleep ? 'zzzBig' : 'zzz');
     });

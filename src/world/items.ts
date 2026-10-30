@@ -134,12 +134,12 @@ export class ItemBatch {
   }
 
   /** Un pezzo con la base nel punto (x, y, z) del mondo, ruotato attorno alla verticale. */
-  add(kind: VisualItem, x: number, y: number, z: number, rotY = 0, scale = 1, tiltX = 0, tiltZ = 0, scaleY = scale): void {
+  add(kind: VisualItem, x: number, y: number, z: number, rotY = 0, scale = 1, tiltX = 0, tiltZ = 0, scaleY = scale, scaleZ = scale): void {
     const i = this.counts[kind];
     if (i >= MAX_PER_KIND) return;
     this.q.setFromAxisAngle(this.up, rotY);
     if (tiltX !== 0 || tiltZ !== 0) this.q.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(tiltX, 0, tiltZ)));
-    this.m.compose(this.v.set(x, y, z), this.q, scale === 1 && scaleY === 1 ? this.one : this.sc.set(scale, scaleY, scale));
+    this.m.compose(this.v.set(x, y, z), this.q, scale === 1 && scaleY === 1 && scaleZ === 1 ? this.one : this.sc.set(scale, scaleY, scaleZ));
     this.meshes[kind].setMatrixAt(i, this.m);
     this.counts[kind] = i + 1;
   }
