@@ -103,7 +103,8 @@ Una voce per volta, nell'ordine. Ognuna si chiude con test, screenshot, la prova
 | 3 | **Tappetini con l'icona**: ogni tappetino ha la forma e lo stile di quello di sblocco, con l'icona di cosa si lascia o si prende e una freccia dentro/fuori; niente quadrati a tinta unita | Stesso linguaggio visivo per tutto quello che si calpesta | [ ] |
 | 4 | **Pila sempre visibile**: merce e soldi disegnati sopra il personaggio da ogni angolatura, più alti delle spalle e mai coperti dal corpo | Domanda 6 della prova; è il feedback continuo del genere | [ ] |
 | 5 | **El Gordo in scena**: al finestrino del camion, con un fumetto-emoji alla prima vendita e quando il cassone è pieno | Domanda 3: chi mi paga | [ ] |
-| 6 | **Schermata di caricamento**: logo PATRÓN sopra l'impero completo al tramonto, GIOCA, poi la Hacienda vuota senza testo (GDD sezione 8) | Domande 1 e 2: dove si arriva, chi sono | [ ] |
+| 6 | **Schermata iniziale**: logo PATRÓN sopra l'impero completo, GIOCA attivo da subito (clic ovunque, Invio, Spazio), poi la camera scende sul lotto vuoto senza testo (GDD sezione 8) | Domande 1 e 2: dove si arriva, chi sono | [x] 30 ottobre, anticipata su richiesta di Luca insieme alla camera più lontana (zoom 20/28/36 m, UX6). L'impero è per ora la Fase 1 completa; luce del tramonto e musica arrivano con le fasi successive e l'audio. Manca la prova di Luca |
+| 6b | **Regole UX della nuova skill** `ux-ui-arcade-idle` nei passi 3–5: tappetini (UX1–UX2), soldi non addosso (UX3), merce più larga del corpo (UX4), passaggi in volo (UX5), spazio (UX7), regalo visibile (UX11), ritmo a due strati (UX10) | Dal rapporto di ricerca e dal video di Pizza Ready | [ ] |
 | 7 | **Grafica del genere**: confronto fianco a fianco con Pizza Ready e My Mini Mart, scheda di punteggio, interventi su personaggi, luce, contorni e materiali | Si fa per ultima, su un mondo che ormai si capisce | [ ] |
 
 ### M3 · Ufficio e Cargador

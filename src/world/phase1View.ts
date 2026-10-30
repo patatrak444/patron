@@ -215,15 +215,61 @@ export class Phase1View {
 
   /** Allinea il disegno a uno stato caricato o preparato (debug, screenshot). */
   syncUnlocked(s: Phase1State): void {
+    this.showState(s, false);
+  }
+
+  /**
+   * Allinea il disegno allo stato `s`: compare ciò che è comprato e sparisce il resto. Con `vanish`
+   * le cose da togliere si rimpiccioliscono in 0,5 s, come quando si passa dall'impero della
+   * schermata iniziale al lotto vuoto (GDD sezione 8).
+   */
+  showState(s: Phase1State, vanish = false): void {
     const v = this.valley;
+    const set = (o: THREE.Object3D, on: boolean): void => {
+      if (on) {
+        o.visible = true;
+        return;
+      }
+      if (!o.visible) return;
+      if (!vanish) {
+        o.visible = false;
+        return;
+      }
+      const base = o.scale.clone();
+      this.tween(0.5, (k) => {
+        const e = Math.max(0.001, 1 - k * k);
+        o.scale.set(base.x * e, base.y * e, base.z * e);
+        if (k >= 1) {
+          o.visible = false;
+          o.scale.copy(base);
+        }
+      });
+    };
     for (const f of s.fields) {
-      v.plants[f.id]!.visible = f.unlocked;
-      v.soils[f.id]!.visible = f.unlocked;
+      set(v.plants[f.id]!, f.unlocked);
+      set(v.soils[f.id]!, f.unlocked);
     }
-    for (const p of s.presses) v.presses[p.id]!.visible = p.unlocked;
-    v.bonfire.visible = s.bonfire;
-    v.truck.visible = s.truck.arrived;
+    for (const p of s.presses) set(v.presses[p.id]!, p.unlocked);
+    set(v.bonfire, s.bonfire);
+    set(v.truck, s.truck.arrived);
     if (s.lots.includes('lot2')) this.openLot2(false);
+    else {
+      v.fences.shared.visible = true;
+      set(v.lots.lot2.floor, false);
+      set(v.fences.lot2, false);
+      set(v.hut, false);
+    }
+    // Lavoratori che non esistono nello stato nuovo.
+    for (const [id, w] of this.workers) {
+      if (s.workers.some((x) => x.id === id)) continue;
+      this.workers.delete(id);
+      w.zzz.sprite.removeFromParent();
+      set(w.character.root, false);
+      this.tween(0.55, (k) => k >= 1 && w.character.root.removeFromParent());
+    }
+    this.festa = null;
+    this.flights.length = 0;
+    this.pilePos.clear();
     this.lastPaid = s.padPaid;
   }
 

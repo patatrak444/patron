@@ -8,6 +8,11 @@ di Majid Manzarpour (licenza MIT, vedi `LICENSE-threejs-game-skills`), commit `8
 - `threejs-qa-release`: screenshot e controlli prima della consegna.
 - `threejs-debug-profiler`: schermate nere, errori, prestazioni.
 
+Due skill scritte per PATRÓN:
+
+- `arcade-idle`: l'enciclopedia del genere (cosa fanno i giochi di successo).
+- `ux-ui-arcade-idle`: il progettista di esperienza (regole UX1–UX12 e 19 controlli per screenshot e partite), costruita sull'enciclopedia, su una ricerca dedicata e sul video completo di Pizza Ready.
+
 Le altre skill del pacchetto (director, generatori di immagini, modelli 3D e audio) non sono installate:
 richiedono chiavi a pagamento o impongono una propria struttura di progetto.
 

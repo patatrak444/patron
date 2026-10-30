@@ -356,3 +356,173 @@ body {
     opacity: 0.6;
   }
 }
+
+/* Schermata iniziale (GDD sezione 8): logo e un pulsante sopra l'impero in 3D */
+.is-title .hud,
+.is-title .hud__edge,
+.is-title .pause-badge {
+  display: none;
+}
+
+.title {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  cursor: pointer;
+  font-family: 'Baloo 2', 'Trebuchet MS', sans-serif;
+  font-weight: 800;
+  color: var(--white);
+  background:
+    linear-gradient(180deg, rgba(255, 140, 60, 0.18) 0%, rgba(0, 0, 0, 0) 45%, rgba(90, 40, 140, 0.22) 100%),
+    radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 55%, rgba(10, 6, 30, 0.45) 100%);
+  transition: opacity 0.4s ease;
+}
+
+.title.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.title__bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 7vh;
+  background: #000;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.6);
+  transition: transform 0.4s ease;
+}
+
+.title__bar--top {
+  top: 0;
+  border-bottom: 2px solid #c8902e;
+  animation: title-bar-top 0.6s ease 0.2s both;
+}
+
+.title__bar--bottom {
+  bottom: 0;
+  border-top: 2px solid #c8902e;
+  animation: title-bar-bottom 0.6s ease 0.2s both;
+}
+
+.title.is-leaving .title__bar--top {
+  transform: translateY(-100%);
+}
+
+.title.is-leaving .title__bar--bottom {
+  transform: translateY(100%);
+}
+
+@keyframes title-bar-top {
+  from { transform: translateY(-100%); }
+}
+
+@keyframes title-bar-bottom {
+  from { transform: translateY(100%); }
+}
+
+.title__logo {
+  position: absolute;
+  top: 17vh;
+  left: 0;
+  right: 0;
+  text-align: center;
+  transition: transform 0.4s ease;
+}
+
+.title.is-leaving .title__logo {
+  transform: translateY(-40vh);
+}
+
+.title__word {
+  display: block;
+  width: min(62vw, 92vh);
+  margin: 0 auto;
+  overflow: visible;
+  font-family: 'Baloo 2', 'Trebuchet MS', sans-serif;
+  font-weight: 800;
+  font-size: 250px;
+  animation: title-drop 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) 0.3s both, title-breathe 4s ease-in-out 1.2s infinite;
+}
+
+/* La foglia-accento pulsa piano ogni 4 s (GDD sezione 8) */
+.title__leaf {
+  filter: drop-shadow(0 0 10px rgba(92, 225, 230, 0.9));
+  animation: title-leaf 4s ease-in-out 1.4s infinite;
+}
+
+.title__sub {
+  display: inline-block;
+  padding: 0.25em 0.6em 0.2em 0.9em;
+  border-radius: 999px;
+  background: rgba(27, 27, 47, 0.55);
+  margin-top: -1vh;
+  font-size: min(2vw, 3.2vh);
+  letter-spacing: 0.32em;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 2px 0 var(--ink), 0 0 12px rgba(0, 0, 0, 0.5);
+  animation: title-fade 0.6s ease 1s both;
+}
+
+.title__play {
+  position: absolute;
+  left: 50%;
+  top: 66vh;
+  width: 320px;
+  height: 72px;
+  margin-left: -160px;
+  border: 4px solid var(--ink);
+  border-radius: 22px;
+  background: var(--gold);
+  color: var(--ink);
+  font: inherit;
+  font-size: 36px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #b8862a, 0 10px 24px rgba(0, 0, 0, 0.35);
+  animation: title-fade 0.5s ease 0.6s both, title-pulse 1.4s ease-in-out 1.2s infinite;
+}
+
+.title__play:hover {
+  filter: brightness(1.08);
+  translate: 0 -2px;
+}
+
+.title__hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(66vh + 88px);
+  text-align: center;
+  font-size: 16px;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 2px 0 var(--ink);
+  animation: title-fade 0.5s ease 1.2s both;
+}
+
+@keyframes title-drop {
+  from { transform: translateY(-30vh) scale(0.9); opacity: 0; }
+}
+
+@keyframes title-breathe {
+  50% { transform: scale(1.03); }
+}
+
+@keyframes title-leaf {
+  0%, 85%, 100% { opacity: 1; }
+  92% { opacity: 0.75; }
+}
+
+@keyframes title-fade {
+  from { opacity: 0; transform: translateY(12px); }
+}
+
+@keyframes title-pulse {
+  50% { scale: 1.05; }
+}

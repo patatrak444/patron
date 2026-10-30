@@ -191,7 +191,7 @@ L'azione principale del gioco è muoversi: ogni azione parte da sola quando il p
 
 - Le merci sono più grandi del vero, larghe circa quanto la testa del personaggio: la pila si legge come una torre anche allo zoom lontano.
 
-**Camera.** Prospettica con campo visivo stretto (22°), così le linee restano quasi parallele come in una vista isometrica; inclinata di 50° sull'orizzonte e **ruotata di 45°**: guarda da sud-ovest verso nord-est, e il mondo appare in diagonale, a rombo, come in Pizza Ready e My Mini Mart. La rotazione è fissa: la camera segue il giocatore con smorzamento ma non gira mai. L'interpolazione equivale a 0,1 per fotogramma a 60 fps, ma è calcolata sul tempo trascorso, così la camera si muove allo stesso modo con qualunque frequenza dello schermo. Allo zoom medio mostra circa 19 m di mondo in larghezza; vicino 14 m, lontano 26 m. All'avvio si vede tutto il lotto 1 con l'arco PATRÓN, e il personaggio occupa circa un ottavo dell'altezza dello schermo come nei video di Pizza Ready e Monkey Mart (skill `arcade-idle`, PS18). Scarto dalla regola PS18 (10–12 m): sul monitor del computer, più largo di un telefono, 13 m facevano un personaggio alto un quarto dello schermo e nascondevano l'arco; la misura che conta è la proporzione del personaggio, non i metri. Allo sblocco la camera fa un primo piano di 9 m sull'oggetto nuovo per 1,1 s (la festa), poi torna al giocatore. I tasti di movimento seguono lo schermo, non la mappa: W porta il personaggio verso l'alto dello schermo, cioè verso nord-est della mappa. Lo zoom lontano serve a controllare l'intera catena quando è automatizzata. La camera non mostra mai il vuoto: oltre i bordi della valle c'è una cornice di giungla non calpestabile e poi un verde uniforme.
+**Camera.** Prospettica con campo visivo stretto (22°), così le linee restano quasi parallele come in una vista isometrica; inclinata di 50° sull'orizzonte e **ruotata di 45°**: guarda da sud-ovest verso nord-est, e il mondo appare in diagonale, a rombo, come in Pizza Ready e My Mini Mart. La rotazione è fissa: la camera segue il giocatore con smorzamento ma non gira mai. L'interpolazione equivale a 0,1 per fotogramma a 60 fps, ma è calcolata sul tempo trascorso, così la camera si muove allo stesso modo con qualunque frequenza dello schermo. Allo zoom medio mostra circa 28 m di mondo in larghezza; vicino 20 m, lontano 36 m. Il personaggio è alto circa 1/12 dello schermo allo zoom medio e circa 1/16 a quello lontano: Pizza Ready lo tiene a circa 1/17 per tutta la partita (skill `ux-ui-arcade-idle`, regola UX6, misurato sul video completo). All'avvio il lotto 1 entra intero con l'arco PATRÓN e un bordo di prato. La camera non si allontana quando il mondo cresce: si cambia zoom solo con la rotella. Pizza Ready inclina la camera di circa 44°: PATRÓN resta a 50°, dentro l'intervallo del genere (44–55°), perché la vista "dall'alto" che si cerca viene dalla distanza, non dall'angolo. Allo sblocco la camera fa un primo piano di 9 m sull'oggetto nuovo per 1,1 s (la festa), poi torna al giocatore. I tasti di movimento seguono lo schermo, non la mappa: W porta il personaggio verso l'alto dello schermo, cioè verso nord-est della mappa. Lo zoom lontano serve a controllare l'intera catena quando è automatizzata. La camera non mostra mai il vuoto: oltre i bordi della valle c'è una cornice di giungla non calpestabile e poi un verde uniforme.
 
 **Schermo.** Orizzontale, adattato a qualunque finestra da 1280 × 600 in su (16:9 è il formato di riferimento); ridimensionare la finestra non deforma la scena.
 
@@ -489,7 +489,7 @@ La schermata iniziale non è un menu davanti al gioco: è il gioco stesso, la va
 
 - **Chi ha un salvataggio dalla Fase 3 in poi** vede il *proprio* impero, com'è adesso. Prima della Fase 3 vede l'impero dimostrativo: un campo e una capanna non motivano.
 
-- La camera fa un movimento lento a gru: 35 m d'altezza, un giro completo intorno al centro della valle in 90 s.
+- La camera fa un movimento lento a gru, alta e lontana, girando intorno all'impero: un giro completo in 60 s.
 
 - Luce del tramonto più calda di quella di gioco; le piante di Lumina e le lampade brillano con l'effetto bloom.
 
@@ -519,7 +519,7 @@ La schermata iniziale non è un menu davanti al gioco: è il gioco stesso, la va
 
 | Elemento                                         | Posizione                        | Aspetto e comportamento                                                                                                                                        |
 |--------------------------------------------------|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| GIOCA (prima volta) o CONTINUA (con salvataggio) | Centro, al 68% dell'altezza      | 320 × 72 px, oro \#FFC94A con testo scuro. Respira piano (scala 1,00–1,03). Al passaggio del mouse si alza di 2 px, si illumina e fa un "tic". Invio lo attiva |
+| GIOCA (prima volta) o CONTINUA (con salvataggio) | Centro, al 68% dell'altezza      | 320 × 72 px, oro \#FFC94A con testo scuro. Respira piano (scala 1,00–1,05). Al passaggio del mouse si alza di 2 px e si illumina. **È attivo da subito**: un clic ovunque sullo schermo, Invio o Spazio avviano la partita (CrazyGames: al massimo un clic, pulsanti senza ritardo; skill `ux-ui-arcade-idle`, UX12) |
 | Riepilogo partita                                | Sotto CONTINUA                   | Una riga: "Fase 2 · \$12,4K · 1 h 23 min"                                                                                                                      |
 | Nuova partita                                    | Sotto, testo bianco al 70%       | Solo se c'è un salvataggio; chiede conferma e propone l'esportazione                                                                                           |
 | Impostazioni · Crediti                           | Banda nera in basso a destra     | Testo piccolo                                                                                                                                                  |
@@ -538,13 +538,13 @@ La schermata iniziale non è un menu davanti al gioco: è il gioco stesso, la va
 | \+ 1,2 → 2,0 s                 | Le lettere del logo cadono una a una (70 ms tra l'una e l'altra) con un piccolo rimbalzo                 |
 | \+ 2,1 s                       | Sboccia la foglia-accento, con un lampo di luce e un rintocco                                            |
 | \+ 2,4 s                       | Compare il sottotitolo                                                                                   |
-| \+ 2,8 s                       | I pulsanti salgono di 12 px sfumando                                                                     |
+| \+ 2,8 s                       | I pulsanti salgono di 12 px sfumando; sono già attivi prima di comparire                                 |
 
 **Audio.** I browser non fanno partire l'audio finché l'utente non clicca. Il primo clic ovunque attiva la musica, che sale in 2 s: un giro di synth anni '80 con percussioni latine (sezione 11).
 
 **Il passaggio al gioco.**
 
-- **Prima partita:** logo e pulsanti spariscono verso l'alto (0,4 s), le bande nere si ritirano e la scena sfuma nel nero (0,8 s). Si riapre sulla Hacienda vuota, con la camera già all'angolo di gioco, e l'interfaccia scende dall'alto. Nessun testo: dove c'era l'impero ora c'è solo il lotto con l'arco PATRÓN, e il contrasto basta a dire dove si va (sezione 1, «La storia e la visione»).
+- **Prima partita:** logo e pulsanti spariscono verso l'alto (0,4 s) e le bande nere si ritirano. Le parti dell'impero non ancora costruite si rimpiccioliscono e spariscono (0,5 s), mentre la camera scende dalla gru al lotto 1 in 2,2 s, senza passare dal nero: il giocatore vede **dove** sta il suo lotto nell'impero che ha appena visto. All'arrivo l'interfaccia compare con "Raccogli i soldi!". Nessun testo di storia (sezione 1, «La storia e la visione»).
 
 - **Partita salvata:** niente testo. La camera vola dalla gru al personaggio in 2 s e la luce passa dal tramonto alla luce di gioco.
 

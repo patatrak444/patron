@@ -143,6 +143,20 @@ export interface Phase1Config {
   readonly picker: WorkerConfig;
 }
 
+/** Schermata iniziale (GDD sezione 8; skill ux-ui-arcade-idle, UX12). */
+export interface TitleConfig {
+  /** Punto della mappa al centro della gru, in coordinate del GDD. */
+  readonly focusX: number;
+  readonly focusY: number;
+  /** Secondi per un giro completo della gru. */
+  readonly orbitSeconds: number;
+  /** Inclinazione e larghezza inquadrata dalla gru. */
+  readonly pitchDeg: number;
+  readonly width: number;
+  /** Secondi della discesa dalla gru al lotto 1. */
+  readonly descendSeconds: number;
+}
+
 /** Sensazione di gioco (GDD sezione 10; skill arcade-idle, PS13–PS19): numeri solo visivi. */
 export interface FeelConfig {
   /** Festa dello sblocco: secondi di primo piano e larghezza inquadrata, in metri. */
@@ -168,6 +182,7 @@ export interface Balance {
   readonly screen: ScreenConfig;
   readonly phase1: Phase1Config;
   readonly feel: FeelConfig;
+  readonly title: TitleConfig;
 }
 
 export const BALANCE: Balance = {
@@ -180,7 +195,7 @@ export const BALANCE: Balance = {
     pitchDeg: 50,
     yawDeg: 45,
     fovDeg: 22,
-    zoomWidths: [14, 19, 26],
+    zoomWidths: [20, 28, 36],
     followLerp: 0.1,
   },
   player: {
@@ -203,6 +218,7 @@ export const BALANCE: Balance = {
     minWidth: 1280,
     minHeight: 600,
   },
+  title: { focusX: 25, focusY: 12, orbitSeconds: 60, pitchDeg: 38, width: 46, descendSeconds: 2.2 },
   feel: {
     festaSeconds: 1.1,
     festaWidth: 9,
