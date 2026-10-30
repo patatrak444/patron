@@ -98,14 +98,13 @@ Una voce per volta, nell'ordine. Ognuna si chiude con test, screenshot, la prova
 
 | # | Voce | Perché a questo punto | Fatta quando |
 |---|---|---|---|
-| 1 | **Storia** nel GDD: antefatto, personaggi, capitoli, segni nel mondo, prova di percezione | Decide nomi, personaggi e scene di tutto il resto | [x] Scritta; attende l'ok di Luca |
+| 1 | **Storia e visione della filiera** nel GDD (sezione 1): solo per noi, niente testo nel gioco; per ogni capitolo tempi, guadagni, colli di bottiglia, automazione, personale e segni nel mondo; prova di percezione | Decide nomi, personaggi e ordine di tutto il resto | [x] Scritta il 30 ottobre; trovato un conto che non torna nel capitolo 3 (prezzi troppo alti), da risolvere in M5 |
 | 2 | **Stazioni che si spiegano da sole**: la Pressa diventa il Torchio, con le foglie che entrano da una parte e i panetti che escono dall'altra; cartello con «foglia → panetto» sopra ogni stazione | È la domanda 5 della prova: se non si capisce la macchina, non si capisce il gioco | [ ] |
 | 3 | **Tappetini con l'icona**: ogni tappetino ha la forma e lo stile di quello di sblocco, con l'icona di cosa si lascia o si prende e una freccia dentro/fuori; niente quadrati a tinta unita | Stesso linguaggio visivo per tutto quello che si calpesta | [ ] |
 | 4 | **Pila sempre visibile**: merce e soldi disegnati sopra il personaggio da ogni angolatura, più alti delle spalle e mai coperti dal corpo | Domanda 6 della prova; è il feedback continuo del genere | [ ] |
-| 5 | **Schermata principale e tre vignette**: logo, GIOCA, impero dimostrativo al tramonto, tre vignette saltabili, poi la Hacienda (GDD sezione 8) | Domande 1–3: chi sono, dove sono, chi mi paga | [ ] |
-| 6 | **El Gordo in scena**: al finestrino del camion, con battute brevi nei primi minuti al posto delle sole frecce | La guida diventa un personaggio; la storia si sente giocando | [ ] |
-| 7 | **Capitoli**: nome del capitolo nell'interfaccia e scena di chiusura del capitolo 1 («Il debito») | Dà una meta alla Fase 1 | [ ] |
-| 8 | **Grafica del genere**: confronto fianco a fianco con Pizza Ready e My Mini Mart, scheda di punteggio, interventi su personaggi, luce, contorni e materiali | Si fa per ultima, su un mondo che ormai si capisce | [ ] |
+| 5 | **El Gordo in scena**: al finestrino del camion, con un fumetto-emoji alla prima vendita e quando il cassone è pieno | Domanda 3: chi mi paga | [ ] |
+| 6 | **Schermata di caricamento**: logo PATRÓN sopra l'impero completo al tramonto, GIOCA, poi la Hacienda vuota senza testo (GDD sezione 8) | Domande 1 e 2: dove si arriva, chi sono | [ ] |
+| 7 | **Grafica del genere**: confronto fianco a fianco con Pizza Ready e My Mini Mart, scheda di punteggio, interventi su personaggi, luce, contorni e materiali | Si fa per ultima, su un mondo che ormai si capisce | [ ] |
 
 ### M3 · Ufficio e Cargador
 - [ ] Pannello Ufficio a schede grandi (immagine, tacche, prima → dopo, prezzo), aperto solo stando sul tappetino viola (D10, D11)
