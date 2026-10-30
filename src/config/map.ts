@@ -88,11 +88,11 @@ export const ROAD: PathStrip = { from: { x: -40, y: 36.8 }, to: { x: 110, y: 36.
 
 export const VALLEY_CENTER: MapPoint = { x: VALLEY.width / 2, y: VALLEY.depth / 2 };
 
-/** Punto di partenza: dentro la Hacienda, con il regalo a 2,3 m verso nord-est (GDD sezione 4). */
+/** Punto di partenza: dentro la Hacienda, con il regalo a destra sullo schermo (GDD sezione 4). */
 export const PLAYER_SPAWN: MapPoint = { x: 27, y: 17.5 };
 
 /** Il regalo di El Gordo: torre di mazzette alta quanto il personaggio (GDD sezione 5, UX11). */
-export const GIFT_SPOT: MapPoint = { x: 28.6, y: 18.6 };
+export const GIFT_SPOT: MapPoint = { x: 29.4, y: 16.4 };
 
 export type FieldId = 'field1' | 'field2' | 'field3';
 
@@ -103,8 +103,8 @@ export type FieldId = 'field1' | 'field2' | 'field3';
 export const FIELD_SIZE = 4;
 export const FIELD_REACH = 0.2;
 export const FIELD_PLOTS: readonly (MapPoint & { readonly id: FieldId; readonly mat: MapPoint })[] = [
-  { id: 'field1', x: 31, y: 23.5, mat: { x: 31, y: 24.6 } },
-  { id: 'field2', x: 24.5, y: 23.5, mat: { x: 25.6, y: 24.6 } },
+  { id: 'field1', x: 30, y: 23.5, mat: { x: 30.6, y: 24.6 } },
+  { id: 'field2', x: 23.5, y: 23.5, mat: { x: 24.6, y: 24.6 } },
   { id: 'field3', x: 42, y: 23.5, mat: { x: 42, y: 24.6 } },
 ];
 
@@ -158,8 +158,8 @@ export const TRUCK = {
   x: 27.5,
   y: 36.8,
   deposit: contour({ x0: 25.5, y0: 33.1, x1: 29.5, y1: 34 }, 's'),
-  cash: { x: 30.7, y: 32.8 },
-  tray: rectAt(30.7, 32.8, 1.2, 0.8),
+  cash: { x: 24.3, y: 32.8 },
+  tray: rectAt(24.3, 32.8, 1.2, 0.8),
 } as const;
 
 /** Ufficio: casetta con l'ingresso a ovest e il contorno attaccato alla porta (GDD sezioni 4 e 12). */
@@ -191,9 +191,9 @@ export type UnlockId =
  * dell'oggetto futuro, come in Monkey Mart e My Mini Mart (skill arcade-idle, PS11).
  */
 export const UNLOCK_PADS: Readonly<Record<UnlockId, MapPoint>> = {
-  field1: { x: 31, y: 23.5 },
+  field1: { x: 30, y: 23.5 },
   press1: { x: 31, y: 30.1 },
-  field2: { x: 24.5, y: 23.5 },
+  field2: { x: 23.5, y: 23.5 },
   bonfire: { x: 37, y: 26.5 },
   office: { x: OFFICE.x, y: OFFICE.y },
   picker1: { x: 27, y: 14 },

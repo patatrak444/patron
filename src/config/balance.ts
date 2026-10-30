@@ -206,7 +206,7 @@ export const BALANCE: Balance = {
     fovDeg: 22,
     zoomHeights: [19, 25, 31],
     deadZone: { width: 14, depth: 10 },
-    start: { x: 27.3, y: 20.3 },
+    start: { x: 26.8, y: 19.4 },
     followLerp: 0.1,
   },
   player: {

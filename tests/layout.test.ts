@@ -92,10 +92,12 @@ describe('camera ad altezza fissa (GDD sezione 3, UX6)', () => {
     expect(onScreen).toBeLessThan(cam.zoomHeights[1]);
   });
 
-  it('il personaggio da 1,9 m occupa tra 1/20 e 1/15 dell\'altezza allo zoom medio', () => {
-    const k = (1.9 * Math.cos((cam.pitchDeg * Math.PI) / 180)) / cam.zoomHeights[1];
-    expect(k).toBeGreaterThan(1 / 20);
-    expect(k).toBeLessThan(1 / 15);
+  it('il personaggio da 1,9 m occupa tra 1/16 e 1/12 dell\'altezza allo zoom medio (UX6, desktop)', () => {
+    // Altezza vista più la profondità della testa e del cappello (circa 0,5 m) vista dall'alto.
+    const p = (cam.pitchDeg * Math.PI) / 180;
+    const k = (1.9 * Math.cos(p) + 0.5 * Math.sin(p)) / cam.zoomHeights[1];
+    expect(k).toBeGreaterThan(1 / 16);
+    expect(k).toBeLessThan(1 / 12);
   });
 
   it('la distanza della camera non dipende dal rapporto della finestra', () => {
