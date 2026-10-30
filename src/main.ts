@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import './ui/styles.css';
 import { BALANCE } from './config/balance';
-import { fromWorld, toWorld } from './config/map';
+import { OFFICE, fromWorld, inRect, toWorld } from './config/map';
 import { createBus, type GameEvents } from './core/bus';
 import { installInput, screenToMap } from './core/input';
 import { createFixedStepper, startLoop } from './core/loop';
@@ -17,6 +17,9 @@ import { createRng } from './core/rng';
 import { prepareScenario, type Scenario } from './debug/scenarios';
 import { hasWebGL2, installMinSizeNotice, isTouchOnlyDevice, showBlockingMessage } from './ui/deviceGate';
 import { createHud } from './ui/hud';
+import { createOfficePanel, type UpgradeView } from './ui/officePanel';
+import { buyUpgrade, profitFactor, speedFactor, stackCapacity, upgradeCost } from './sim/upgrades';
+import type { Phase1State } from './sim/phase1';
 import { cameraOffset, distanceForWidth, GameCamera } from './world/camera';
 import { createTitleScreen } from './ui/title';
 import { loadAssets, type Assets } from './world/assets';
@@ -30,6 +33,25 @@ import { Phase1View } from './world/phase1View';
 
 /** Modello del giocatore nella prima fase; gli abiti per fase arrivano in M7 (GDD sezione 9). */
 const PLAYER_MODEL = 'mini_male_a';
+
+/** Le tre schede dell'Ufficio con l'effetto adesso e al prossimo livello (GDD sezione 5). */
+function upgradeViews(s: Phase1State): UpgradeView[] {
+  const cfg = BALANCE.phase1;
+  return cfg.upgrades.list.map((d) => {
+    const level = s.upgrades[d.id];
+    const max = level >= d.levels;
+    const next: Phase1State = { ...s, upgrades: { ...s.upgrades, [d.id]: level + 1 } };
+    const pct = (k: number): string => `${Math.round(k * 100)}%`;
+    const price = (k: number): string => `$${(cfg.truck.pastePrice * k).toFixed(1).replace('.', ',')}`;
+    const fx =
+      d.id === 'backpack'
+        ? { label: 'Capacità', now: `${stackCapacity(s)}`, next: `${stackCapacity(next)}` }
+        : d.id === 'shoes'
+          ? { label: 'Velocità', now: pct(speedFactor(s)), next: pct(speedFactor(next)) }
+          : { label: 'Panetto', now: price(profitFactor(s)), next: price(profitFactor(next)) };
+    return { id: d.id, name: d.name, level, levels: d.levels, label: fx.label, now: fx.now, next: max ? null : fx.next, cost: upgradeCost(s, d.id) };
+  });
+}
 
 async function boot(root: HTMLElement): Promise<void> {
   if (isTouchOnlyDevice()) {
@@ -106,6 +128,9 @@ async function boot(root: HTMLElement): Promise<void> {
   resize();
 
   const hud = createHud(root, BALANCE.feel);
+  // Ufficio (GDD sezione 12): si apre stando sul contorno davanti alla porta, si chiude uscendo.
+  const office = createOfficePanel(root, (id) => buyUpgrade(state.phase1, id, bus));
+  let wasInOffice = false;
   // Raccogliendo, le banconote volano dal mucchio alla pillola del contante (GDD sezione 3, UX3).
   const billFrom = new THREE.Vector3();
   bus.on('cash:collect', ({ amount, pile }) => {
@@ -294,6 +319,10 @@ async function boot(root: HTMLElement): Promise<void> {
     );
     hud.setCash(s1.cash);
     hud.update(frameSeconds);
+    const inOffice = mode === 'play' && s1.office && inRect({ x, y }, OFFICE.door.area);
+    if (inOffice && !wasInOffice) office.reopen();
+    wasInOffice = inOffice;
+    office.set(inOffice ? upgradeViews(s1) : null, s1.cash);
     const prog = levelProgress(s1.stars);
     hud.setRespect(s1.level, prog.stars, prog.next);
     const goal = objective(s1);

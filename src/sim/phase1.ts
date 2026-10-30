@@ -8,6 +8,7 @@ import {
   FIELD_PLOTS,
   GIFT_SPOT,
   LOTS,
+  OFFICE,
   PRESSES,
   TRUCK,
   UNLOCK_PADS,
@@ -24,6 +25,7 @@ import type { Bus, GameEvents } from '../core/bus';
 import type { Rng } from '../core/rng';
 import { findPath, type NavGrid } from './pathfinding';
 import { countOf, createStack, isFull, push, take, type Stack } from './stack';
+import { createUpgrades, openOffice, profitFactor, type UpgradeLevels } from './upgrades';
 
 export type UnlockId = UnlockDef['id'];
 export type { FieldId } from '../config/map';
@@ -127,6 +129,12 @@ export interface Phase1State {
   bonfire: boolean;
   /** L'Ufficio si compra (sblocco 4b, GDD sezione 5). */
   office: boolean;
+  /** Dove piovono i premi di Rispetto dei potenziamenti: la porta dell'Ufficio. */
+  readonly officeAt: MapPoint;
+  /** Livelli di Zaino, Scarpe e Guadagno (GDD sezione 5). */
+  upgrades: UpgradeLevels;
+  /** Frazione di dollaro maturata con il Guadagno e non ancora pagata: il contante resta intero. */
+  profitCarry: number;
   /** Lotti aperti: si cammina solo lì (GDD sezione 4). */
   lots: LotId[];
 }
@@ -177,6 +185,9 @@ export function createPhase1(cfg: Phase1Config = BALANCE.phase1): Phase1State {
     navDirty: false,
     bonfire: false,
     office: false,
+    officeAt: { x: OFFICE.door.x, y: OFFICE.door.y },
+    upgrades: createUpgrades(),
+    profitCarry: 0,
     lots: ['lot1'],
   };
 }
@@ -315,9 +326,13 @@ function transferOnce(s: Phase1State, z: Zone, stack: Stack, cfg: Phase1Config, 
       const t = s.truck;
       if (!t.arrived || t.away > 0 || t.load >= t.capacity || !take(stack, 'paste')) return false;
       t.load++;
-      addToPile(s, 'truck', TRUCK.cash, cfg.truck.pastePrice);
+      // Il Guadagno alza il prezzo; la parte frazionaria si accumula, così il contante resta intero.
+      const due = cfg.truck.pastePrice * profitFactor(s, cfg) + s.profitCarry;
+      const price = Math.floor(due + 1e-9);
+      s.profitCarry = due - price;
+      addToPile(s, 'truck', TRUCK.cash, price);
       s.sold++;
-      bus.emit('truck:sale', { amount: cfg.truck.pastePrice });
+      bus.emit('truck:sale', { amount: price });
       if (t.load >= t.capacity) {
         t.away = cfg.truck.awaySeconds;
         bus.emit('truck:depart', {});
@@ -453,7 +468,7 @@ function applyUnlock(s: Phase1State, def: UnlockDef, cfg: Phase1Config, bus: Bus
     s.bonfire = true;
     s.navDirty = true;
   } else if (def.kind === 'office') {
-    s.office = true;
+    openOffice(s, cfg);
     s.navDirty = true;
   } else if (def.kind === 'zone') {
     if (!s.lots.includes('lot2')) s.lots.push('lot2');

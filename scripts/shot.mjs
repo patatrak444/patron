@@ -34,6 +34,8 @@ const SHOTS = [
   { name: '11-avanzato', prepare: 'avanzato', zoom: 1, wait: 3 },
   // UX3: i soldi raccolti volano al contatore, non restano addosso.
   { name: '12-raccolta', prepare: 'raccolta', wait: 0.12 },
+  // GDD sezione 12: il pannello dell'Ufficio, aperto stando sul contorno davanti alla porta.
+  { name: '14-ufficio', prepare: 'ufficio', wait: 1 },
 ];
 
 function waitForServer(url, ms = 30000) {

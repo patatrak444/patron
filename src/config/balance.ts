@@ -141,6 +141,26 @@ export interface WorkerConfig {
   readonly scrapPriority: number;
 }
 
+export type UpgradeId = 'backpack' | 'shoes' | 'profit';
+
+/** Un potenziamento del giocatore (GDD sezione 5): costo del prossimo livello = base × growth^n. */
+export interface UpgradeDef {
+  readonly id: UpgradeId;
+  readonly name: string;
+  readonly baseCost: number;
+  readonly levels: number;
+  /** Effetto per livello: +posti nella pila (Zaino), frazione di velocità (Scarpe) o di prezzo (Guadagno). */
+  readonly perLevel: number;
+}
+
+export interface UpgradesConfig {
+  /** Crescita del costo a ogni livello: pochi livelli ripidi, come il genere (RC10, RC11). */
+  readonly growth: number;
+  readonly list: readonly UpgradeDef[];
+  /** Livello di Zaino regalato all'apertura dell'Ufficio, senza stelle (GDD sezione 5). */
+  readonly giftBackpack: number;
+}
+
 export interface Phase1Config {
   /** Regalo di El Gordo a due passi dal giocatore (GDD sezione 5). */
   readonly gift: number;
@@ -152,6 +172,7 @@ export interface Phase1Config {
   readonly unlocks: readonly UnlockDef[];
   readonly respect: RespectConfig;
   readonly picker: WorkerConfig;
+  readonly upgrades: UpgradesConfig;
 }
 
 /** Schermata iniziale (GDD sezione 8; skill ux-ui-arcade-idle, UX12). */
@@ -338,5 +359,14 @@ export const BALANCE: Balance = {
       rewardPerLevel: 20,
     },
     picker: { capacity: 3, speed: 2.8, sleepEvery: [90, 150], wakeRadius: 1.5, scrapPriority: 0.5 },
+    upgrades: {
+      growth: 1.8,
+      giftBackpack: 1,
+      list: [
+        { id: 'backpack', name: 'Zaino', baseCost: 40, levels: 5, perLevel: 2 },
+        { id: 'shoes', name: 'Scarpe', baseCost: 60, levels: 5, perLevel: 0.1 },
+        { id: 'profit', name: 'Guadagno', baseCost: 80, levels: 5, perLevel: 0.1 },
+      ],
+    },
   },
 };

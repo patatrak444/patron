@@ -13,6 +13,7 @@ export interface GameEvents {
   'truck:arriving': Record<string, never>;
   'cash:collect': { amount: number; pile: string };
   unlock: { id: string };
+  upgrade: { id: string; level: number };
   'respect:level': { level: number };
   'worker:sleep': { id: string };
   'worker:wake': { id: string };

@@ -2,13 +2,13 @@
 // Solo con ?debug=1. Non cambiano le regole: mettono lo stato in un punto preciso della partita.
 
 import { BALANCE } from '../config/balance';
-import { PRESSES, TRUCK, UNLOCK_PADS } from '../config/map';
+import { OFFICE, PRESSES, TRUCK, UNLOCK_PADS } from '../config/map';
 import type { Bus, GameEvents } from '../core/bus';
 import { createRng } from '../core/rng';
 import { stepPhase1 } from '../sim/phase1';
 import { createMoveContext, type GameState } from '../sim/state';
 
-export type Scenario = 'festa' | 'primo' | 'pila' | 'camion' | 'pagamento' | 'raccoglitore' | 'lotto2' | 'avanzato' | 'raccolta';
+export type Scenario = 'festa' | 'primo' | 'pila' | 'camion' | 'pagamento' | 'raccoglitore' | 'lotto2' | 'avanzato' | 'raccolta' | 'ufficio';
 
 function place(state: GameState, x: number, y: number): void {
   const facing = (-3 * Math.PI) / 4;
@@ -109,6 +109,13 @@ export function prepareScenario(state: GameState, name: Scenario, bus: Bus<GameE
       unlockUpTo(state, at('zone2') + 1, bus);
       s.cash = 50;
       place(state, 37, 20);
+      break;
+    }
+    case 'ufficio': {
+      // Davanti alla porta dell'Ufficio appena aperto: il pannello con Zaino (1 regalato), Scarpe e Guadagno.
+      unlockUpTo(state, at('office') + 1, bus);
+      s.cash = 75;
+      place(state, OFFICE.door.x, OFFICE.door.y);
       break;
     }
     case 'raccolta': {

@@ -6,6 +6,7 @@ import type { Bus, GameEvents } from '../core/bus';
 import { createRng, type Rng } from '../core/rng';
 import { createNavGrid } from './pathfinding';
 import { createPhase1, stepPhase1, type Phase1State } from './phase1';
+import { speedFactor } from './upgrades';
 import { createPlayer, stepPlayer, type MoveContext, type PlayerState } from './player';
 
 export interface GameState {
@@ -67,7 +68,9 @@ export function createMoveContext(p1?: Phase1State): MoveContext {
 /** Un passo di logica. */
 export function stepSim(state: GameState, dt: number, bus: Bus<GameEvents>, input: StepInput, ctx: MoveContext, rng?: Rng): void {
   state.time += dt;
-  stepPlayer(state.player, input.moveX, input.moveY, dt, ctx);
+  // Le Scarpe alzano la velocità del giocatore (GDD sezione 5).
+  const k = speedFactor(state.phase1);
+  stepPlayer(state.player, input.moveX, input.moveY, dt, k === 1 ? ctx : { ...ctx, cfg: { ...ctx.cfg, speed: ctx.cfg.speed * k } });
   const r = rng ?? createRng(state.rngState);
   stepPhase1(state.phase1, state.player, dt, bus, { grid: ctx.grid, rng: r });
   state.rngState = r.getState();
