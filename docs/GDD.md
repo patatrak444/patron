@@ -227,7 +227,7 @@ L'azione principale del gioco è muoversi: ogni azione parte da sola quando il p
 | Nuova zona | riquadro in (36,8, 20) | 2,3 × 2,3 | Sul bordo est |
 | Arco PATRÓN | (22,5, 34) | 3,4 × 0,5, alto 4 | Sul lato nord, verso l'angolo nord-ovest: con la camera da sud-ovest quell'angolo sta a metà altezza dello schermo, e l'arco resta sempre in vista, mai sotto l'interfaccia in alto (primo screenshot del 30 ottobre 2026) |
 
-**La strada di El Gordo** corre da ovest a est appena fuori dall'arco, a y = 35,5–38. Il camion arriva lungo la strada da ovest e si ferma a est dell'arco (x ≈ 27,5, y ≈ 36,8), così non copre l'insegna; il carico si fa dal contorno dietro la staccionata, e le mazzette compaiono sul vassoio accanto. A cassone pieno riparte verso est e torna da ovest. Le auto della polizia usano la stessa strada.
+**La strada di El Gordo** corre da ovest a est appena fuori dall'arco, a y = 34,7–37,3: il camion si ferma col fianco a meno di un metro dalla staccionata, così il contorno di carico tocca quasi il suo cassone. Il camion arriva lungo la strada da ovest e si ferma a est dell'arco (x ≈ 27,5, y ≈ 36), così non copre l'insegna; il carico si fa dal contorno dietro la staccionata, e le mazzette compaiono sul vassoio accanto. A cassone pieno riparte verso est e torna da ovest. Le auto della polizia usano la stessa strada.
 
 **Sagome.** Ogni stazione non ancora comprata si vede come la sua impronta grigia a terra, con le parentesi bianche agli angoli e un fumetto con la mazzetta e il prezzo; quella del prossimo sblocco ha sopra la freccia gialla. All'inizio si vede una sagoma sola (PS10, PS11).
 

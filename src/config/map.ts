@@ -84,7 +84,7 @@ export const LOTS: Readonly<Record<LotId, Rect>> = {
 export const ARCH = { x: 22.5, y: 34, width: 3.4 } as const;
 
 /** La strada di El Gordo, appena fuori dall'arco, da ovest a est. */
-export const ROAD: PathStrip = { from: { x: -40, y: 36.8 }, to: { x: 110, y: 36.8 }, width: 2.6 };
+export const ROAD: PathStrip = { from: { x: -40, y: 36 }, to: { x: 110, y: 36 }, width: 2.6 };
 
 export const VALLEY_CENTER: MapPoint = { x: VALLEY.width / 2, y: VALLEY.depth / 2 };
 
@@ -156,7 +156,7 @@ export const BONFIRE: MapPoint & { readonly r: number; readonly size: number; re
  */
 export const TRUCK = {
   x: 27.5,
-  y: 36.8,
+  y: 36,
   deposit: contour({ x0: 25.5, y0: 33.1, x1: 29.5, y1: 34 }, 's'),
   cash: { x: 24.3, y: 32.8 },
   tray: rectAt(24.3, 32.8, 1.2, 0.8),

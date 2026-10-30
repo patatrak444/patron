@@ -4,8 +4,10 @@ import { BONFIRE, GIFT_SPOT, PRESSES, TRUCK, UNLOCK_PADS, type MapPoint } from '
 import { createBus, type GameEvents } from '../src/core/bus';
 import { createRng } from '../src/core/rng';
 import {
+  activeZones,
   createPhase1,
   fieldMat,
+  insideZone,
   levelFor,
   objective,
   pressBlocked,
@@ -67,14 +69,14 @@ describe('regalo e sblocchi (GDD 5)', () => {
     expect(s.piles.find((p) => p.id === 'gift')!.value).toBe(cfg.gift);
   });
 
-  it('il regalo di $25 si raccoglie in mezzo secondo e paga Campo 1 e Pressa 1', () => {
+  it('il regalo di $40 si raccoglie in mezzo secondo e paga Campo 1 e Pressa 1', () => {
     const s = createPhase1();
     run(s, GIFT_SPOT, 0.5);
     expect(s.cash).toBe(cfg.gift);
     expect(s.piles.find((p) => p.id === 'gift')).toBeUndefined();
-    run(s, UNLOCK_PADS.field1, 2);
+    run(s, UNLOCK_PADS.field1, 2.5);
     expect(s.fields.find((f) => f.id === 'field1')!.unlocked).toBe(true);
-    run(s, UNLOCK_PADS.press1, 2);
+    run(s, UNLOCK_PADS.press1, 2.5);
     expect(s.presses[0]!.unlocked).toBe(true);
     expect(s.cash).toBe(cfg.gift - 5 - 15);
     expect(s.stars).toBe(2 * cfg.respect.starsPerUnlock);
@@ -89,7 +91,7 @@ describe('regalo e sblocchi (GDD 5)', () => {
     s.piles = [];
     s.nextUnlock = 1;
     s.cash = 15;
-    for (let t = 0; t < 2; t += DT) stepPhase1(s, UNLOCK_PADS.press1, DT, bus, ctx);
+    for (let t = 0; t < 2.4; t += DT) stepPhase1(s, UNLOCK_PADS.press1, DT, bus, ctx);
     expect(honk).toBe(1);
     expect(s.truck.arrived).toBe(false);
     for (let t = 0; t < cfg.truck.firstArrival; t += DT) stepPhase1(s, FAR, DT, bus, ctx);
@@ -101,11 +103,11 @@ describe('regalo e sblocchi (GDD 5)', () => {
     s.piles = [];
     s.nextUnlock = 1;
     s.cash = 10;
-    run(s, UNLOCK_PADS.press1, 2);
+    run(s, UNLOCK_PADS.press1, 2.5);
     expect(s.padPaid).toBe(10);
     expect(s.nextUnlock).toBe(1);
     s.cash = 20;
-    run(s, UNLOCK_PADS.press1, 2);
+    run(s, UNLOCK_PADS.press1, 2.5);
     expect(s.nextUnlock).toBe(2);
     expect(s.cash).toBe(15);
   });
@@ -130,6 +132,38 @@ describe('regalo e sblocchi (GDD 5)', () => {
     expect(s.nextUnlock).toBe(i + 1);
     expect(s.presses[1]!.unlocked).toBe(true);
     expect(s.navDirty).toBe(true);
+  });
+
+  it('il pagamento dura circa 2 s sia per \$5 sia per \$20 sia per \$200 (GDD 3)', () => {
+    for (const cost of [5, 20, 200]) {
+      const c = { ...cfg, unlocks: [{ ...cfg.unlocks[0]!, cost }, ...cfg.unlocks.slice(1)] };
+      const s = createPhase1(c);
+      s.piles = [];
+      s.cash = 1000;
+      const bus = createBus<GameEvents>();
+      const ctx = { grid: createMoveContext(s).grid, rng: createRng(7), cfg: c };
+      let t = 0;
+      while (s.nextUnlock === 0 && t < 5) {
+        stepPhase1(s, UNLOCK_PADS.field1, DT, bus, ctx);
+        t += DT;
+      }
+      const total = cfg.stack.unlockPayDelay + cfg.stack.unlockPaySeconds;
+      expect(t, `\$${cost}`).toBeGreaterThan(total - 0.1);
+      expect(t, `\$${cost}`).toBeLessThan(total + 0.1);
+    }
+  });
+
+  it("l'area di un contorno è il disegno più 0,3 m solo verso l'esterno della macchina", () => {
+    const s = createPhase1();
+    openUpTo(s, 'press1');
+    const z = activeZones(s).find((x) => x.kind === 'pressDeposit')!;
+    const d = PRESSES[0]!.deposit.draw;
+    const midX = (d.x0 + d.x1) / 2;
+    // La tramoggia sta a sud del Torchio: l'area sporge di 0,3 m a sud, e basta.
+    expect(insideZone(z, { x: midX, y: d.y0 - 0.25 })).toBe(true);
+    expect(insideZone(z, { x: midX, y: d.y0 - 0.35 })).toBe(false);
+    expect(insideZone(z, { x: d.x0 - 0.05, y: (d.y0 + d.y1) / 2 })).toBe(false);
+    expect(insideZone(z, { x: d.x1 + 0.05, y: (d.y0 + d.y1) / 2 })).toBe(false);
   });
 
   it('la Nuova zona apre il lotto 2', () => {
@@ -261,7 +295,7 @@ describe('Rispetto (GDD 5)', () => {
     s.piles = [];
     s.stars = 12;
     s.cash = 5;
-    run(s, UNLOCK_PADS.field1, 2);
+    run(s, UNLOCK_PADS.field1, 2.5);
     expect(s.level).toBe(2);
     expect(s.piles.some((p) => p.value === 40)).toBe(true);
   });
@@ -306,9 +340,9 @@ describe('frase dell\'obiettivo (GDD 8)', () => {
     expect(objective(s).text).toBe('Raccogli i soldi!');
     run(s, GIFT_SPOT, 0.5);
     expect(objective(s).text).toBe('Compra il campo!');
-    run(s, UNLOCK_PADS.field1, 2);
+    run(s, UNLOCK_PADS.field1, 2.5);
     expect(objective(s).text).toBe('Compra il torchio!');
-    run(s, UNLOCK_PADS.press1, 2);
+    run(s, UNLOCK_PADS.press1, 2.5);
     s.truck.away = 0;
     s.truck.arrived = true;
     s.cash = 0;

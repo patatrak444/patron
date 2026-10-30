@@ -107,6 +107,8 @@ export interface Phase1State {
   nextUnlock: number;
   /** Già versato sul tappetino del prossimo sblocco. */
   padPaid: number;
+  /** Frazione di dollaro maturata e non ancora versata: il pagamento dura uguale per ogni prezzo. */
+  padCarry: number;
   stars: number;
   level: number;
   workers: WorkerState[];
@@ -162,6 +164,7 @@ export function createPhase1(cfg: Phase1Config = BALANCE.phase1): Phase1State {
     piles: [{ id: 'gift', x: GIFT_SPOT.x, y: GIFT_SPOT.y, value: cfg.gift }],
     nextUnlock: 0,
     padPaid: 0,
+    padCarry: 0,
     stars: 0,
     level: 1,
     workers: [],
@@ -415,17 +418,21 @@ function collectCash(s: Phase1State, id: string, dt: number, cfg: Phase1Config, 
 function payPad(s: Phase1State, id: UnlockId, dt: number, cfg: Phase1Config, bus: Bus<GameEvents>): void {
   const def = nextUnlockDef(s, cfg);
   if (!def || def.id !== id || s.cash <= 0) return;
-  // Il pagamento dura unlockPaySeconds qualunque sia il prezzo; il versato resta se esci a metà.
-  const rate = Math.max(1, Math.ceil((def.cost * dt) / cfg.stack.unlockPaySeconds));
-  const pay = Math.min(s.cash, def.cost - s.padPaid, rate);
+  // Il pagamento dura unlockPaySeconds qualunque sia il prezzo (GDD sezione 3): la quota di ogni passo si
+  // accumula e si versano solo dollari interi. Il versato resta se esci a metà.
+  const left = def.cost - s.padPaid;
+  s.padCarry = Math.min(left, s.padCarry + (def.cost * dt) / cfg.stack.unlockPaySeconds);
+  const pay = Math.min(s.cash, left, Math.floor(s.padCarry + 1e-9));
   s.cash -= pay;
   s.padPaid += pay;
+  s.padCarry -= pay;
   if (s.padPaid >= def.cost) applyUnlock(s, def, cfg, bus);
 }
 
 function applyUnlock(s: Phase1State, def: UnlockDef, cfg: Phase1Config, bus: Bus<GameEvents>): void {
   s.nextUnlock++;
   s.padPaid = 0;
+  s.padCarry = 0;
   const pad = UNLOCK_PADS[def.id];
   if (def.kind === 'field') {
     s.fields.find((f) => f.id === def.id)!.unlocked = true;

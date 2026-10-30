@@ -22,7 +22,7 @@ const COLS = 4;
 const ROWS = 2;
 const CELL = 128;
 
-const LINE = 0.13;
+const LINE = 0.18;
 const LIFT = 0.025;
 /** Fondo un po' più scuro della terra battuta: il contorno si legge come una sede nel pavimento. */
 const FILL = new THREE.Color(0xc9a46a);
@@ -38,8 +38,8 @@ function drawAtlas(): HTMLCanvasElement {
   ctx.lineCap = 'round';
   const cell = (i: number): [number, number] => [(i % COLS) * CELL + CELL / 2, Math.floor(i / COLS) * CELL + CELL / 2];
   const outline = (): void => {
-    ctx.lineWidth = 7;
-    ctx.strokeStyle = 'rgba(27,27,47,0.55)';
+    ctx.lineWidth = 9;
+    ctx.strokeStyle = 'rgba(27,27,47,0.8)';
     ctx.stroke();
   };
 
@@ -106,21 +106,29 @@ function drawAtlas(): HTMLCanvasElement {
     ctx.fillStyle = '#ffffff';
     ctx.fill();
   }
-  // Ufficio: freccia in su gialla, come l'insegna sopra la porta.
+  // Ufficio: freccia bianca in su e la scritta UFFICIO a terra, come la stanza UPGRADE di Pizza Ready.
   {
     const [x, y] = cell(CELLS.office);
     ctx.beginPath();
-    ctx.moveTo(x, y - 52);
-    ctx.lineTo(x + 44, y - 4);
-    ctx.lineTo(x + 17, y - 4);
-    ctx.lineTo(x + 17, y + 48);
-    ctx.lineTo(x - 17, y + 48);
-    ctx.lineTo(x - 17, y - 4);
-    ctx.lineTo(x - 44, y - 4);
+    ctx.moveTo(x, y - 54);
+    ctx.lineTo(x + 34, y - 18);
+    ctx.lineTo(x + 13, y - 18);
+    ctx.lineTo(x + 13, y + 14);
+    ctx.lineTo(x - 13, y + 14);
+    ctx.lineTo(x - 13, y - 18);
+    ctx.lineTo(x - 34, y - 18);
     ctx.closePath();
     outline();
-    ctx.fillStyle = '#ffc94a';
+    ctx.fillStyle = '#ffffff';
     ctx.fill();
+    ctx.font = '800 25px "Baloo 2", "Trebuchet MS", Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = 'rgba(27,27,47,0.6)';
+    ctx.strokeText('UFFICIO', x, y + 40);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('UFFICIO', x, y + 40);
   }
   return c;
 }
@@ -197,7 +205,7 @@ export class ContourLayer {
       const x1 = r.x1;
       const z0 = -r.y1;
       const z1 = -r.y0;
-      quad(x0 + LINE, z0 + LINE, x1 - LINE, z1 - LINE, FILL, 0.42);
+      quad(x0 + LINE, z0 + LINE, x1 - LINE, z1 - LINE, FILL, 0.58);
       // Bordo bianco sui tre lati liberi; il lato attaccato alla macchina resta aperto.
       const o = outward(contour.side);
       if (!(o.z === -1)) quad(x0, z1 - LINE, x1, z1, EDGE, 0.95); // lato sud (+z)
@@ -242,7 +250,7 @@ export class ContourLayer {
       const dir = into ? { x: -o.x, z: -o.z } : o;
       const arrowRot = Math.atan2(-dir.x, -dir.z);
       if (icon === 'office') {
-        put(cx, cz, Math.min(w, h) * 0.7, arrowRot, CELLS.office);
+        put(cx, cz, Math.min(w, h) * 0.85, this.screenYaw, CELLS.office);
         continue;
       }
       put(cx - (alongX ? step : 0), cz + (alongX ? 0 : step), size, this.screenYaw, CELLS[icon]);
