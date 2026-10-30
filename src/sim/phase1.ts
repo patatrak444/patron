@@ -135,6 +135,8 @@ export interface Phase1State {
   upgrades: UpgradeLevels;
   /** Frazione di dollaro maturata con il Guadagno e non ancora pagata: il contante resta intero. */
   profitCarry: number;
+  /** Il giocatore è entrato almeno una volta nell'Ufficio: fino ad allora la frase lo indica (GDD sezione 12). */
+  officeVisited: boolean;
   /** Lotti aperti: si cammina solo lì (GDD sezione 4). */
   lots: LotId[];
 }
@@ -188,6 +190,7 @@ export function createPhase1(cfg: Phase1Config = BALANCE.phase1): Phase1State {
     officeAt: { x: OFFICE.door.x, y: OFFICE.door.y },
     upgrades: createUpgrades(),
     profitCarry: 0,
+    officeVisited: false,
     lots: ['lot1'],
   };
 }
@@ -701,6 +704,7 @@ export interface Phase1StepContext {
 export function stepPhase1(s: Phase1State, player: MapPoint, dt: number, bus: Bus<GameEvents>, ctx: Phase1StepContext): void {
   const cfg = ctx.cfg ?? BALANCE.phase1;
   stepStations(s, dt, cfg, bus);
+  if (s.office && inRect(player, OFFICE.door.area)) s.officeVisited = true;
   stepPlayerZones(s, player, dt, cfg, bus);
   for (const w of s.workers) stepWorker(s, w, player, dt, cfg, ctx.grid, ctx.rng, bus);
 }
@@ -721,6 +725,8 @@ export interface Objective {
 export function objective(s: Phase1State, cfg: Phase1Config = BALANCE.phase1): Objective {
   const gift = s.piles.find((p) => p.id === 'gift');
   if (gift) return { text: 'Raccogli i soldi!', target: gift };
+  // Appena aperto l'Ufficio, una volta sola: dentro c'è lo Zaino regalato (GDD sezione 12).
+  if (s.office && !s.officeVisited) return { text: "Entra nell'ufficio!", target: OFFICE.door };
   const next = nextUnlockDef(s, cfg);
   const buy = next ? { text: next.goal, target: UNLOCK_PADS[next.id] } : null;
   // Con i soldi in tasca la freccia va al prossimo tappetino: si costruisce un pezzo alla volta (PS10, PS12).

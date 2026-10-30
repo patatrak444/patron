@@ -19,6 +19,8 @@ export interface Hud {
   flyBills(x: number, y: number, value: number): void;
   /** Avanza la coda delle banconote: si chiama a ogni fotogramma. */
   update(dt: number): void;
+  /** Pallino rosso sopra l'Ufficio quando un potenziamento si può comprare (GDD sezione 12), in pixel. */
+  setOfficeBadge(at: { x: number; y: number } | null): void;
 }
 
 /** Numero abbreviato: 950 · 1,2K · 3,45M (GDD sezione 12). */
@@ -68,6 +70,9 @@ export function createHud(root: HTMLElement, feel: HudFeel): Hud {
 
   const edge = el('div', 'hud__edge', root);
   edge.innerHTML = '<svg viewBox="0 0 40 40" width="64" height="64"><path d="M8 20 L30 8 L24 20 L30 32 Z" fill="#ffd23a" stroke="#1b1b2f" stroke-width="3" stroke-linejoin="round"/></svg>';
+
+  const badge = el('div', 'hud__badge', root);
+  badge.textContent = '!';
 
   const pause = el('div', 'pause-badge', root);
   pause.textContent = 'PAUSA · Spazio per riprendere';
@@ -131,6 +136,10 @@ export function createHud(root: HTMLElement, feel: HudFeel): Hud {
         else queue.push({ x, y, value: v });
         left -= v;
       }
+    },
+    setOfficeBadge(at) {
+      badge.classList.toggle('is-visible', at !== null);
+      if (at) badge.style.transform = `translate(${at.x - 18}px, ${at.y - 18}px)`;
     },
     update(dt) {
       queueTimer -= dt;

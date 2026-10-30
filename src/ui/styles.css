@@ -637,9 +637,9 @@ body {
 }
 
 .office__tick {
-  width: 22px;
-  height: 10px;
-  border-radius: 5px;
+  width: 28px;
+  height: 12px;
+  border-radius: 6px;
   background: #e2d6bf;
   box-shadow: 0 0 0 2px var(--ink) inset;
 }
@@ -698,4 +698,34 @@ body {
   height: 19px;
   border-radius: 4px;
   transform: none;
+}
+
+.hud__badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #e33b3b;
+  color: var(--white);
+  font-family: 'Baloo 2', 'Trebuchet MS', sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  box-shadow: 0 0 0 3px var(--white), 0 0 0 6px var(--ink);
+  pointer-events: none;
+  animation: badge-bounce 0.9s ease-in-out infinite;
+}
+
+.hud__badge.is-visible {
+  display: flex;
+}
+
+@keyframes badge-bounce {
+  50% {
+    margin-top: -6px;
+  }
 }

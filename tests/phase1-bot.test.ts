@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { BALANCE } from '../src/config/balance';
-import { BONFIRE, PRESSES, TRUCK, UNLOCK_PADS, VALLEY, type MapPoint } from '../src/config/map';
+import type { UpgradeId } from '../src/config/balance';
+import { BONFIRE, OFFICE, PRESSES, TRUCK, UNLOCK_PADS, VALLEY, inRect, type MapPoint } from '../src/config/map';
+import { buyUpgrade, upgradeCost } from '../src/sim/upgrades';
 import { createBus, type GameEvents } from '../src/core/bus';
 import { createRng } from '../src/core/rng';
 import { createNavGrid, findPath } from '../src/sim/pathfinding';
@@ -45,8 +47,13 @@ function playPhase1(maxSeconds: number) {
     if (gift) return gift;
     const next = nextUnlockDef(s);
     if (next && s.cash + s.padPaid >= next.cost) return UNLOCK_PADS[next.id];
+    // Un giocatore che spende: compra il potenziamento più economico se costa meno di metà di quanto manca al prossimo sblocco.
+    if (s.office && cheapestUpgrade() !== null) return OFFICE.door;
+    // Le mazzette si prendono a mani vuote, oppure quando non c'è niente da vendere subito (camion via o
+    // niente Panetti in mano): con lo Zaino grande le mani non sono quasi mai vuote.
     const pile = s.piles.find((p) => p.value >= 15);
-    if (pile && s.stack.items.length === 0) return pile;
+    const canSell = countOf(s.stack, 'paste') > 0 && s.truck.arrived && s.truck.away === 0 && s.truck.load < s.truck.capacity;
+    if (pile && (s.stack.items.length === 0 || !canSell)) return pile;
     if (countOf(s.stack, 'scrap') > 0) return BONFIRE.mat;
     const full = s.presses.find((p) => p.unlocked && p.scraps >= 4);
     if (full && s.stack.items.length === 0) return PRESSES.find((p) => p.id === full.id)!.scrap;
@@ -63,6 +70,17 @@ function playPhase1(maxSeconds: number) {
     const field = s.fields.filter((f) => f.unlocked).sort((a, b) => b.ready - a.ready)[0];
     return field ? fieldMat(field.id) : UNLOCK_PADS.field1;
   };
+
+  const cheapestUpgrade = (): UpgradeId | null => {
+    let best: { id: UpgradeId; cost: number } | null = null;
+    for (const u of cfg.upgrades.list) {
+      const c = upgradeCost(s, u.id);
+      if (c !== null && c <= s.cash && (!best || c < best.cost)) best = { id: u.id, cost: c };
+    }
+    const next = nextUnlockDef(s);
+    return best && (!next || best.cost < (next.cost - s.padPaid) * 0.5) ? best.id : null;
+  };
+  let bought = 0;
 
   let target: MapPoint | null = null;
   while (state.time < maxSeconds && s.nextUnlock < cfg.unlocks.length) {
@@ -91,20 +109,25 @@ function playPhase1(maxSeconds: number) {
       }
     }
     stepPhase1(s, pos, DT, bus, { grid: ctx.grid, rng });
+    if (s.office && inRect(pos, OFFICE.door.area)) {
+      const id = cheapestUpgrade();
+      if (id && buyUpgrade(s, id, bus)) bought++;
+    }
     if (s.navDirty) {
       s.navDirty = false;
       ctx.grid = botGrid();
     }
   }
-  return { unlockedAt, firstSale, time: state.time, level: s.level };
+  return { unlockedAt, firstSale, time: state.time, level: s.level, bought };
 }
 
 describe('ritmo della Fase 1 con un giocatore automatico (GDD 5 e 8)', () => {
   const r = playPhase1(20 * 60);
   const min = (id: string) => (r.unlockedAt[id] ?? Infinity) / 60;
 
-  it('si arriva alla Pressa 2 giocando dal minuto 0', () => {
+  it('si arriva alla Pressa 2 giocando dal minuto 0, comprando anche dei potenziamenti', () => {
     expect(r.unlockedAt.press2).toBeDefined();
+    expect(r.bought).toBeGreaterThanOrEqual(2);
   });
 
   it('Campo 1 e Pressa 1 si comprano con il regalo entro 30 s; la prima vendita entro il primo minuto e mezzo', () => {

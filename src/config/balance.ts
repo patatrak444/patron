@@ -350,7 +350,7 @@ export const BALANCE: Balance = {
       { id: 'zone2', cost: 120, goal: 'Apri una nuova zona!', kind: 'zone' },
       { id: 'field3', cost: 80, goal: 'Compra il Campo 3!', kind: 'field' },
       { id: 'picker2', cost: 120, goal: 'Assumi un raccoglitore!', kind: 'worker' },
-      { id: 'press2', cost: 200, goal: 'Compra il Torchio 2!', kind: 'press' },
+      { id: 'press2', cost: 160, goal: 'Compra il Torchio 2!', kind: 'press' },
     ],
     respect: {
       starsPerUnlock: 4,
@@ -364,7 +364,7 @@ export const BALANCE: Balance = {
       giftBackpack: 1,
       list: [
         { id: 'backpack', name: 'Zaino', baseCost: 40, levels: 5, perLevel: 2 },
-        { id: 'shoes', name: 'Scarpe', baseCost: 60, levels: 5, perLevel: 0.1 },
+        { id: 'shoes', name: 'Scarpe', baseCost: 60, levels: 5, perLevel: 0.15 },
         { id: 'profit', name: 'Guadagno', baseCost: 80, levels: 5, perLevel: 0.1 },
       ],
     },

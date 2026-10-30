@@ -121,13 +121,13 @@ function drawAtlas(): HTMLCanvasElement {
     outline();
     ctx.fillStyle = '#ffffff';
     ctx.fill();
-    ctx.font = '800 25px "Baloo 2", "Trebuchet MS", Arial, sans-serif';
+    ctx.font = '800 30px "Baloo 2", "Trebuchet MS", Arial, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.lineWidth = 6;
-    ctx.strokeStyle = 'rgba(27,27,47,0.6)';
+    ctx.lineWidth = 7;
+    ctx.strokeStyle = '#ffffff';
     ctx.strokeText('UFFICIO', x, y + 40);
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#1b1b2f';
     ctx.fillText('UFFICIO', x, y + 40);
   }
   return c;
@@ -250,7 +250,7 @@ export class ContourLayer {
       const dir = into ? { x: -o.x, z: -o.z } : o;
       const arrowRot = Math.atan2(-dir.x, -dir.z);
       if (icon === 'office') {
-        put(cx, cz, Math.min(w, h) * 0.85, this.screenYaw, CELLS.office);
+        put(cx, cz, Math.min(w, h) * 1.0, this.screenYaw, CELLS.office);
         continue;
       }
       put(cx - (alongX ? step : 0), cz + (alongX ? 0 : step), size, this.screenYaw, CELLS[icon]);

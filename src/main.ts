@@ -42,7 +42,10 @@ function upgradeViews(s: Phase1State): UpgradeView[] {
     const max = level >= d.levels;
     const next: Phase1State = { ...s, upgrades: { ...s.upgrades, [d.id]: level + 1 } };
     const pct = (k: number): string => `${Math.round(k * 100)}%`;
-    const price = (k: number): string => `$${(cfg.truck.pastePrice * k).toFixed(1).replace('.', ',')}`;
+    const price = (k: number): string => {
+      const v = cfg.truck.pastePrice * k;
+      return Number.isInteger(v) ? `$${v}` : `$${v.toFixed(2).replace('.', ',')}`;
+    };
     const fx =
       d.id === 'backpack'
         ? { label: 'Capacità', now: `${stackCapacity(s)}`, next: `${stackCapacity(next)}` }
@@ -131,6 +134,7 @@ async function boot(root: HTMLElement): Promise<void> {
   // Ufficio (GDD sezione 12): si apre stando sul contorno davanti alla porta, si chiude uscendo.
   const office = createOfficePanel(root, (id) => buyUpgrade(state.phase1, id, bus));
   let wasInOffice = false;
+  const badgeAt = new THREE.Vector3();
   // Raccogliendo, le banconote volano dal mucchio alla pillola del contante (GDD sezione 3, UX3).
   const billFrom = new THREE.Vector3();
   bus.on('cash:collect', ({ amount, pile }) => {
@@ -323,6 +327,13 @@ async function boot(root: HTMLElement): Promise<void> {
     if (inOffice && !wasInOffice) office.reopen();
     wasInOffice = inOffice;
     office.set(inOffice ? upgradeViews(s1) : null, s1.cash);
+    // Pallino rosso sopra il tetto dell'Ufficio se un potenziamento si può comprare e non si è dentro.
+    const affordable = s1.office && !inOffice && BALANCE.phase1.upgrades.list.some((u) => (upgradeCost(s1, u.id) ?? Infinity) <= s1.cash);
+    if (affordable) {
+      const o = toWorld(OFFICE);
+      badgeAt.set(o.x, 3.4, o.z).project(camera.camera);
+      hud.setOfficeBadge(badgeAt.z < 1 ? { x: (badgeAt.x * 0.5 + 0.5) * innerWidth, y: (-badgeAt.y * 0.5 + 0.5) * innerHeight } : null);
+    } else hud.setOfficeBadge(null);
     const prog = levelProgress(s1.stars);
     hud.setRespect(s1.level, prog.stars, prog.next);
     const goal = objective(s1);

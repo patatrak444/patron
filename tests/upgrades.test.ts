@@ -50,7 +50,7 @@ describe("Ufficio e potenziamenti (GDD 5)", () => {
     expect(buyUpgrade(s, 'shoes', bus())).toBe(true);
     expect(s.cash).toBe(0);
     expect(s.stars).toBe(cfg.respect.starsPerUpgrade);
-    expect(speedFactor(s)).toBeCloseTo(1.1);
+    expect(speedFactor(s)).toBeCloseTo(1.15);
   });
 
   it('senza soldi o senza Ufficio non si compra nulla', () => {

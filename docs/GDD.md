@@ -72,7 +72,7 @@ PATRÓN è un arcade idle 3D da giocare nel browser del computer in cui un conta
 | Il mondo cambia | La Hacienda si riempie; si apre il lotto 2 | Si apre la radura oltre la strada, fumo azzurro dal Laboratorio | Si apre il paese con la Plaza e la fila; arrivano polizia e rivali |
 | Chiusura | Ultimo Torchio pagato: il debito è saldato | Laboratorio 1 in funzione | Sblocco "Il Patrón": completo bianco |
 
-**Un conto che non torna ancora (da risolvere prima di costruire il capitolo 3).** Gli sblocchi del capitolo 3 costano in tutto \$130.700 in 115 minuti, cioè \$1.137 al minuto in media. La catena ne rende al massimo \$720 (\$1.080 con Purezza al massimo), e molto meno nei primi 20 minuti del capitolo. Con questi prezzi il Patrón arriverebbe verso il minuto 200 invece del 140. I capitoli 1 e 2 invece tornano: il capitolo 1 chiede \$790 e ne rende circa \$750 più i premi del Rispetto, come conferma il giocatore automatico. Per la regola della sezione 5 si abbasseranno i costi degli sblocchi 13–20, non i prezzi di vendita; la cifra esatta si fissa con il giocatore automatico quando il capitolo 3 esiste (tappa M5).
+**Un conto che non torna ancora (da risolvere prima di costruire il capitolo 3).** Gli sblocchi del capitolo 3 costano in tutto \$130.700 in 115 minuti, cioè \$1.137 al minuto in media. La catena ne rende al massimo \$720 (\$1.080 con Purezza al massimo), e molto meno nei primi 20 minuti del capitolo. Con questi prezzi il Patrón arriverebbe verso il minuto 200 invece del 140. I capitoli 1 e 2 invece tornano: il capitolo 1 chiede \$850 (con l'Ufficio, la Nuova zona a \$120 e il Torchio 2 a \$160) e ne rende circa \$750 più i premi del Rispetto, come conferma il giocatore automatico. Per la regola della sezione 5 si abbasseranno i costi degli sblocchi 13–20, non i prezzi di vendita; la cifra esatta si fissa con il giocatore automatico quando il capitolo 3 esiste (tappa M5).
 
 **Come il giocatore capisce chi è e dove va, senza leggere.**
 
@@ -301,7 +301,7 @@ Ogni foglia vale circa 6 volte di più se la porti fino alla Plaza invece di ven
 
 **Formule.**
 
-- Potenziamenti del giocatore (Zaino, Scarpe, Guadagno): 5 livelli ciascuno, costo del prossimo livello = costo base × 1,8^n, dove n è il numero di livelli già comprati (il primo Zaino costa \$40, poi 72, 130, 233, 420). All'apertura dell'Ufficio il primo livello di Zaino è un regalo di El Gordo. Guadagno (+10% a livello, fino a +50%) alza i prezzi di tutte le fasi: il giocatore automatico della tappa M5 verifica che non accorci troppo il capitolo 3. Il genere usa pochi livelli ripidi (RC10, RC11): così la decisione D6 è chiusa (30 ottobre 2026).
+- Potenziamenti del giocatore (Zaino, Scarpe, Guadagno): 5 livelli ciascuno, costo del prossimo livello = costo base × 1,8^n, dove n è il numero di livelli già comprati (il primo Zaino costa \$40). All'apertura dell'Ufficio il primo livello di Zaino è un regalo di El Gordo, quindi dello Zaino si comprano 4 livelli: \$40, 72, 130, 233, e la pila va da 6 a 14. Le Scarpe danno +15% a livello perché il primo acquisto si senta (Pizza Ready). Il Guadagno vale solo sul Panetto venduto a El Gordo: Cristalli e Dosi avranno i loro potenziamenti nelle fasi 2 e 3, così un +50% comprato con \$1.790 nel capitolo 1 non accorcia il capitolo 3 (revisione del 30 ottobre 2026). Ogni acquisto ha una piccola festa: coriandoli sul personaggio e il contatore che scende. Il genere usa pochi livelli ripidi (RC10, RC11): così la decisione D6 è chiusa (30 ottobre 2026).
 
 - Altri potenziamenti: costo al livello n = costo base × 1,15^n. È la crescita esponenziale classica del genere: il costo corre più veloce del beneficio, e il ritmo rallenta in modo controllato ([Game Developer](https://www.gamedeveloper.com/design/the-math-of-idle-games-part-i)).
 
@@ -322,8 +322,8 @@ Ogni foglia vale circa 6 volte di più se la porti fino alla Plaza invece di ven
 | Potenziamento | Effetto per livello                              | Costo base | Livelli | Disponibile da           |
 |---------------|--------------------------------------------------|------------|---------|--------------------------|
 | Zaino         | +2 capacità della pila (da 4 a 14)               | \$40       | 5       | Ufficio (Fase 1)         |
-| Scarpe        | +10% velocità del giocatore                      | \$60       | 5       | Ufficio (Fase 1)         |
-| Guadagno      | +10% prezzo di vendita di tutta la merce          | \$80       | 5       | Ufficio (Fase 1)         |
+| Scarpe        | +15% velocità del giocatore (da 4 a 7 m/s)        | \$60       | 5       | Ufficio (Fase 1)         |
+| Guadagno      | +10% prezzo del Panetto a El Gordo                | \$80       | 5       | Ufficio (Fase 1)         |
 | Fertilizzante | −10% ciclo di tutti i Campi                      | \$50       | 5       | Fase 1                   |
 | Ingranaggi    | −10% ciclo dei Torchi                          | \$150      | 5       | Fase 1                   |
 | Attrezzatura  | −10% ciclo dei Laboratori                        | \$600      | 5       | Fase 2                   |
@@ -347,7 +347,7 @@ Ogni foglia vale circa 6 volte di più se la porti fino alla Plaza invece di ven
 | 6   | Nuova zona: lotto 2                      | 1    | \$120    | 3,5              |
 | 7   | Campo 3                                  | 1    | \$80     | 6,5              |
 | 8   | Secondo raccoglitore                     | 1    | \$120    | 8                |
-| 9   | Torchio 2                                 | 1    | \$200    | 10               |
+| 9   | Torchio 2                                 | 1    | \$160    | 10               |
 | 9b  | Cargador di El Gordo (ritiro automatico) | 1    | \$250    | 11,5             |
 | 6   | Laboratorio 1                            | 2    | \$350    | 12               |
 | 7   | Corriere Torchio → Laboratorio            | 2    | \$500    | 15               |
@@ -379,6 +379,8 @@ L'ultimo sblocco cambia l'abito del personaggio in completo bianco e apre una sc
 
 - A ogni livello piove intorno al giocatore un premio di \$20 × il nuovo livello, in mazzette da raccogliere.
 - Due sblocchi chiedono anche un livello minimo: **Laboratorio 1 vuole Rispetto 4, Banco + Plaza vuole Rispetto 5**. I numeri sono scelti perché il livello arrivi prima dei soldi: gli 11 sblocchi a pagamento fino al Cargador, Ufficio compreso, danno 44 stelle (Rispetto 4); i 14 fino al Campo 4 ne danno 56, e bastano 8 livelli di potenziamento per arrivare a 60. Se manca il livello, il tappetino mostra un lucchetto con "Rispetto 5" e la frase dell'obiettivo dice cosa fare ("Compra un potenziamento!").
+
+**Il Torchio 2 a \$160.** Il giocatore automatico che compra anche qualche potenziamento (solo quando costa meno di metà di quanto manca allo sblocco) arrivava al Torchio 2 dopo un buco di quasi 5 minuti, perché in quel tratto il cassone del camion limita i guadagni: il prezzo è sceso da \$200 a \$160, secondo la regola qui sotto (30 ottobre 2026).
 
 **Regola di ritmo da testare.** Nella prima ora il prossimo sblocco non deve mai distare più di 3–4 minuti di gioco attivo. Se un test supera questa soglia, si abbassa il costo, non si alza il guadagno, per non sballare le fasi successive.
 
@@ -820,7 +822,7 @@ L'interfaccia occupa il meno possibile: tre elementi fissi in alto, disposti com
 
 - Ogni potenziamento è una scheda grande con l'immagine dell'oggetto, il nome, i livelli come tacche, l'effetto "prima → dopo" (es. "Capacità 4 → 6") e il pulsante con il prezzo, come le schede di Pizza Ready e Burger Please. Grigio se non te lo puoi permettere, verde se sì.
 
-- Un pallino rosso sull'icona dell'Ufficio nel mondo segnala che c'è almeno un potenziamento acquistabile.
+- Un pallino rosso sopra il tetto dell'Ufficio segnala che c'è almeno un potenziamento acquistabile. La prima volta che l'Ufficio si apre, la frase dell'obiettivo dice "Entra nell'ufficio!" e la freccia indica la porta, finché il giocatore non ci entra.
 
 **Impostazioni.** Volumi (musica, effetti, ambiente) · Qualità grafica (Alta/Media) · Valore dell'impero e Condividi · Esporta salvataggio · Importa salvataggio · Ricomincia da zero (con doppia conferma) · Versione del gioco.
 

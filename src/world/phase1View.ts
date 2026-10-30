@@ -143,6 +143,8 @@ export class Phase1View {
     bus.on('truck:arriving', () => (this.valley.truck.visible = true));
 
     bus.on('bonfire:burn', () => (this.flare = 1));
+    // Piccola festa a ogni potenziamento comprato (GDD sezione 5): coriandoli sul personaggio.
+    bus.on('upgrade', () => this.confetti.burst(this.headTop.x, this.headTop.z, 24));
     bus.on('press:paste', ({ press }) => {
       const sign = this.valley.presses[press]?.getObjectByName('pressPlate');
       if (sign) this.tween(0.25, (k) => sign.scale.setScalar(1 + 0.25 * Math.sin(k * Math.PI)));
