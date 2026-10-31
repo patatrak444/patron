@@ -260,8 +260,7 @@ export interface AudioConfig {
   readonly fanfareStep: number;
   readonly levelJingle: readonly number[];
   readonly levelStep: number;
-  /** Stelline dopo la fanfara (le stelle di uno sblocco) e secondi tra l'una e l'altra. */
-  readonly starsPerUnlock: number;
+  /** Secondi tra una stellina e l'altra (una per stella dello sblocco). */
   readonly sparkleStep: number;
 }
 
@@ -396,7 +395,7 @@ export const BALANCE: Balance = {
     masterVolume: 0.5,
     effectsVolume: 0.7,
     maxVoices: 8,
-    minGap: { pick: 0.07, drop: 0.07, coin: 0.06, cash: 0.07, pay: 0.06, horn: 0.5, fire: 0.15, snore: 1, hey: 0.5, upgrade: 0.2, click: 0.05 },
+    minGap: { pick: 0.055, drop: 0.055, coin: 0.055, cash: 0.07, pay: 0.06, horn: 0.5, fire: 0.15, snore: 1, hey: 0.5, upgrade: 0.2, click: 0.05 },
     chainMax: 12,
     chainReset: 0.6,
     seed: 1981,
@@ -404,7 +403,6 @@ export const BALANCE: Balance = {
     fanfareStep: 0.2,
     levelJingle: [0, 4, 7, 11, 12, 16],
     levelStep: 0.1,
-    starsPerUnlock: 4,
     sparkleStep: 0.22,
   },
 };

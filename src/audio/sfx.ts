@@ -2,7 +2,7 @@
 // eventi (GDD sezione 14). Il motore si carica solo al primo clic o tasto (vincolo dei browser), il tasto M
 // toglie e rimette l'audio, le melodie seguono il tempo del gioco e si fermano in pausa.
 
-import type { AudioConfig } from '../config/balance';
+import { BALANCE, type AudioConfig, type Phase1Config } from '../config/balance';
 import type { Bus, GameEvents } from '../core/bus';
 import { createRng, type Rng } from '../core/rng';
 import { SoundGate } from './gate';
@@ -12,7 +12,8 @@ type Params = readonly (number | undefined)[];
 /** Il motore che produce e suona i campioni: ZzFX nel gioco, uno finto nei test. */
 export interface SoundEngine {
   buildSamples(...parameters: (number | undefined)[]): number[];
-  play(samples: number[], volume: number): void;
+  /** `rate` è la velocità di riproduzione: 2 = un'ottava sopra. */
+  play(samples: number[], volume: number, rate: number): void;
   /** Secondi dell'orologio audio. */
   now(): number;
   readonly running: boolean;
@@ -27,7 +28,7 @@ export interface SoundEngine {
  */
 export const SOUNDS = {
   // Pop corto e tondo della raccolta: sale di un semitono a ogni pezzo di fila.
-  pick: [0.5, 0, 520, 0.005, 0.02, 0.07, 1, 1.6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.6, 0.01],
+  pick: [0.42, 0, 520, 0.005, 0.02, 0.07, 1, 1.6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.6, 0.01],
   // Tonfo quando un pezzo arriva alla macchina: abbastanza acuto da sentirsi anche da altoparlanti piccoli.
   drop: [0.85, 0, 230, 0.005, 0.03, 0.1, 1, 2.2, -5, 0, 0, 0, 0, 0.3, 0, 0, 0, 0.5, 0.02],
   // Tintinnio di cassa: due note veloci.
@@ -49,7 +50,7 @@ export const SOUNDS = {
   // "Hey!": nota che sale, al risveglio e all'assunzione.
   hey: [0.6, 0, 330, 0.01, 0.06, 0.12, 2, 1, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0.7],
   // Acquisto di un potenziamento.
-  upgrade: [1, 0, 660, 0.01, 0.08, 0.2, 1, 1.5, 0, 0, 330, 0.08, 0, 0, 0, 0, 0.03, 0.6],
+  upgrade: [1, 0, 660, 0.01, 0.1, 0.22, 1, 1.5, 0, 0, 330, 0.08, 0, 0, 0, 0, 0.03, 1],
   // Clic dei pulsanti.
   click: [0.4, 0, 1100, 0, 0.005, 0.03, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.3],
 } satisfies Record<string, Params>;
@@ -61,8 +62,10 @@ function duration(p: Params): number {
   return (p[3] ?? 0) + (p[4] ?? 0) + (p[5] ?? 0) + (p[16] ?? 0);
 }
 
-/** Variazione di tono delle 3 varianti di ogni suono: −3%, 0, +3%. */
+/** Variazione di tono delle 3 varianti: −3%, 0, +3%. */
 const VARIANTS = [0.97, 1, 1.03];
+/** Suoni intonati (scale e melodie): nessuna variante, altrimenti stonano. */
+const TUNED: ReadonlySet<SoundName> = new Set(['pick', 'pay', 'note', 'sparkle', 'upgrade', 'click']);
 
 interface QueuedNote {
   /** Secondi di gioco dall'inizio della melodia. */
@@ -104,13 +107,13 @@ export class Sfx {
     return this.muted;
   }
 
-  /** Un suono singolo, se il motore c'è, l'audio è attivo e i limiti lo permettono. */
-  play(name: SoundName, pitch = 1): void {
+  /** Un suono singolo, se il motore c'è, l'audio è attivo e i limiti lo permettono. Vero se è partito. */
+  play(name: SoundName, pitch: number | (() => number) = 1): boolean {
     const e = this.engine;
-    if (!e || !e.running || this.muted || this.silent) return;
+    if (!e || !e.running || this.muted || this.silent) return false;
     const p = SOUNDS[name];
-    if (!this.gate.allow(name, e.now(), duration(p))) return;
-    const v = this.rng.int(0, VARIANTS.length - 1);
+    if (!this.gate.allow(name, e.now(), duration(p))) return false;
+    const v = TUNED.has(name) ? 1 : this.rng.int(0, VARIANTS.length - 1);
     const key = `${name}:${v}`;
     let samples = this.cache.get(key);
     if (!samples) {
@@ -119,16 +122,10 @@ export class Sfx {
       samples = e.buildSamples(...q);
       this.cache.set(key, samples);
     }
-    e.play(this.resample(samples, pitch), this.cfg.effectsVolume);
+    // Il tono si calcola solo se il suono parte: la scala del pop sale solo con i pop che si sentono.
+    e.play(samples, this.cfg.effectsVolume, typeof pitch === 'function' ? pitch() : pitch);
     this.played[name] = (this.played[name] ?? 0) + 1;
-  }
-
-  /** Tono diverso senza ricostruire il suono: si ricampiona (più veloce = più acuto). */
-  private resample(samples: number[], pitch: number): number[] {
-    if (Math.abs(pitch - 1) < 1e-3) return samples;
-    const out = new Array<number>(Math.floor(samples.length / pitch));
-    for (let i = 0; i < out.length; i++) out[i] = samples[Math.floor(i * pitch)] ?? 0;
-    return out;
+    return true;
   }
 
   /** Mette in coda una melodia: parte quando è finita quella prima. */
@@ -154,10 +151,11 @@ export class Sfx {
   }
 
   /** Collega ogni evento della logica al suo suono (GDD sezioni 10 e 11). */
-  attach(bus: Bus<GameEvents>): void {
+  attach(bus: Bus<GameEvents>, game: Phase1Config = BALANCE.phase1): void {
     const a = this.cfg;
+    const isWorker = (id: string): boolean => game.unlocks.find((u) => u.id === id)?.kind === 'worker';
     bus.on('stack:move', ({ dir }) => {
-      if (dir === 'in') this.play('pick', this.gate.nextChainPitch(this.engine?.now() ?? 0));
+      if (dir === 'in') this.play('pick', () => this.gate.nextChainPitch(this.engine?.now() ?? 0));
       else this.play('drop');
     });
     bus.on('cash:collect', () => this.play('cash'));
@@ -167,9 +165,9 @@ export class Sfx {
       // Fanfara di circa 1,2 s, poi una stellina per ogni stella guadagnata; all'assunzione anche "Hey!".
       const notes: QueuedNote[] = a.fanfare.map((st, i) => ({ at: i * a.fanfareStep, name: 'note', pitch: 2 ** (st / 12) }));
       const end = a.fanfare.length * a.fanfareStep + 0.15;
-      for (let i = 0; i < a.starsPerUnlock; i++) notes.push({ at: end + i * a.sparkleStep, name: 'sparkle', pitch: 1 + i * 0.12 });
+      for (let i = 0; i < game.respect.starsPerUnlock; i++) notes.push({ at: end + i * a.sparkleStep, name: 'sparkle', pitch: 1 + i * 0.12 });
       this.melody(notes);
-      if (id.startsWith('picker')) this.play('hey', 1.1);
+      if (isWorker(id)) this.play('hey', 1.1);
     });
     bus.on('respect:level', () => this.melody(a.levelJingle.map((st, i) => ({ at: i * a.levelStep, name: 'note', pitch: 2 ** (st / 12) }))));
     bus.on('truck:arriving', () => this.play('horn'));

@@ -10,7 +10,7 @@ function fake() {
   let t = 0;
   const engine: SoundEngine = {
     buildSamples: (...p) => new Array(Math.round(((p[3] ?? 0) + (p[4] ?? 0) + (p[5] ?? 0)) * 1000) + 10).fill(0.1),
-    play: (samples) => log.push({ at: t, len: samples.length }),
+    play: (samples, _v, rate) => log.push({ at: t, len: samples.length / rate }),
     now: () => t,
     running: true,
     resume: () => {},
@@ -43,6 +43,25 @@ describe('effetti sonori', () => {
     }
   });
 
+  it('con i passi reali della logica (1/30 s) si sente ogni pezzo raccolto, e la scala non salta', () => {
+    const f = fake();
+    // Un pezzo ogni 0,08 s, contato a passi di 1/30 s come in stepPlayerZones: arrivano a 0,067 o 0,1 s.
+    let acc = 0.08;
+    let pieces = 0;
+    for (let i = 0; i < 30; i++) {
+      acc += 1 / 30;
+      while (acc >= 0.08) {
+        acc -= 0.08;
+        f.bus.emit('stack:move', { dir: 'in', item: 'leaf' });
+        pieces++;
+      }
+      f.advance(1 / 30);
+    }
+    expect(f.sfx.played.pick).toBe(pieces);
+    // Ogni pop più acuto del precedente fino al dodicesimo semitono.
+    for (let i = 1; i < 12; i++) expect(f.log[i]!.len).toBeLessThan(f.log[i - 1]!.len);
+  });
+
   it('il pop suona a ogni pezzo, 12 al secondo, e sale di tono (campioni più corti)', () => {
     const f = fake();
     for (let i = 0; i < 12; i++) {
@@ -68,7 +87,7 @@ describe('effetti sonori', () => {
       f.sfx.update(1 / 60);
     }
     expect(f.sfx.played.note).toBe(BALANCE.audio.fanfare.length);
-    expect(f.sfx.played.sparkle).toBe(BALANCE.audio.starsPerUnlock);
+    expect(f.sfx.played.sparkle).toBe(BALANCE.phase1.respect.starsPerUnlock);
   });
 
   it('una melodia alla volta: il jingle del livello parte dopo la fanfara', () => {

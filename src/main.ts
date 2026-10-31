@@ -17,7 +17,7 @@ import { createRng } from './core/rng';
 import { prepareScenario, type Scenario } from './debug/scenarios';
 import { hasWebGL2, installMinSizeNotice, isTouchOnlyDevice, showBlockingMessage } from './ui/deviceGate';
 import { createHud } from './ui/hud';
-import { Sfx } from './audio/sfx';
+import { Sfx, type SoundEngine } from './audio/sfx';
 import { loadZzfx } from './audio/engine';
 import { createOfficePanel, type UpgradeView } from './ui/officePanel';
 import { buyUpgrade, profitFactor, speedFactor, stackCapacity, upgradeCost } from './sim/upgrades';
@@ -156,7 +156,12 @@ async function boot(root: HTMLElement): Promise<void> {
   sfx.attach(bus);
   sfx.muted = readMuted();
   hud.setMuted(sfx.muted, false);
-  const unlockAudio = (): void => void sfx.unlock(() => loadZzfx(BALANCE.audio.masterVolume));
+  // Il contesto audio si crea una volta sola, dentro il primo gesto (Safari); la libreria arriva dopo.
+  let audioLoader: (() => Promise<SoundEngine>) | null = null;
+  const unlockAudio = (): void => {
+    audioLoader ??= loadZzfx(BALANCE.audio.masterVolume);
+    void sfx.unlock(audioLoader);
+  };
   const toggleAudio = (): void => {
     const muted = sfx.toggleMute();
     hud.setMuted(muted, true);

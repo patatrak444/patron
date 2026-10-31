@@ -3,12 +3,26 @@
 
 import type { SoundEngine } from './sfx';
 
-export async function loadZzfx(masterVolume: number): Promise<SoundEngine> {
+/**
+ * Il contesto audio si crea e si riattiva subito, dentro il gesto: Safari vuole così. La libreria arriva
+ * dopo, con l'import, e usa questo contesto al posto di quello che crea da sola.
+ */
+export function loadZzfx(masterVolume: number): () => Promise<SoundEngine> {
+  const ctx = new AudioContext();
+  void ctx.resume();
+  return () => connect(ctx, masterVolume);
+}
+
+async function connect(ctx: AudioContext, masterVolume: number): Promise<SoundEngine> {
   const { ZZFX } = await import('zzfx');
+  if (ZZFX.audioContext !== ctx) {
+    void ZZFX.audioContext.close();
+    ZZFX.audioContext = ctx;
+  }
   ZZFX.volume = masterVolume;
   return {
     buildSamples: (...p) => ZZFX.buildSamples(...p),
-    play: (samples, volume) => void ZZFX.playSamples([samples], volume),
+    play: (samples, volume, rate) => void ZZFX.playSamples([samples], volume, rate),
     now: () => ZZFX.audioContext.currentTime,
     get running() {
       return ZZFX.audioContext.state === 'running';
