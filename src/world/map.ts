@@ -463,7 +463,7 @@ export function createValley(assets: Assets): Valley {
     }
   }
   // Giungla fitta oltre la strada, verso nord (radura e paese delle Fasi 2 e 3).
-  for (const s of rows(rng, { x0: 0, y0: jungleFrom, x1: VALLEY.width, y1: VALLEY.depth - 1 }, 4.2)) {
+  for (const s of rows(rng, { x0: 0, y0: jungleFrom, x1: VALLEY.width, y1: VALLEY.depth - 1 }, 4.9)) {
     const t = pickWeighted(rng, FRAME_TREES);
     P.add(t.id, false, s, t.h[0] + s.jitter * (t.h[1] - t.h[0]), s.jitter * 6.3);
   }
