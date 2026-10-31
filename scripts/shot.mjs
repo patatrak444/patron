@@ -32,6 +32,10 @@ const SHOTS = [
   { name: '09-raccoglitore', prepare: 'raccoglitore', wait: 2.5 },
   { name: '10-lotto2', prepare: 'lotto2', wait: 2.5 },
   { name: '11-avanzato', prepare: 'avanzato', zoom: 1, wait: 3 },
+  // UX3: i soldi raccolti volano al contatore, non restano addosso.
+  { name: '12-raccolta', prepare: 'raccolta', wait: 0.12 },
+  // GDD sezione 12: il pannello dell'Ufficio, aperto stando sul contorno davanti alla porta.
+  { name: '14-ufficio', prepare: 'ufficio', wait: 1 },
 ];
 
 function waitForServer(url, ms = 30000) {
@@ -97,6 +101,25 @@ for (const shot of SHOTS) {
   await page.evaluate(() => document.querySelector('.debug')?.removeAttribute('style'));
   report.push({ shot: shot.name, ...stats, budget });
   console.log(shot.name, stats);
+}
+
+// Controllo UX 10: la pila si vede nelle 8 direzioni, con 1 e con 4 pezzi. Ritagli attorno al giocatore,
+// che `setPlayer` porta al centro dello schermo; scripts/montage.py li unisce in una tavola.
+if (!only || only.includes('13-direzioni')) {
+  await mkdir(`${OUT}/direzioni`, { recursive: true });
+  if (!titleSkipped) await page.evaluate(() => window.__patron.skipTitle());
+  await page.evaluate(() => window.__patron.prepare('festa'));
+  await page.evaluate(() => window.__patron.setPlayer(27, 17.5));
+  await page.evaluate(() => window.__patron.zoom(-1));
+  for (const [n, items] of [[1, ['paste']], [4, ['leaf', 'paste', 'paste', 'scrap']]]) {
+    for (let k = 0; k < 8; k++) {
+      await page.evaluate(([f, it]) => window.__patron.pose(f, it), [(k * Math.PI) / 4, items]);
+      await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(r)))));
+      await page.screenshot({ path: `${OUT}/direzioni/${n}-${k}.png`, clip: { x: 600, y: 270, width: 240, height: 300 } });
+    }
+  }
+  await page.evaluate(() => window.__patron.zoom(1));
+  console.log('13-direzioni', 'ritagli in artifacts/direzioni');
 }
 
 await writeFile(`${OUT}/report.json`, JSON.stringify({ report, errors }, null, 2));

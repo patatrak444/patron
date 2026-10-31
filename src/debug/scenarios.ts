@@ -2,13 +2,13 @@
 // Solo con ?debug=1. Non cambiano le regole: mettono lo stato in un punto preciso della partita.
 
 import { BALANCE } from '../config/balance';
-import { PRESSES, TRUCK, UNLOCK_PADS } from '../config/map';
+import { OFFICE, PRESSES, TRUCK, UNLOCK_PADS } from '../config/map';
 import type { Bus, GameEvents } from '../core/bus';
 import { createRng } from '../core/rng';
 import { stepPhase1 } from '../sim/phase1';
 import { createMoveContext, type GameState } from '../sim/state';
 
-export type Scenario = 'festa' | 'primo' | 'pila' | 'camion' | 'pagamento' | 'raccoglitore' | 'lotto2' | 'avanzato';
+export type Scenario = 'festa' | 'primo' | 'pila' | 'camion' | 'pagamento' | 'raccoglitore' | 'lotto2' | 'avanzato' | 'raccolta' | 'ufficio';
 
 function place(state: GameState, x: number, y: number): void {
   const facing = (-3 * Math.PI) / 4;
@@ -46,7 +46,7 @@ export function prepareScenario(state: GameState, name: Scenario, bus: Bus<GameE
     case 'festa': {
       // Il Campo 1 appena comprato: primo piano e coriandoli.
       unlockUpTo(state, at('field1') + 1, bus);
-      place(state, UNLOCK_PADS.field1.x + 1.6, UNLOCK_PADS.field1.y - 0.6);
+      place(state, 28.3, 21);
       break;
     }
     case 'primo': {
@@ -56,7 +56,7 @@ export function prepareScenario(state: GameState, name: Scenario, bus: Bus<GameE
       s.presses[0]!.leaves = 3;
       s.stack.items = ['leaf', 'leaf', 'leaf'];
       s.cash = 5;
-      place(state, 19.4, 9.2);
+      place(state, 30, 26.8);
       break;
     }
     case 'pila': {
@@ -96,19 +96,34 @@ export function prepareScenario(state: GameState, name: Scenario, bus: Bus<GameE
       // Un Raccoglitore addormentato vicino ai Campi; la sagoma della Nuova zona.
       unlockUpTo(state, at('picker1') + 1, bus);
       const w = s.workers[0]!;
-      Object.assign(w, { x: 18.4, y: 10.6, prevX: 18.4, prevY: 10.6, asleep: true, phase: 'choose', task: null, path: [] });
+      Object.assign(w, { x: 27.8, y: 20.6, prevX: 27.8, prevY: 20.6, asleep: true, phase: 'choose', task: null, path: [] });
       w.stack.items = ['leaf', 'leaf'];
       s.sold = 6;
       s.earned = 30;
       s.cash = 34;
-      place(state, 20.4, 8.0);
+      place(state, 29, 18);
       break;
     }
     case 'lotto2': {
       // La Hacienda allargata: il lotto 2 appena aperto, la sagoma del Campo 3.
       unlockUpTo(state, at('zone2') + 1, bus);
       s.cash = 50;
-      place(state, 26.5, 10.5);
+      place(state, 37, 20);
+      break;
+    }
+    case 'ufficio': {
+      // Davanti alla porta dell'Ufficio appena aperto: il pannello con Zaino (1 regalato), Scarpe e Guadagno.
+      unlockUpTo(state, at('office') + 1, bus);
+      s.cash = 75;
+      place(state, OFFICE.door.x, OFFICE.door.y);
+      break;
+    }
+    case 'raccolta': {
+      // Sul vassoio del camion: le banconote volano dal mucchio al contatore in alto a destra (UX3).
+      unlockUpTo(state, at('bonfire') + 1, bus);
+      s.piles.push({ id: 'truck', x: TRUCK.cash.x, y: TRUCK.cash.y, value: 120 });
+      s.cash = 10;
+      place(state, TRUCK.cash.x, TRUCK.cash.y);
       break;
     }
     case 'avanzato': {
@@ -124,7 +139,7 @@ export function prepareScenario(state: GameState, name: Scenario, bus: Bus<GameE
       s.sold = 40;
       s.earned = 400;
       s.cash = 1340;
-      place(state, 25, 11);
+      place(state, 29, 20);
       break;
     }
   }

@@ -7,8 +7,6 @@ import { PALETTE } from '../palette';
 
 const WOOD = 0x9a6b45;
 const WOOD_DARK = 0x6b4a2f;
-const STEEL = 0x8a8f98;
-const STEEL_DARK = 0x5c6168;
 
 const matCache = new Map<string, THREE.MeshLambertMaterial>();
 /** Materiali condivisi per colore: meno cambi di stato per la scheda video. */
@@ -124,63 +122,70 @@ export function createHut(): THREE.Group {
   return g;
 }
 
-/** Lato della mappa verso cui guardano le parti del Torchio (GDD sezione 4, «Il Torchio»). */
+/**
+ * Dove stanno le parti del Torchio, in metri dal centro (x verso est, +z verso sud): tramoggia a sud
+ * verso il Campo, ripiano dei Panetti a ovest verso il camion, cassone degli Scarti a est (GDD sezione 4).
+ */
 export const TORCHIO = {
-  /** Tramoggia delle Foglie, verso il tappetino di consegna a ovest. */
-  hopper: { x: -0.95, z: 0 },
-  /** Ripiano dei Panetti, verso il tappetino di ritiro a sud (+z). */
-  shelf: { x: 0.15, z: 1.0 },
-  /** Cassone degli Scarti a nord (−z). */
-  crate: { x: 0.15, z: -1.05 },
+  /** Tramoggia delle Foglie: lascia libero l'angolo sud-ovest, come il suo contorno. */
+  hopper: { x: 0.3, z: 1.12 },
+  /** Ripiano dei Panetti, lungo il lato ovest. */
+  shelf: { x: -1.15, z: -0.3 },
+  /** Cassone degli Scarti, lungo il lato est. */
+  crate: { x: 1.15, z: -0.3 },
   /** Centro della vite. */
-  screw: { x: 0.15, z: 0 },
+  screw: { x: 0, z: -0.2 },
 } as const;
 
 /**
- * Torchio a vite (GDD sezione 4): le Foglie entrano da ovest in una tramoggia verde, la vite
- * scende sulla vasca, i Panetti escono a sud sul ripiano, gli Scarti finiscono nel cassone a nord.
- * Si costruisce già orientato sulla mappa: x verso est, +z verso sud.
+ * Grigio-blu del telaio, della tramoggia e del ripiano (luminanza ≈ 45%, RF4): il giallo di marca resta la
+ * massa di colore e l'azzurro della Lumina l'accento che brilla.
+ */
+const FRAME = 0x6e7c9a;
+const FRAME_LIGHT = 0x8e9ab5;
+
+/**
+ * Torchio a vite (GDD sezione 4 e 10): un blocco giallo unico con la vite grossa sopra, leggibile con la
+ * camera lontana. Le Foglie entrano a sud nella tramoggia, i Panetti escono a ovest sul ripiano scuro,
+ * gli Scarti finiscono nel cassone a est. Impronta 3 × 3 m, alto 2,2 m. Già orientato sulla mappa.
  */
 export function createPress(): THREE.Group {
   const g = new THREE.Group();
   g.name = 'press';
   const { hopper, shelf, crate, screw } = TORCHIO;
-  // Basamento giallo con zoccolo scuro.
-  g.add(at(rbox(1.5, 0.2, 1.5, PALETTE.brandYellowDark, 0.06), screw.x, 0.1, 0));
-  g.add(at(rbox(1.4, 0.5, 1.4, PALETTE.brandYellow, 0.1), screw.x, 0.45, 0));
-  // Vasca sotto la vite.
-  g.add(at(rbox(1.0, 0.12, 1.0, WOOD_DARK, 0.04), screw.x, 0.76, 0));
-  g.add(at(rbox(0.8, 0.04, 0.8, 0x3f5a2c, 0.02), screw.x, 0.83, 0));
-  // Telaio azzurro: due montanti a nord e a sud, traversa in alto.
-  for (const sz of [-1, 1]) g.add(at(rbox(0.3, 1.25, 0.22, PALETTE.brandBlue, 0.06), screw.x, 1.3, sz * 0.6));
-  g.add(at(rbox(0.42, 0.26, 1.5, PALETTE.brandBlueDark, 0.08), screw.x, 1.95, 0));
-  // Volantino della vite, rosso: si riconosce il torchio.
-  const wheel = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.05, 6, 16), flat(0xe0483e));
-  wheel.rotation.x = Math.PI / 2;
-  g.add(at(wheel, screw.x, 2.35, 0));
-  const screwMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.9, 8), flat(STEEL));
+  // Il blocco: zoccolo scuro e corpo giallo, con la vasca in cima.
+  g.add(at(rbox(1.9, 0.14, 1.9, FRAME, 0.05), screw.x, 0.07, screw.z));
+  g.add(at(rbox(1.8, 0.95, 1.8, PALETTE.brandYellow, 0.16), screw.x, 0.6, screw.z));
+  g.add(at(rbox(1.4, 0.12, 1.4, FRAME, 0.05), screw.x, 1.12, screw.z));
+  // Fascia luminosa di Lumina attorno al blocco: il secondo colore di marca, l'unica cosa che brilla.
+  g.add(at(new THREE.Mesh(new RoundedBoxGeometry(1.86, 0.16, 1.86, 1, 0.05), flat(PALETTE.lumina, PALETTE.lumina, 1.6)), screw.x, 0.84, screw.z));
+  // Telaio: due montanti a est e a ovest e la traversa, così la vite si vede da sud-ovest.
+  for (const sx of [-1, 1]) g.add(at(rbox(0.28, 1.0, 0.34, FRAME, 0.07), screw.x + sx * 0.72, 1.62, screw.z));
+  g.add(at(rbox(1.75, 0.3, 0.44, FRAME, 0.1), screw.x, 2.05, screw.z));
+  // Vite grossa con il volantino giallo, e il piatto che scende sulla vasca.
+  const screwMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.95, 10), flat(FRAME_LIGHT));
   screwMesh.castShadow = true;
   screwMesh.name = 'pressScrew';
-  g.add(at(screwMesh, screw.x, 1.6, 0));
-  const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.12, 12), flat(STEEL_DARK));
+  g.add(at(screwMesh, screw.x, 1.7, screw.z));
+  const wheel = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.07, 6, 18), flat(PALETTE.brandYellow));
+  wheel.rotation.x = Math.PI / 2;
+  wheel.castShadow = true;
+  g.add(at(wheel, screw.x, 2.32, screw.z));
+  const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.14, 16), flat(FRAME_LIGHT));
   plate.castShadow = true;
   plate.name = 'pressPlate';
-  g.add(at(plate, screw.x, 1.1, 0));
-  // Tramoggia verde delle Foglie a ovest: cassa aperta e inclinata verso la vasca.
-  g.add(at(rbox(0.75, 0.1, 1.1, 0x2f9a48, 0.03), hopper.x, 0.62, hopper.z));
-  for (const sz of [-1, 1]) g.add(at(rbox(0.75, 0.45, 0.08, 0x3fc24a, 0.02), hopper.x, 0.85, hopper.z + sz * 0.52));
-  g.add(at(rbox(0.08, 0.45, 1.1, 0x3fc24a, 0.02), hopper.x - 0.34, 0.85, hopper.z));
-  g.add(at(rbox(0.6, 0.62, 0.9, PALETTE.brandYellowDark, 0.04), hopper.x, 0.31, hopper.z));
-  // Ripiano dei Panetti a sud, con lo scivolo che esce dalla vasca.
-  g.add(at(rbox(1.3, 0.1, 0.6, WOOD, 0.03), shelf.x, 0.72, shelf.z));
-  for (const sx of [-1, 1]) g.add(at(rbox(0.1, 0.68, 0.1, WOOD_DARK, 0.02), shelf.x + sx * 0.55, 0.34, shelf.z + 0.2));
-  const chute = rbox(0.5, 0.06, 0.5, STEEL, 0.02);
-  chute.rotation.x = 0.35;
-  g.add(at(chute, shelf.x, 0.82, 0.62));
-  // Cassone degli Scarti a nord: cassa di legno aperta.
-  g.add(at(rbox(1.2, 0.08, 0.7, WOOD_DARK, 0.03), crate.x, 0.04, crate.z));
-  for (const sx of [-1, 1]) g.add(at(rbox(0.08, 0.5, 0.7, WOOD, 0.02), crate.x + sx * 0.56, 0.3, crate.z));
-  g.add(at(rbox(1.2, 0.5, 0.08, WOOD, 0.02), crate.x, 0.3, crate.z - 0.33));
+  g.add(at(plate, screw.x, 1.3, screw.z));
+  // Tramoggia a sud: cassa aperta e scura, larga quanto il suo contorno.
+  g.add(at(rbox(2.2, 0.5, 0.62, PALETTE.brandYellowDark, 0.05), hopper.x, 0.25, hopper.z));
+  for (const sz of [-1, 1]) g.add(at(rbox(2.2, 0.32, 0.07, FRAME_LIGHT, 0.02), hopper.x, 0.66, hopper.z + sz * 0.28));
+  for (const sx of [-1, 1]) g.add(at(rbox(0.07, 0.32, 0.62, FRAME_LIGHT, 0.02), hopper.x + sx * 1.07, 0.66, hopper.z));
+  // Ripiano dei Panetti a ovest: piano scuro basso, dove i Panetti si impilano.
+  g.add(at(rbox(0.66, 0.5, 2.2, PALETTE.brandYellowDark, 0.05), shelf.x, 0.25, shelf.z));
+  g.add(at(rbox(0.7, 0.06, 2.24, FRAME_LIGHT, 0.02), shelf.x, 0.53, shelf.z));
+  // Cassone degli Scarti a est: cassa di legno aperta.
+  g.add(at(rbox(0.66, 0.08, 2.2, WOOD_DARK, 0.03), crate.x, 0.04, crate.z));
+  for (const sz of [-1, 1]) g.add(at(rbox(0.66, 0.5, 0.08, WOOD, 0.02), crate.x, 0.3, crate.z + sz * 1.06));
+  g.add(at(rbox(0.08, 0.5, 2.2, WOOD, 0.02), crate.x + 0.29, 0.3, crate.z));
   return g;
 }
 
@@ -296,7 +301,8 @@ export function createLuminaPlants(positions: readonly { x: number; z: number; h
     return out;
   };
 
-  const leafMesh = new THREE.InstancedMesh(merge(leaves), flat(0x5fcf5a), positions.length);
+  // Verde salvia: il verde brillante resta ai soldi (RF9); le punte azzurre dicono che è Lumina.
+  const leafMesh = new THREE.InstancedMesh(merge(leaves), flat(0x6fcf9a), positions.length);
   const tipMesh = new THREE.InstancedMesh(merge(tips), flat(PALETTE.lumina, PALETTE.lumina, 1.0), positions.length);
   const m = new THREE.Matrix4();
   const q = new THREE.Quaternion();

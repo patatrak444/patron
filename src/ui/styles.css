@@ -282,6 +282,10 @@ body {
   color: var(--white);
   text-shadow: var(--outline);
   white-space: nowrap;
+  margin-top: 6px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: rgba(27, 27, 47, 0.55);
 }
 
 .hud__goal.is-new {
@@ -332,6 +336,15 @@ body {
   background: linear-gradient(90deg, #2ecc52 0 38%, #e9ffd9 38% 62%, #2ecc52 62%);
   box-shadow: 0 0 0 3px var(--ink) inset;
   transform: rotate(-12deg);
+}
+
+.hud__bill--fly {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 3px var(--ink) inset,
+    0 3px 6px rgba(27, 27, 47, 0.25);
 }
 
 .hud__cash-text {
@@ -525,4 +538,241 @@ body {
 
 @keyframes title-pulse {
   50% { scale: 1.05; }
+}
+
+/* Pannello dell'Ufficio (GDD sezione 12): a destra, il mondo resta visibile a sinistra. */
+.office {
+  position: absolute;
+  top: 92px;
+  right: 18px;
+  max-height: calc(100% - 110px);
+  width: 35%;
+  min-width: 360px;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 22px;
+  background: #fff6e4;
+  color: var(--ink);
+  box-shadow:
+    0 0 0 4px var(--ink),
+    0 10px 0 4px rgba(27, 27, 47, 0.35);
+  font-family: 'Baloo 2', 'Trebuchet MS', sans-serif;
+  transform: translateX(calc(100% + 40px));
+  transition: transform 0.22s cubic-bezier(0.3, 1.4, 0.6, 1);
+  z-index: 4;
+}
+
+.office.is-open {
+  transform: translateX(0);
+}
+
+.office__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.office__title {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.office__close {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--white);
+  font: inherit;
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.office__tab {
+  align-self: flex-start;
+  padding: 2px 16px;
+  border-radius: 999px;
+  background: var(--gold);
+  font-weight: 800;
+  font-size: 17px;
+  box-shadow: 0 0 0 3px var(--ink);
+}
+
+.office__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: auto;
+}
+
+.office__card {
+  display: grid;
+  grid-template-columns: 76px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: var(--white);
+  box-shadow: 0 0 0 3px var(--ink);
+}
+
+.office__icon svg {
+  width: 72px;
+  height: 72px;
+  display: block;
+}
+
+.office__name {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.office__ticks {
+  display: flex;
+  gap: 5px;
+  margin: 6px 0;
+}
+
+.office__tick {
+  width: 28px;
+  height: 12px;
+  border-radius: 6px;
+  background: #e2d6bf;
+  box-shadow: 0 0 0 2px var(--ink) inset;
+}
+
+.office__tick.is-on {
+  background: var(--gold);
+}
+
+.office__fx {
+  font-size: 16px;
+  font-weight: 700;
+  color: #4a4a63;
+}
+
+.office__fx b {
+  color: #1f9a43;
+}
+
+.office__buy {
+  min-width: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 14px;
+  font: inherit;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--white);
+  background: #9a9aa8;
+  box-shadow: 0 4px 0 #6d6d7c;
+  cursor: not-allowed;
+}
+
+.office__buy.is-ok {
+  background: #2ecc52;
+  box-shadow: 0 4px 0 #1f9a43;
+  cursor: pointer;
+}
+
+.office__buy.is-ok:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #1f9a43;
+}
+
+.office__buy.is-max {
+  background: var(--gold);
+  color: var(--ink);
+  box-shadow: 0 4px 0 #c8902e;
+}
+
+.office__bill {
+  width: 30px;
+  height: 19px;
+  border-radius: 4px;
+  transform: none;
+}
+
+.hud__badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #e33b3b;
+  color: var(--white);
+  font-family: 'Baloo 2', 'Trebuchet MS', sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  box-shadow: 0 0 0 3px var(--white), 0 0 0 6px var(--ink);
+  pointer-events: none;
+  animation: badge-bounce 0.9s ease-in-out infinite;
+}
+
+.hud__badge.is-visible {
+  display: flex;
+}
+
+@keyframes badge-bounce {
+  50% {
+    margin-top: -6px;
+  }
+}
+
+/* Audio sì / no (tasto M, GDD sezione 11): icona fissa in basso a destra e avviso breve. */
+.hud__speaker {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--ink);
+  box-shadow: 0 0 0 3px var(--ink), 0 4px 0 3px rgba(27, 27, 47, 0.35);
+  cursor: pointer;
+  z-index: 3;
+}
+
+.hud__speaker.is-muted {
+  color: #e33b3b;
+}
+
+.hud__toast {
+  position: absolute;
+  right: 82px;
+  bottom: 26px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(27, 27, 47, 0.85);
+  color: var(--white);
+  font-family: 'Baloo 2', 'Trebuchet MS', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.hud__toast.is-visible {
+  opacity: 1;
 }

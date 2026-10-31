@@ -13,6 +13,11 @@ export interface GameEvents {
   'truck:arriving': Record<string, never>;
   'cash:collect': { amount: number; pile: string };
   unlock: { id: string };
+  upgrade: { id: string; level: number };
+  /** Il giocatore prende (in) o lascia (out) un pezzo: per i suoni e gli effetti (GDD sezione 10). */
+  'stack:move': { dir: 'in' | 'out'; item: string };
+  /** Uno scatto di pagamento su un riquadro d'acquisto: quota versata e frazione pagata del prezzo. */
+  'pad:pay': { amount: number; progress: number };
   'respect:level': { level: number };
   'worker:sleep': { id: string };
   'worker:wake': { id: string };

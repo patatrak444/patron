@@ -6,19 +6,26 @@ import { BALANCE, type Phase1Config, type UnlockDef } from '../config/balance';
 import {
   BONFIRE,
   FIELD_PLOTS,
-  FIELD_SIZE,
   GIFT_SPOT,
+  LOTS,
+  OFFICE,
   PRESSES,
   TRUCK,
   UNLOCK_PADS,
+  fieldArea,
+  inRect,
+  padArea,
+  rectAt,
   type FieldId,
   type LotId,
   type MapPoint,
+  type Rect,
 } from '../config/map';
 import type { Bus, GameEvents } from '../core/bus';
 import type { Rng } from '../core/rng';
 import { findPath, type NavGrid } from './pathfinding';
 import { countOf, createStack, isFull, push, take, type Stack } from './stack';
+import { createUpgrades, openOffice, profitFactor, type UpgradeLevels } from './upgrades';
 
 export type UnlockId = UnlockDef['id'];
 export type { FieldId } from '../config/map';
@@ -58,6 +65,8 @@ export interface CashPile {
   readonly x: number;
   readonly y: number;
   value: number;
+  /** Valore all'inizio della raccolta: fissa la velocità con cui il mucchio si svuota. */
+  start?: number;
 }
 
 export type WorkerTask =
@@ -102,6 +111,8 @@ export interface Phase1State {
   nextUnlock: number;
   /** Già versato sul tappetino del prossimo sblocco. */
   padPaid: number;
+  /** Frazione di dollaro maturata e non ancora versata: il pagamento dura uguale per ogni prezzo. */
+  padCarry: number;
   stars: number;
   level: number;
   workers: WorkerState[];
@@ -116,11 +127,21 @@ export interface Phase1State {
   navDirty: boolean;
   /** Il Falò si compra (sblocco 4); prima gli Scarti restano nel cassone. */
   bonfire: boolean;
+  /** L'Ufficio si compra (sblocco 4b, GDD sezione 5). */
+  office: boolean;
+  /** Dove piovono i premi di Rispetto dei potenziamenti: la porta dell'Ufficio. */
+  readonly officeAt: MapPoint;
+  /** Livelli di Zaino, Scarpe e Guadagno (GDD sezione 5). */
+  upgrades: UpgradeLevels;
+  /** Frazione di dollaro maturata con il Guadagno e non ancora pagata: il contante resta intero. */
+  profitCarry: number;
+  /** Il giocatore è entrato almeno una volta nell'Ufficio: fino ad allora la frase lo indica (GDD sezione 12). */
+  officeVisited: boolean;
   /** Lotti aperti: si cammina solo lì (GDD sezione 4). */
   lots: LotId[];
 }
 
-/** Ciò che una zona fa. Il giocatore le attiva tutte quelle entro il raggio. */
+/** Ciò che una zona fa. Il giocatore attiva tutte quelle la cui area lo contiene (GDD sezione 3). */
 export type ZoneKind =
   | { readonly kind: 'fieldPickup'; readonly field: FieldId }
   | { readonly kind: 'pressDeposit'; readonly press: PressId }
@@ -131,7 +152,11 @@ export type ZoneKind =
   | { readonly kind: 'cash'; readonly pile: string }
   | { readonly kind: 'pad'; readonly unlock: UnlockId };
 
-export type Zone = ZoneKind & { readonly key: string; readonly x: number; readonly y: number };
+/**
+ * Una zona: dove va chi la usa (x, y) e l'area d'attivazione, uguale al disegno a terra allargato
+ * verso l'esterno della macchina (GDD sezione 3, UX2).
+ */
+export type Zone = ZoneKind & { readonly key: string; readonly x: number; readonly y: number; readonly area: Rect };
 
 const FIELD_IDS: readonly FieldId[] = ['field1', 'field2', 'field3'];
 
@@ -151,6 +176,7 @@ export function createPhase1(cfg: Phase1Config = BALANCE.phase1): Phase1State {
     piles: [{ id: 'gift', x: GIFT_SPOT.x, y: GIFT_SPOT.y, value: cfg.gift }],
     nextUnlock: 0,
     padPaid: 0,
+    padCarry: 0,
     stars: 0,
     level: 1,
     workers: [],
@@ -160,6 +186,11 @@ export function createPhase1(cfg: Phase1Config = BALANCE.phase1): Phase1State {
     pileSeq: 0,
     navDirty: false,
     bonfire: false,
+    office: false,
+    officeAt: { x: OFFICE.door.x, y: OFFICE.door.y },
+    upgrades: createUpgrades(),
+    profitCarry: 0,
+    officeVisited: false,
     lots: ['lot1'],
   };
 }
@@ -179,21 +210,24 @@ export function activeZones(s: Phase1State, cfg: Phase1Config = BALANCE.phase1):
   const out: Zone[] = [];
   for (const f of s.fields) {
     if (!f.unlocked) continue;
-    const m = fieldMat(f.id);
-    out.push({ kind: 'fieldPickup', field: f.id, key: `pick:${f.id}`, ...m });
+    const plot = FIELD_PLOTS.find((p) => p.id === f.id)!;
+    out.push({ kind: 'fieldPickup', field: f.id, key: `pick:${f.id}`, ...plot.mat, area: fieldArea(plot) });
   }
   for (const p of s.presses) {
     if (!p.unlocked) continue;
     const l = PRESSES.find((x) => x.id === p.id)!;
-    out.push({ kind: 'pressDeposit', press: p.id, key: `in:${p.id}`, ...l.deposit });
-    out.push({ kind: 'pressOutput', press: p.id, key: `out:${p.id}`, ...l.output });
-    out.push({ kind: 'pressScrap', press: p.id, key: `scrap:${p.id}`, ...l.scrap });
+    out.push({ kind: 'pressDeposit', press: p.id, key: `in:${p.id}`, x: l.deposit.x, y: l.deposit.y, area: l.deposit.area });
+    out.push({ kind: 'pressOutput', press: p.id, key: `out:${p.id}`, x: l.output.x, y: l.output.y, area: l.output.area });
+    out.push({ kind: 'pressScrap', press: p.id, key: `scrap:${p.id}`, x: l.scrap.x, y: l.scrap.y, area: l.scrap.area });
   }
-  if (s.bonfire) out.push({ kind: 'bonfire', key: 'bonfire', ...BONFIRE.mat });
-  if (s.truck.arrived) out.push({ kind: 'truck', key: 'truck', ...TRUCK.deposit });
-  for (const pile of s.piles) out.push({ kind: 'cash', pile: pile.id, key: `cash:${pile.id}`, x: pile.x, y: pile.y });
+  if (s.bonfire) out.push({ kind: 'bonfire', key: 'bonfire', x: BONFIRE.mat.x, y: BONFIRE.mat.y, area: BONFIRE.mat.area });
+  if (s.truck.arrived) out.push({ kind: 'truck', key: 'truck', x: TRUCK.deposit.x, y: TRUCK.deposit.y, area: TRUCK.deposit.area });
+  for (const pile of s.piles) {
+    const area = pile.id === 'truck' ? TRUCK.tray : rectAt(pile.x, pile.y, cfg.stack.cashPileSize, cfg.stack.cashPileSize);
+    out.push({ kind: 'cash', pile: pile.id, key: `cash:${pile.id}`, x: pile.x, y: pile.y, area });
+  }
   const next = nextUnlockDef(s, cfg);
-  if (next) out.push({ kind: 'pad', unlock: next.id, key: `pad:${next.id}`, ...UNLOCK_PADS[next.id] });
+  if (next) out.push({ kind: 'pad', unlock: next.id, key: `pad:${next.id}`, ...UNLOCK_PADS[next.id], area: padArea(next.id) });
   return out;
 }
 
@@ -295,9 +329,13 @@ function transferOnce(s: Phase1State, z: Zone, stack: Stack, cfg: Phase1Config, 
       const t = s.truck;
       if (!t.arrived || t.away > 0 || t.load >= t.capacity || !take(stack, 'paste')) return false;
       t.load++;
-      addToPile(s, 'truck', TRUCK.cash, cfg.truck.pastePrice);
+      // Il Guadagno alza il prezzo; la parte frazionaria si accumula, così il contante resta intero.
+      const due = cfg.truck.pastePrice * profitFactor(s, cfg) + s.profitCarry;
+      const price = Math.floor(due + 1e-9);
+      s.profitCarry = due - price;
+      addToPile(s, 'truck', TRUCK.cash, price);
       s.sold++;
-      bus.emit('truck:sale', { amount: cfg.truck.pastePrice });
+      bus.emit('truck:sale', { amount: price });
       if (t.load >= t.capacity) {
         t.away = cfg.truck.awaySeconds;
         bus.emit('truck:depart', {});
@@ -330,40 +368,56 @@ function addToPile(s: Phase1State, id: string, at: MapPoint, value: number): voi
   else s.piles.push({ id, x: at.x, y: at.y, value });
 }
 
+/**
+ * Dove piove il premio di un livello: a 3 m dal riquadro appena pagato, verso il centro del lotto 1,
+ * così le mazzette non finiscono dentro una stazione o fuori dalla staccionata.
+ */
+function rewardSpot(at: MapPoint, cfg: Phase1Config): MapPoint {
+  const l = LOTS.lot1;
+  const cx = (l.x0 + l.x1) / 2;
+  const cy = (l.y0 + l.y1) / 2;
+  const d = Math.hypot(cx - at.x, cy - at.y) || 1;
+  const k = Math.min(1, cfg.stack.rewardDistance / d);
+  return { x: at.x + (cx - at.x) * k, y: at.y + (cy - at.y) * k };
+}
+
 function dist(a: MapPoint, b: MapPoint): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-/** Vero se il punto attiva la zona: entro il raggio del tappetino o, per un Campo, sopra l'appezzamento. */
-export function insideZone(z: Zone, pos: MapPoint, cfg: Phase1Config = BALANCE.phase1): boolean {
-  if (dist(pos, z) <= cfg.stack.zoneRadius) return true;
-  if (z.kind !== 'fieldPickup') return false;
-  // Come nel genere, camminare tra le piante le raccoglie (My Mini Mart, Farm Land).
-  const f = FIELD_PLOTS.find((p) => p.id === z.field)!;
-  const h = FIELD_SIZE / 2 + 0.2;
-  return Math.abs(pos.x - f.x) <= h && Math.abs(pos.y - f.y) <= h;
+/** Vero se il punto attiva la zona: è dentro la sua area (GDD sezione 3: area = disegno). */
+export function insideZone(z: Zone, pos: MapPoint): boolean {
+  return inRect(pos, z.area);
 }
 
 function stepPlayerZones(s: Phase1State, pos: MapPoint, dt: number, cfg: Phase1Config, bus: Bus<GameEvents>): void {
   const seen = new Set<string>();
   for (const z of activeZones(s, cfg)) {
-    if (!insideZone(z, pos, cfg)) continue;
+    if (!insideZone(z, pos)) continue;
     seen.add(z.key);
     if (z.kind === 'cash') {
       collectCash(s, z.pile, dt, cfg, bus);
       continue;
     }
     if (z.kind === 'pad') {
-      payPad(s, z.unlock, dt, cfg, bus);
+      // Si paga solo dopo essere rimasti un attimo sul riquadro (GDD sezione 3).
+      const stay = (s.zoneTimers[z.key] ?? 0) + dt;
+      s.zoneTimers[z.key] = stay;
+      if (stay >= cfg.stack.unlockPayDelay) payPad(s, z.unlock, dt, cfg, bus);
       continue;
     }
     // Un oggetto ogni transferInterval finché resti sulla zona e c'è qualcosa da spostare.
     let t = (s.zoneTimers[z.key] ?? cfg.stack.transferInterval) + dt;
     while (t >= cfg.stack.transferInterval) {
+      const before = s.stack.items.length;
+      const top = s.stack.items[before - 1];
       if (!transferOnce(s, z, s.stack, cfg, bus)) {
         t = cfg.stack.transferInterval;
         break;
       }
+      const after = s.stack.items.length;
+      if (after > before) bus.emit('stack:move', { dir: 'in', item: s.stack.items[after - 1]! });
+      else if (after < before) bus.emit('stack:move', { dir: 'out', item: top ?? 'leaf' });
       t -= cfg.stack.transferInterval;
     }
     s.zoneTimers[z.key] = t;
@@ -376,9 +430,11 @@ function collectCash(s: Phase1State, id: string, dt: number, cfg: Phase1Config, 
   const i = s.piles.findIndex((p) => p.id === id);
   if (i < 0) return;
   const pile = s.piles[i]!;
-  // Il mucchio si svuota in circa mezzo secondo, qualunque sia il valore, a pezzi di almeno $5.
+  // Il mucchio si svuota in cashCollectSeconds, qualunque sia il valore: la quota di ogni passo si calcola
+  // sul valore iniziale del mucchio, così anche la torre del regalo scende piano.
+  if (pile.start === undefined || pile.value > pile.start) pile.start = pile.value;
   const steps = Math.max(1, Math.round(cfg.stack.cashCollectSeconds / dt));
-  const amount = Math.min(pile.value, Math.max(5, Math.ceil(pile.value / steps)));
+  const amount = Math.min(pile.value, Math.max(1, Math.ceil(pile.start / steps)));
   pile.value -= amount;
   s.cash += amount;
   s.earned += id === 'gift' ? 0 : amount;
@@ -389,17 +445,22 @@ function collectCash(s: Phase1State, id: string, dt: number, cfg: Phase1Config, 
 function payPad(s: Phase1State, id: UnlockId, dt: number, cfg: Phase1Config, bus: Bus<GameEvents>): void {
   const def = nextUnlockDef(s, cfg);
   if (!def || def.id !== id || s.cash <= 0) return;
-  // Il pagamento dura unlockPaySeconds qualunque sia il prezzo; il versato resta se esci a metà.
-  const rate = Math.max(1, Math.ceil((def.cost * dt) / cfg.stack.unlockPaySeconds));
-  const pay = Math.min(s.cash, def.cost - s.padPaid, rate);
+  // Il pagamento dura unlockPaySeconds qualunque sia il prezzo (GDD sezione 3): la quota di ogni passo si
+  // accumula e si versano solo dollari interi. Il versato resta se esci a metà.
+  const left = def.cost - s.padPaid;
+  s.padCarry = Math.min(left, s.padCarry + (def.cost * dt) / cfg.stack.unlockPaySeconds);
+  const pay = Math.min(s.cash, left, Math.floor(s.padCarry + 1e-9));
   s.cash -= pay;
   s.padPaid += pay;
+  s.padCarry -= pay;
+  if (pay > 0) bus.emit('pad:pay', { amount: pay, progress: s.padPaid / def.cost });
   if (s.padPaid >= def.cost) applyUnlock(s, def, cfg, bus);
 }
 
 function applyUnlock(s: Phase1State, def: UnlockDef, cfg: Phase1Config, bus: Bus<GameEvents>): void {
   s.nextUnlock++;
   s.padPaid = 0;
+  s.padCarry = 0;
   const pad = UNLOCK_PADS[def.id];
   if (def.kind === 'field') {
     s.fields.find((f) => f.id === def.id)!.unlocked = true;
@@ -414,6 +475,9 @@ function applyUnlock(s: Phase1State, def: UnlockDef, cfg: Phase1Config, bus: Bus
     }
   } else if (def.kind === 'bonfire') {
     s.bonfire = true;
+    s.navDirty = true;
+  } else if (def.kind === 'office') {
+    openOffice(s, cfg);
     s.navDirty = true;
   } else if (def.kind === 'zone') {
     if (!s.lots.includes('lot2')) s.lots.push('lot2');
@@ -447,7 +511,7 @@ export function addStars(s: Phase1State, n: number, at: MapPoint, cfg: Phase1Con
     s.level++;
     // Pioggia di mazzette: un mucchio accanto a dove è successo, da raccogliere.
     s.pileSeq++;
-    addToPile(s, `reward${s.pileSeq}`, { x: at.x + 1.4, y: at.y + 0.6 }, cfg.respect.rewardPerLevel * s.level);
+    addToPile(s, `reward${s.pileSeq}`, rewardSpot(at, cfg), cfg.respect.rewardPerLevel * s.level);
     bus.emit('respect:level', { level: s.level });
   }
 }
@@ -646,6 +710,7 @@ export interface Phase1StepContext {
 export function stepPhase1(s: Phase1State, player: MapPoint, dt: number, bus: Bus<GameEvents>, ctx: Phase1StepContext): void {
   const cfg = ctx.cfg ?? BALANCE.phase1;
   stepStations(s, dt, cfg, bus);
+  if (s.office && inRect(player, OFFICE.door.area)) s.officeVisited = true;
   stepPlayerZones(s, player, dt, cfg, bus);
   for (const w of s.workers) stepWorker(s, w, player, dt, cfg, ctx.grid, ctx.rng, bus);
 }
@@ -666,6 +731,8 @@ export interface Objective {
 export function objective(s: Phase1State, cfg: Phase1Config = BALANCE.phase1): Objective {
   const gift = s.piles.find((p) => p.id === 'gift');
   if (gift) return { text: 'Raccogli i soldi!', target: gift };
+  // Appena aperto l'Ufficio, una volta sola: dentro c'è lo Zaino regalato (GDD sezione 12).
+  if (s.office && !s.officeVisited) return { text: "Entra nell'ufficio!", target: OFFICE.door };
   const next = nextUnlockDef(s, cfg);
   const buy = next ? { text: next.goal, target: UNLOCK_PADS[next.id] } : null;
   // Con i soldi in tasca la freccia va al prossimo tappetino: si costruisce un pezzo alla volta (PS10, PS12).

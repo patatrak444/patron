@@ -1,11 +1,12 @@
 // Stato di gioco e passo di logica. Nessuna dipendenza da Three.js o dal DOM.
 
 import { BALANCE } from '../config/balance';
-import { BONFIRE, LOTS, OBSTACLES, PLAYER_SPAWN, PRESSES, PRESS_SIZE, VALLEY, type Rect, type Shape } from '../config/map';
+import { BONFIRE, LOTS, OBSTACLES, OFFICE, PLAYER_SPAWN, PRESSES, PRESS_SIZE, VALLEY, type Rect, type Shape } from '../config/map';
 import type { Bus, GameEvents } from '../core/bus';
 import { createRng, type Rng } from '../core/rng';
 import { createNavGrid } from './pathfinding';
 import { createPhase1, stepPhase1, type Phase1State } from './phase1';
+import { speedFactor } from './upgrades';
 import { createPlayer, stepPlayer, type MoveContext, type PlayerState } from './player';
 
 export interface GameState {
@@ -42,6 +43,7 @@ export function obstacleShapes(p1?: Phase1State): Shape[] {
     if (p1?.presses.find((x) => x.id === p.id)?.unlocked) shapes.push({ kind: 'rect', x: p.x, y: p.y, w: PRESS_SIZE, h: PRESS_SIZE });
   }
   if (p1?.bonfire) shapes.push({ kind: 'circle', x: BONFIRE.x, y: BONFIRE.y, r: BONFIRE.r });
+  if (p1?.office) shapes.push({ kind: 'rect', x: OFFICE.x, y: OFFICE.y, w: OFFICE.w, h: OFFICE.h });
   return shapes;
 }
 
@@ -66,7 +68,9 @@ export function createMoveContext(p1?: Phase1State): MoveContext {
 /** Un passo di logica. */
 export function stepSim(state: GameState, dt: number, bus: Bus<GameEvents>, input: StepInput, ctx: MoveContext, rng?: Rng): void {
   state.time += dt;
-  stepPlayer(state.player, input.moveX, input.moveY, dt, ctx);
+  // Le Scarpe alzano la velocità del giocatore (GDD sezione 5).
+  const k = speedFactor(state.phase1);
+  stepPlayer(state.player, input.moveX, input.moveY, dt, k === 1 ? ctx : { ...ctx, cfg: { ...ctx.cfg, speed: ctx.cfg.speed * k } });
   const r = rng ?? createRng(state.rngState);
   stepPhase1(state.phase1, state.player, dt, bus, { grid: ctx.grid, rng: r });
   state.rngState = r.getState();

@@ -2,23 +2,25 @@
 // vive qui: solo posizioni, animazioni e scritte (GDD sezioni 4, 9, 10 e 12).
 
 import * as THREE from 'three';
-import { BALANCE } from '../config/balance';
-import { FIELD_PLOTS, GHOSTS, PRESSES, TRUCK, UNLOCK_PADS, toWorld, type MapPoint, type UnlockId } from '../config/map';
+import { BALANCE, type StackFeelConfig } from '../config/balance';
+import { StackSway } from './stackSway';
+import { BONFIRE, FIELD_PLOTS, GHOSTS, LOTS, OFFICE, PRESSES, TRUCK, UNLOCK_PADS, toWorld, type MapPoint, type UnlockId } from '../config/map';
 import type { Bus, GameEvents } from '../core/bus';
-import { activeZones, nextUnlockDef, objective, pressBlocked, pressCanWork, type Phase1State, type WorkerState } from '../sim/phase1';
+import { nextUnlockDef, objective, pressBlocked, pressCanWork, type Phase1State, type WorkerState } from '../sim/phase1';
 import type { Assets, CharacterId } from './assets';
-import { addMoneyPile, ITEM_HEIGHT, ITEM_SCALE as S, ItemBatch, type VisualItem } from './items';
+import { addMoneyPile, addMoneyTower, ITEM_HEIGHT, ITEM_SCALE as S, ItemBatch, type VisualItem } from './items';
 import { Label } from './labels';
 import type { Valley } from './map';
 import { Confetti, Dust } from './effects';
 import { TORCHIO } from './models/stations';
 import { Character } from './models/character';
-import { GoalArrow, UnlockPad, ZoneMats, type PadIcon } from './zones';
+import { GoalArrow, UnlockPad, type PadIcon } from './zones';
+import { ContourLayer, type ContourSpec } from './contours';
 
 const cfg = BALANCE.phase1;
 const feel = BALANCE.feel;
 /** Metri percorsi dal camion fuori scena, lungo la strada. */
-const TRUCK_RUN = 40;
+const TRUCK_RUN = 64;
 /** Cappello di paglia dei Raccoglitori (GDD sezione 6). */
 const STRAW = 0xe8c86a;
 const WORKER_MODELS: readonly CharacterId[] = ['mini_male_b', 'mini_male_d', 'mini_female_b', 'mini_male_e'];
@@ -31,33 +33,30 @@ export interface Pose {
   readonly rotY: number;
   readonly vx: number;
   readonly vz: number;
+  /** Fase del passo del personaggio, per il rimbalzo della pila. */
+  readonly stepPhase?: number;
 }
 
-/** Pila tra le braccia con un ritardo a molla: in curva ondeggia (GDD sezione 10). */
-class StackSway {
-  private sx = 0;
-  private sz = 0;
-  update(vx: number, vz: number, dt: number): { x: number; z: number } {
-    const k = 1 - Math.exp(-dt * 10);
-    this.sx += (-vx * 0.035 - this.sx) * k;
-    this.sz += (-vz * 0.035 - this.sz) * k;
-    return { x: this.sx, z: this.sz };
-  }
-}
-
-function drawStack(batch: ItemBatch, items: readonly VisualItem[], pose: Pose, sway: { x: number; z: number }, front = 0.62, base = 0.9): void {
-  // Davanti al petto, tra le braccia: +z locale del modello.
-  const bx = pose.x + Math.sin(pose.rotY) * front;
-  const bz = pose.z + Math.cos(pose.rotY) * front;
-  let y = base;
+/**
+ * Pila tra le braccia, davanti al corpo all'altezza delle mani (GDD sezione 3, UX4). Il lato lungo di ogni
+ * merce sta di traverso, così sporge ai lati del corpo e si vede anche di spalle. La pila si inclina (la
+ * cima si sposta di più della base) e rimbalza a ogni passo. Restituisce il centro e l'altezza della cima.
+ */
+function drawStack(batch: ItemBatch, items: readonly VisualItem[], pose: Pose, lean: { x: number; z: number }, cfg: StackFeelConfig, stepPhase: number): { x: number; z: number; top: number } {
+  const bx = pose.x + Math.sin(pose.rotY) * cfg.front;
+  const bz = pose.z + Math.cos(pose.rotY) * cfg.front;
+  const moving = Math.hypot(pose.vx, pose.vz) > cfg.movingSpeed;
+  let y = cfg.base + (moving ? Math.abs(Math.sin(stepPhase)) * cfg.bob : 0);
+  const n = Math.max(1, items.length - 1);
   items.forEach((kind, i) => {
-    const f = (i + 1) / Math.max(4, items.length);
-    batch.add(kind, bx + sway.x * f * i, y, bz + sway.z * f * i, pose.rotY + Math.PI / 2);
-    y += ITEM_HEIGHT[kind];
+    const f = items.length > 1 ? i / n : 0;
+    batch.add(kind, bx + lean.x * f, y, bz + lean.z * f, pose.rotY, cfg.sideways[kind], 0, 0, cfg.scaleY, cfg.depth);
+    y += ITEM_HEIGHT[kind] * cfg.scaleY;
   });
+  return { x: bx + lean.x, z: bz + lean.z, top: y };
 }
 
-/** Mazzetta in volo: dal mucchio alla schiena o dalla schiena al tappetino (skill arcade-idle, PS16). */
+/** Banconota in volo da sopra la testa al riquadro d'acquisto (skill arcade-idle, PS16). */
 interface Flight {
   readonly from: THREE.Vector3;
   readonly to: () => THREE.Vector3;
@@ -79,7 +78,7 @@ interface WorkerView {
 export class Phase1View {
   readonly root = new THREE.Group();
   private readonly batch = new ItemBatch();
-  private readonly mats = new ZoneMats();
+  private readonly contours = new ContourLayer(BALANCE.camera.yawDeg);
   private readonly pad = new UnlockPad();
   private readonly arrow = new GoalArrow();
   private readonly playerSway = new StackSway();
@@ -88,8 +87,8 @@ export class Phase1View {
   private readonly pressOut = new Map<string, Label>();
   private readonly pressScrap = new Map<string, Label>();
   private readonly pressStop = new Map<string, Label>();
-  private readonly truckLabel = new Label(0.7);
-  private readonly truckTimer = new Label(0.7);
+  private readonly truckLabel = new Label(1.05);
+  private readonly truckTimer = new Label(1.05);
   /** Animazioni a tempo: aree che si aprono, stazioni che compaiono, fiammate. */
   private readonly tweens: { t: number; dur: number; apply: (k: number) => void }[] = [];
   private readonly confetti = new Confetti();
@@ -101,8 +100,9 @@ export class Phase1View {
   private dustTimer = 0;
   private payTimer = 0;
   private lastPaid = 0;
-  private readonly pilePos = new Map<string, { x: number; z: number }>();
-  private readonly backTop = new THREE.Vector3();
+  private readonly pilePos = new Map<string, { x: number; z: number; top: number }>();
+  private readonly headTop = new THREE.Vector3();
+  private readonly playerMax = new Label();
 
   constructor(
     private readonly valley: Valley,
@@ -110,22 +110,23 @@ export class Phase1View {
     bus: Bus<GameEvents>,
   ) {
     this.root.name = 'fase 1';
-    this.root.add(this.batch.root, this.mats.root, this.pad.root, this.arrow.root, this.confetti.mesh, this.dust.mesh);
+    this.root.add(this.playerMax.sprite);
+    this.root.add(this.batch.root, this.contours.root, this.pad.root, this.arrow.root, this.confetti.mesh, this.dust.mesh);
     for (const f of FIELD_PLOTS) {
       const l = new Label();
       const w = toWorld({ x: f.x, y: f.y });
-      l.sprite.position.set(w.x, 1.5, w.z);
+      l.sprite.position.set(w.x, 1.6, w.z);
       this.fieldLabels.set(f.id, l);
       this.root.add(l.sprite);
     }
     for (const p of PRESSES) {
       const out = new Label();
       const scrap = new Label();
-      const stop = new Label(0.8);
+      const stop = new Label(1.15);
       const o = toWorld(p.output);
-      out.sprite.position.set(o.x, 1.55, o.z + 0.4);
+      out.sprite.position.set(o.x - 0.4, 2.1, o.z);
       const s = toWorld(p.scrap);
-      scrap.sprite.position.set(s.x + 0.25, 1.15, s.z);
+      scrap.sprite.position.set(s.x + 0.3, 1.4, s.z);
       const c = toWorld(p);
       stop.sprite.position.set(c.x, 4.0, c.z);
       this.pressOut.set(p.id, out);
@@ -140,13 +141,10 @@ export class Phase1View {
 
     bus.on('unlock', ({ id }) => this.onUnlock(id as UnlockId));
     bus.on('truck:arriving', () => (this.valley.truck.visible = true));
-    bus.on('cash:collect', ({ amount, pile }) => {
-      const at = this.pilePos.get(pile);
-      if (!at) return;
-      const n = Math.min(10, Math.max(2, Math.ceil(amount / feel.dollarsPerBundle)));
-      for (let i = 0; i < n; i++) this.flights.push({ from: new THREE.Vector3(at.x, 0.2 + i * 0.05, at.z), to: () => this.backTop, t: 0, delay: i * 0.04 });
-    });
+
     bus.on('bonfire:burn', () => (this.flare = 1));
+    // Piccola festa a ogni potenziamento comprato (GDD sezione 5): coriandoli sul personaggio.
+    bus.on('upgrade', () => this.confetti.burst(this.headTop.x, this.headTop.z, 24));
     bus.on('press:paste', ({ press }) => {
       const sign = this.valley.presses[press]?.getObjectByName('pressPlate');
       if (sign) this.tween(0.25, (k) => sign.scale.setScalar(1 + 0.25 * Math.sin(k * Math.PI)));
@@ -178,6 +176,7 @@ export class Phase1View {
     }
     if (v.presses[id]) this.appear(v.presses[id]!);
     if (id === 'bonfire') this.appear(v.bonfire);
+    if (id === 'office') this.appear(v.office);
     if (id === 'zone2') this.openLot2(true);
   }
 
@@ -192,7 +191,7 @@ export class Phase1View {
     const sides = [v.fences.lot2];
     if (!animate) return;
     const w = l2.floor.position.x;
-    const half = 5;
+    const half = (LOTS.lot2.x1 - LOTS.lot2.x0) / 2;
     this.tween(0.6, (k) => {
       const e = 1 - (1 - k) * (1 - k);
       l2.floor.scale.x = Math.max(0.001, e);
@@ -203,6 +202,11 @@ export class Phase1View {
       this.tween(0.9, (k) => (f.scale.y = Math.max(0.001, pop(Math.max(0, (k - 0.5) / 0.5)))));
     });
     this.appear(v.hut, 0.4);
+  }
+
+  /** Dove sta, nel mondo, un mucchio di mazzette (per far volare le banconote verso il contatore). */
+  pileWorld(id: string): { x: number; z: number; top: number } | null {
+    return this.pilePos.get(id) ?? null;
   }
 
   /** Punto da inquadrare da vicino durante la festa, o null. */
@@ -251,6 +255,7 @@ export class Phase1View {
     }
     for (const p of s.presses) set(v.presses[p.id]!, p.unlocked);
     set(v.bonfire, s.bonfire);
+    set(v.office, s.office);
     set(v.truck, s.truck.arrived);
     if (s.lots.includes('lot2')) this.openLot2(false);
     else {
@@ -278,7 +283,7 @@ export class Phase1View {
     if (!v) {
       const model = WORKER_MODELS[index % WORKER_MODELS.length]!;
       const character = new Character(this.assets.characters[model], { cap: STRAW });
-      const zzz = new Label(0.5);
+      const zzz = new Label(0.75);
       this.root.add(character.root, zzz.sprite);
       v = { character, zzz, sway: new StackSway() };
       this.workers.set(w.id, v);
@@ -299,19 +304,16 @@ export class Phase1View {
     }
 
     this.batch.begin();
-    this.mats.begin();
 
-    // Pila del giocatore: merce tra le braccia, mazzette sulla schiena (GDD sezione 4, «Le mazzette addosso»).
-    const sway = this.playerSway.update(player.vx, player.vz, dt);
-    drawStack(this.batch, playerItems, player, sway);
-    const bundles = Math.min(feel.maxBackBundles, Math.ceil(s.cash / feel.dollarsPerBundle));
-    const bx = player.x - Math.sin(player.rotY) * 0.4;
-    const bz = player.z - Math.cos(player.rotY) * 0.4;
-    for (let i = 0; i < bundles; i++) {
-      const f = (i + 1) / Math.max(6, bundles);
-      this.batch.add('money', bx + sway.x * f * i * 0.6, 0.95 + i * ITEM_HEIGHT.money, bz + sway.z * f * i * 0.6, player.rotY);
-    }
-    this.backTop.set(bx, 0.95 + bundles * ITEM_HEIGHT.money, bz);
+    // Pila del giocatore: solo merce tra le braccia. I soldi non si portano addosso (GDD sezione 3, UX3):
+    // pagando, le banconote partono da sopra la testa.
+    const sway = this.playerSway.update(player.vx, player.vz, dt, feel.playerStack);
+    const stack = drawStack(this.batch, playerItems, player, sway, feel.playerStack, player.stepPhase ?? 0);
+    // Pila piena: MAX rosso sopra la cima della pila, mai coperto (GDD sezione 3).
+    const full = playerItems.length >= s.stack.capacity;
+    this.playerMax.set(full && Math.floor(this.time * 3) % 3 !== 0 ? 'MAX' : null, 'max');
+    this.playerMax.sprite.position.set(stack.x, stack.top + feel.maxAbove, stack.z);
+    this.headTop.set(player.x, feel.payFromHeight, player.z);
     // Sbuffi di polvere mentre si corre (skill arcade-idle, PS19).
     this.dustTimer -= dt;
     if (Math.hypot(player.vx, player.vz) > 1 && this.dustTimer <= 0) {
@@ -322,17 +324,17 @@ export class Phase1View {
     if (this.holdFesta && this.festa && Math.floor(this.time * 2) !== Math.floor((this.time - dt) * 2)) this.confetti.burst(this.festa.x, this.festa.z, 30);
     this.confetti.update(dt);
 
-    // Tappetini delle zone.
-    for (const z of activeZones(s)) {
-      const w = toWorld(z);
-      if (z.kind === 'fieldPickup' || z.kind === 'pressOutput' || z.kind === 'pressScrap') this.mats.add('pickup', w.x, w.z);
-      else if (z.kind === 'pressDeposit' || z.kind === 'bonfire' || z.kind === 'truck') this.mats.add('deposit', w.x, w.z);
-      else if (z.kind === 'cash' && z.pile === 'truck') this.mats.add('cash', w.x, w.z);
+    // Presa e consegna sulla macchina: contorni bianchi con l'icona e la freccia (GDD sezione 3, UX2).
+    const specs: ContourSpec[] = [];
+    for (const p of s.presses) {
+      if (!p.unlocked) continue;
+      const l = PRESSES.find((x) => x.id === p.id)!;
+      specs.push({ contour: l.deposit, icon: 'leaf', into: true }, { contour: l.output, icon: 'paste', into: false }, { contour: l.scrap, icon: 'scrap', into: false });
     }
-    if (s.truck.arrived && !s.piles.some((p) => p.id === 'truck')) {
-      const w = toWorld(TRUCK.cash);
-      this.mats.add('cash', w.x, w.z);
-    }
+    if (s.bonfire) specs.push({ contour: BONFIRE.mat, icon: 'scrap', into: true });
+    if (s.truck.arrived) specs.push({ contour: TRUCK.deposit, icon: 'paste', into: true });
+    if (s.office) specs.push({ contour: OFFICE.door, icon: 'office', into: true });
+    this.contours.set(specs, s.truck.arrived ? TRUCK.tray : null);
 
     // Campi: le piante crescono con le Foglie pronte; contatore "n/8", MAX quando è pieno.
     for (const f of s.fields) {
@@ -365,26 +367,26 @@ export class Phase1View {
       if (plate) {
         const working = pressCanWork(p);
         const phase = (p.timer / cfg.press.cycle) * Math.PI * 2;
-        plate.position.y = working ? 1.1 - 0.26 * (0.5 - 0.5 * Math.cos(phase)) : 1.1;
+        plate.position.y = working ? 1.3 - 0.12 * (0.5 - 0.5 * Math.cos(phase)) : 1.3;
         // La vite scende con il piatto e gira: è un torchio.
         const screw = g.getObjectByName('pressScrew');
         if (screw) {
-          screw.position.y = plate.position.y + 0.5;
+          screw.position.y = plate.position.y + 0.42;
           if (working) screw.rotation.y = phase;
         }
       }
-      // Foglie in mucchio nella tramoggia a ovest, Panetti impilati sul ripiano a sud, Scarti nel cassone a nord.
+      // Foglie in mucchio nella tramoggia a sud, Panetti impilati sul ripiano a ovest, Scarti nel cassone a est.
       const H = TORCHIO.hopper;
-      for (let i = 0; i < Math.min(p.leaves, 6); i++) {
-        this.batch.add('leaf', c.x + H.x + 0.05, 0.86 + Math.floor(i / 2) * ITEM_HEIGHT.leaf * 0.8, c.z + H.z + ((i % 2) - 0.5) * 0.42, Math.PI / 2, 0.8);
+      for (let i = 0; i < Math.min(p.leaves, 9); i++) {
+        this.batch.add('leaf', c.x + H.x + ((i % 3) - 1) * 0.62, 0.55 + Math.floor(i / 3) * ITEM_HEIGHT.leaf * 0.7, c.z + H.z, 0, 0.8);
       }
       const SH = TORCHIO.shelf;
       for (let i = 0; i < p.pastes; i++) {
-        this.batch.add('paste', c.x + SH.x + ((i % 2) - 0.5) * 0.3 * S, 0.77 + Math.floor(i / 2) * ITEM_HEIGHT.paste, c.z + SH.z, 0);
+        this.batch.add('paste', c.x + SH.x, 0.56 + Math.floor(i / 2) * ITEM_HEIGHT.paste, c.z + SH.z + ((i % 2) - 0.5) * 0.36 * S, Math.PI / 2);
       }
       const CR = TORCHIO.crate;
       for (let i = 0; i < p.scraps; i++) {
-        this.batch.add('scrap', c.x + CR.x + ((i % 3) - 1) * 0.36, 0.08 + Math.floor(i / 3) * 0.25, c.z + CR.z, i, 0.85);
+        this.batch.add('scrap', c.x + CR.x, 0.08 + Math.floor(i / 3) * 0.25, c.z + CR.z + ((i % 3) - 1) * 0.6, i, 0.85);
       }
       out.set(p.pastes >= cfg.press.outCap ? 'MAX' : `${p.pastes}/${cfg.press.outCap}`, p.pastes >= cfg.press.outCap ? 'max' : 'pill');
       scrap.set(p.scraps >= cfg.press.scrapCap ? 'MAX' : `${p.scraps}/${cfg.press.scrapCap}`, p.scraps >= cfg.press.scrapCap ? 'max' : 'pill');
@@ -428,11 +430,21 @@ export class Phase1View {
       this.truckTimer.set(null);
     }
 
-    // Mazzette a terra.
+    // Mazzette a terra in blocchi 2 × 3; il regalo è una torre alta quanto il personaggio (UX11), quelle del
+    // camion stanno sul vassoio scuro.
+    this.pilePos.clear();
     for (const pile of s.piles) {
       const w = toWorld(pile);
-      this.pilePos.set(pile.id, w);
-      addMoneyPile(this.batch, pile.value, w.x, w.z);
+      let top: number;
+      if (pile.id === 'gift') {
+        const layers = Math.ceil((feel.giftTowerLayers * pile.value) / cfg.gift);
+        addMoneyTower(this.batch, w.x, w.z, layers);
+        top = layers * ITEM_HEIGHT.money;
+      } else {
+        const base = pile.id === 'truck' ? 0.1 : 0;
+        top = base + addMoneyPile(this.batch, pile.value, w.x, w.z, 1, base);
+      }
+      this.pilePos.set(pile.id, { ...w, top });
     }
 
     // Mazzette che volano verso il tappetino mentre si paga.
@@ -440,10 +452,11 @@ export class Phase1View {
     if (s.padPaid > this.lastPaid && nextDef) {
       this.payTimer -= dt;
       if (this.payTimer <= 0) {
-        this.payTimer = 0.07;
+        this.payTimer = feel.billEvery;
+        // Si mira al bordo del riquadro verso la camera (sud-ovest): l'arrivo non resta dietro il personaggio.
         const to = toWorld(UNLOCK_PADS[nextDef.id]);
-        const target = new THREE.Vector3(to.x, 0.05, to.z);
-        this.flights.push({ from: this.backTop.clone(), to: () => target, t: 0, delay: 0 });
+        const target = new THREE.Vector3(to.x - 0.75, 0.05, to.z + 0.75);
+        this.flights.push({ from: this.headTop.clone(), to: () => target, t: 0, delay: 0 });
       }
     }
     this.lastPaid = s.padPaid;
@@ -460,7 +473,7 @@ export class Phase1View {
       this.batch.add(
         'money',
         fl.from.x + (to.x - fl.from.x) * k,
-        fl.from.y + (to.y - fl.from.y) * k + Math.sin(k * Math.PI) * 1.2,
+        fl.from.y + (to.y - fl.from.y) * k + Math.sin(k * Math.PI) * feel.flyArc,
         fl.from.z + (to.z - fl.from.z) * k,
         k * 6,
       );
@@ -475,18 +488,19 @@ export class Phase1View {
       v.character.update(pos.x, pos.z, w.facing, w.asleep ? 0 : w.speed, cfg.picker.speed, w.asleep ? 0 : dt);
       const rotY = v.character.root.rotation.y;
       const vel = { x: Math.cos(w.facing) * w.speed, z: -Math.sin(w.facing) * w.speed };
-      drawStack(this.batch, w.stack.items, { x: pos.x, z: pos.z, rotY, vx: vel.x, vz: vel.z }, v.sway.update(vel.x, vel.z, dt), 0.55, 0.8);
+      v.character.carrying = w.stack.items.length > 0;
+      const lean = v.sway.update(vel.x, vel.z, dt, feel.workerStack);
+      drawStack(this.batch, w.stack.items, { x: pos.x, z: pos.z, rotY, vx: vel.x, vz: vel.z }, lean, feel.workerStack, v.character.stepPhase);
       v.zzz.sprite.position.set(pos.x, 2.0 + (w.asleep ? Math.sin(this.time * 2) * 0.08 : 0), pos.z);
       v.zzz.set(w.asleep ? 'Zzz' : w.waiting ? 'zzz' : null, w.asleep ? 'zzzBig' : 'zzz');
     });
 
     this.batch.end();
-    this.mats.end();
 
     // Tappetino del prossimo sblocco.
     const next = nextDef;
     const icon: PadIcon = next?.kind ?? 'field';
-    this.pad.update(next ? toWorld(UNLOCK_PADS[next.id]) : null, icon, next?.cost ?? 0, s.padPaid, dt, next ? GHOSTS[next.id]?.w : undefined);
+    this.pad.update(next ? toWorld(UNLOCK_PADS[next.id]) : null, icon, next?.cost ?? 0, s.padPaid, dt, next ? GHOSTS[next.id] : undefined);
 
     // Freccia sul prossimo obiettivo.
     const goal = objective(s);

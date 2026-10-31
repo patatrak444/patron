@@ -1,6 +1,6 @@
 # PATRÓN — Documento di design della Beta
 
-Oct 23, 2026 · @luca · aggiornato il 29 ottobre 2026 con le regole della skill `arcade-idle` (regalo iniziale, Rispetto, scarti e Falò, camion con cassone, mazzette solo al giocatore, spinte, niente stipendi ma lavoratori che si addormentano, Ufficio solo a piedi, interfaccia del genere, clienti che non se ne vanno, missioni, forma dell'informazione nel mondo); il 30 ottobre 2026 con la missione, il mondo a lotti e la prima sessione del genere (skill `arcade-idle`, Fase 6), poi con la storia e la visione della filiera (sezione 1)
+Oct 23, 2026 · @luca · aggiornato il 29 ottobre 2026 con le regole della skill `arcade-idle` (regalo iniziale, Rispetto, scarti e Falò, camion con cassone, mazzette solo al giocatore, spinte, niente stipendi ma lavoratori che si addormentano, Ufficio solo a piedi, interfaccia del genere, clienti che non se ne vanno, missioni, forma dell'informazione nel mondo); il 30 ottobre 2026 con la missione, il mondo a lotti e la prima sessione del genere (skill `arcade-idle`, Fase 6), poi con la storia e la visione della filiera (sezione 1); ancora il 30 ottobre 2026 dopo la revisione della prima sessione (voto 3,2/10): lotto da 18 × 24 m, camera più lontana, presa e consegna sulla macchina, soldi non addosso, merce più larga, regalo a cubo, Ufficio con tre potenziamenti, effetti sonori
 
 PATRÓN è un arcade idle 3D da giocare nel browser del computer in cui un contadino senza niente scala la filiera di un traffico stilizzato, dal campo allo spaccio, fino a diventare il Patrón. Questo documento descrive la **Beta**: le Fasi 0–3 della progressione più il sistema del Calore, abbastanza per capire se il loop diverte. È scritto per essere eseguito da Claude Code passo per passo (sezione 15).
 
@@ -72,7 +72,7 @@ PATRÓN è un arcade idle 3D da giocare nel browser del computer in cui un conta
 | Il mondo cambia | La Hacienda si riempie; si apre il lotto 2 | Si apre la radura oltre la strada, fumo azzurro dal Laboratorio | Si apre il paese con la Plaza e la fila; arrivano polizia e rivali |
 | Chiusura | Ultimo Torchio pagato: il debito è saldato | Laboratorio 1 in funzione | Sblocco "Il Patrón": completo bianco |
 
-**Un conto che non torna ancora (da risolvere prima di costruire il capitolo 3).** Gli sblocchi del capitolo 3 costano in tutto \$130.700 in 115 minuti, cioè \$1.137 al minuto in media. La catena ne rende al massimo \$720 (\$1.080 con Purezza al massimo), e molto meno nei primi 20 minuti del capitolo. Con questi prezzi il Patrón arriverebbe verso il minuto 200 invece del 140. I capitoli 1 e 2 invece tornano: il capitolo 1 chiede \$790 e ne rende circa \$750 più i premi del Rispetto, come conferma il giocatore automatico. Per la regola della sezione 5 si abbasseranno i costi degli sblocchi 13–20, non i prezzi di vendita; la cifra esatta si fissa con il giocatore automatico quando il capitolo 3 esiste (tappa M5).
+**Un conto che non torna ancora (da risolvere prima di costruire il capitolo 3).** Gli sblocchi del capitolo 3 costano in tutto \$130.700 in 115 minuti, cioè \$1.137 al minuto in media. La catena ne rende al massimo \$720 (\$1.080 con Purezza al massimo), e molto meno nei primi 20 minuti del capitolo. Con questi prezzi il Patrón arriverebbe verso il minuto 200 invece del 140. I capitoli 1 e 2 invece tornano: il capitolo 1 chiede \$850 (con l'Ufficio, la Nuova zona a \$120 e il Torchio 2 a \$160) e ne rende circa \$750 più i premi del Rispetto, come conferma il giocatore automatico. Per la regola della sezione 5 si abbasseranno i costi degli sblocchi 13–20, non i prezzi di vendita; la cifra esatta si fissa con il giocatore automatico quando il capitolo 3 esiste (tappa M5).
 
 **Come il giocatore capisce chi è e dove va, senza leggere.**
 
@@ -161,59 +161,77 @@ L'azione principale del gioco è muoversi: ogni azione parte da sola quando il p
 
 **Movimento.** Velocità base 4 m/s. Collisioni semplici con stazioni e bordi della mappa (cerchi e rettangoli, niente motore fisico).
 
-**Interazione per prossimità.** Ogni stazione ha una o più **zone** disegnate a terra come tappetini colorati:
+**Interazione per prossimità.** Si prende e si lascia la merce **sulla macchina**, non su quadrati colorati (skill `ux-ui-arcade-idle`, UX2; revisione del 30 ottobre 2026, voto 3/10 sui tappetini). L'unico tappetino "pieno" è quello d'acquisto (UX1). Nessun tappetino ha un colore pieno verde, giallo, rosso o blu: il verde è dei soldi, il giallo della guida, il rosso del MAX.
 
-| Zona     | Colore                         | Cosa succede quando ci stai sopra                 |
-|----------|--------------------------------|---------------------------------------------------|
-| Ritiro   | Verde                          | Prendi la merce dal buffer della stazione         |
-| Deposito | Giallo                         | Lasci la merce che la stazione accetta            |
-| Cassa    | Blu                            | Raccogli i soldi accumulati                       |
-| Sblocco  | Bianco tratteggiato con prezzo | I soldi "volano" dentro finché il prezzo è pagato |
-| Ufficio  | Viola                          | Si apre il pannello potenziamenti                 |
+| Zona | Aspetto | Cosa succede quando ci stai sopra |
+|---|---|---|
+| Consegna | Contorno bianco sottile attaccato al lato d'ingresso della macchina (tramoggia del Torchio, Falò, cassone del camion), fondo neutro al 25%, icona della merce che entra con una freccia verso la macchina | Lasci la merce che la stazione accetta |
+| Ritiro | Contorno bianco sottile attaccato al lato d'uscita (ripiano dei Panetti, cassone degli Scarti), icona del prodotto con una freccia verso fuori. Il Campo non ha contorno: si raccoglie camminando tra le piante | Prendi la merce pronta |
+| Cassa | Nessun tappetino: le mazzette in blocchi 2 × 3 su un vassoio scuro basso accanto al camion | Le mazzette volano al contatore |
+| Acquisto | Riquadro arancio con bordo bianco, icona di ciò che si compra e prezzo; grande quanto l'impronta dell'oggetto o almeno 2,3 m di lato (1,2 altezze del personaggio, UX1) | I soldi volano dentro finché il prezzo è pagato |
+| Ufficio | Contorno bianco davanti all'ingresso, con la scritta UFFICIO a terra e una freccia in su; nessun fondo pieno | Si apre il pannello potenziamenti |
 
-- Raggio di attivazione: 1,2 m dal centro del tappetino.
+- **Area d'attivazione = disegno.** Ogni zona è il rettangolo del suo contorno, allargato di 0,3 m solo verso l'esterno della macchina; il riquadro d'acquisto è il suo quadrato; un Campo è il suo appezzamento più 0,2 m, perché si raccoglie camminando tra le piante (My Mini Mart, Farm Land); il vassoio delle mazzette è il vassoio. Due aree distano sempre almeno 0,6 m (UX7).
 
-- Trasferimento: 1 oggetto ogni 0,08 s finché resti sulla zona e c'è spazio.
+- Contorni larghi quanto il lato della macchina che servono, profondi 0,9 m, spessi 4 cm.
 
-- Sblocco: il pagamento avviene a scatti, in 1,5 s totali qualunque sia il prezzo. Se esci a metà, il versato resta e il resto lo paghi dopo.
+- Trasferimento: 1 oggetto ogni 0,08 s finché resti sulla zona e c'è spazio, anche camminando.
 
-- Una zona di Deposito accetta solo il tipo di oggetto della sua stazione: la merce sbagliata resta addosso.
+- Acquisto: appena ci sali sopra aspetti 0,25 s, così non si paga per sbaglio passando (controllo UX 8); poi il pagamento avviene a scatti in 2 s totali, qualunque sia il prezzo (Pizza Ready ≈ 2 s, UX1). Se esci a metà, il versato resta e il resto lo paghi dopo. Durante il pagamento un anello giallo si riempie intorno al riquadro e il prezzo scende fino a zero: il riquadro resta arancio e non diventa verde come in Pizza Ready, perché il verde a terra è dei soldi (scelta di Luca, 30 ottobre 2026).
 
-**La pila (stack).** Porti la merce in una pila visibile davanti a te, tra le braccia, che sale come una torre: è il modo di Pizza Ready, Burger Please e My Mini Mart.
+- Una zona di Consegna accetta solo il tipo di oggetto della sua stazione: la merce sbagliata resta addosso.
 
-**Le mazzette addosso.** Il gioco è fatto di soldi e i soldi si vedono: quelle raccolte formano una seconda pila di banconote sulla schiena, che cresce col contante (una mazzetta ogni $10, al massimo 20 visibili). Pagando un tappetino le mazzette volano una a una dalla schiena al tappetino, come in Pizza Ready. Il contatore in alto resta il numero esatto (PS15, PS16).
+**La pila (stack).** Porti la merce in una pila visibile davanti a te, tra le braccia, che sale come una torre: è il modo di Pizza Ready, Burger Please e My Mini Mart. La merce in mano è **più larga del corpo**, circa 1,4 volte la parte più larga del personaggio vista dall'alto, che nei Mini Characters è la testa (Pizza Ready, UX4): in mano un Panetto è 2,6 volte più largo, 1,3 volte più profondo e 1,5 volte più alto che sul ripiano, con il lato lungo di traverso (le foglie 2 volte, il sacco 2,2). La base della pila sta 0,68 m davanti al centro del corpo, a 1,05 m da terra, e le braccia la reggono con la posa di trasporto dei modelli; la pila rimbalza a ogni passo e si piega come una molla, con la cima che si sposta al massimo di 0,14 m: così si vede da ogni direzione, anche di spalle con un pezzo solo (controllo UX 10, verificato sugli scatti nelle 8 direzioni del 30 ottobre 2026), e con 3 pezzi la cima supera la testa. A pila piena MAX rosso lampeggia sopra la cima. Ripiani, cassoni e camion usano la misura normale delle merci; solo la pila in mano è ingrandita.
+
+**I soldi non si portano addosso** (UX3, al posto delle mazzette sulla schiena della M2b). Una seconda colonna addosso copre sempre la prima: la merce davanti o i soldi dietro. Come in Pizza Ready, Monkey Mart e My Mini Mart le mazzette restano nel mondo, in blocchi 2 × 3 che crescono in altezza accanto a chi paga; camminandoci sopra volano una a una nella pillola del contante in alto a destra, che si gonfia. Pagando un acquisto le banconote escono da sopra la testa del personaggio e volano nel riquadro (PS16). Il contatore in alto resta il numero esatto.
 
 - Capacità iniziale: 4 oggetti. Potenziabile (sezione 5).
 
-- Puoi trasportare tipi diversi insieme. La pila si scarica dall'alto, ma ogni Deposito preleva solo il tipo giusto, ovunque sia nella pila.
+- Puoi trasportare tipi diversi insieme. La pila si scarica dall'alto, ma ogni Consegna preleva solo il tipo giusto, ovunque sia nella pila.
 
-- Pila piena: un'etichetta "MAX" lampeggia sopra la testa.
+- Pila piena: un'etichetta "MAX" lampeggia sopra la cima della pila, mai coperta da lei.
 
-- Le merci sono più grandi del vero, larghe circa quanto la testa del personaggio: la pila si legge come una torre anche allo zoom lontano.
+- Le merci sono più grandi del vero. In mano sono alte circa 0,36 m ciascuna, così con 3 pezzi la cima (1,05 + 3 × 0,36 ≈ 2,1 m) supera la testa del personaggio (1,9 m); anche i lavoratori portano la merce un po' ingrandita e di traverso, ma più piccola di quella del giocatore; sui ripiani e nel camion restano alla misura normale.
 
-**Camera.** Prospettica con campo visivo stretto (22°), così le linee restano quasi parallele come in una vista isometrica; inclinata di 50° sull'orizzonte e **ruotata di 45°**: guarda da sud-ovest verso nord-est, e il mondo appare in diagonale, a rombo, come in Pizza Ready e My Mini Mart. La rotazione è fissa: la camera segue il giocatore con smorzamento ma non gira mai. L'interpolazione equivale a 0,1 per fotogramma a 60 fps, ma è calcolata sul tempo trascorso, così la camera si muove allo stesso modo con qualunque frequenza dello schermo. Allo zoom medio mostra circa 28 m di mondo in larghezza; vicino 20 m, lontano 36 m. Il personaggio è alto circa 1/12 dello schermo allo zoom medio e circa 1/16 a quello lontano: Pizza Ready lo tiene a circa 1/17 per tutta la partita (skill `ux-ui-arcade-idle`, regola UX6, misurato sul video completo). All'avvio il lotto 1 entra intero con l'arco PATRÓN e un bordo di prato. La camera non si allontana quando il mondo cresce: si cambia zoom solo con la rotella. Pizza Ready inclina la camera di circa 44°: PATRÓN resta a 50°, dentro l'intervallo del genere (44–55°), perché la vista "dall'alto" che si cerca viene dalla distanza, non dall'angolo. Allo sblocco la camera fa un primo piano di 9 m sull'oggetto nuovo per 1,1 s (la festa), poi torna al giocatore. I tasti di movimento seguono lo schermo, non la mappa: W porta il personaggio verso l'alto dello schermo, cioè verso nord-est della mappa. Lo zoom lontano serve a controllare l'intera catena quando è automatizzata. La camera non mostra mai il vuoto: oltre i bordi della valle c'è una cornice di giungla non calpestabile e poi un verde uniforme.
+**Camera.** Prospettica con campo visivo stretto (22°), così le linee restano quasi parallele come in una vista isometrica; inclinata di 45° sull'orizzonte e **ruotata di 45°**: guarda da sud-ovest verso nord-est, e il mondo appare in diagonale, a rombo, come in Pizza Ready e My Mini Mart. La rotazione è fissa: la camera segue il giocatore con smorzamento ma non gira mai. L'interpolazione equivale a 0,1 per fotogramma a 60 fps, ma è calcolata sul tempo trascorso, così la camera si muove allo stesso modo con qualunque frequenza dello schermo. Lo zoom si fissa sull'**altezza di mondo inquadrata** (misurata sul piano perpendicolare allo sguardo), non sulla larghezza: così il lotto entra intero anche nella finestra minima 1280 × 600, che è più larga del 16:9. Allo zoom medio l'altezza è 25 m (circa 44 m di larghezza a 16:9); vicino 19 m, lontano 31 m. Con l'inclinazione di 45° (quella misurata su Pizza Ready, UX6) il personaggio da 1,9 m occupa circa 1/13 dell'altezza dello schermo, misurato sugli screenshot del 30 ottobre 2026: è dentro la fascia desktop di UX6 (1/12–1/16); Pizza Ready lo tiene a circa 1/17 su telefono. Il rapporto si misura sugli screenshot: altezza in pixel dai piedi alla cima del cappello, divisa per l'altezza della finestra. Con la camera della M2b la misura dava 1/9, ed era una delle cause del "soffocamento" (revisione del 30 ottobre 2026). Il lotto 1 in diagonale occupa circa 21 m di altezza sullo schermo, più l'arco alto 4 m: all'avvio entra intero con l'arco PATRÓN e un bordo di prato di circa 1,5 m. **La camera segue il giocatore con una zona morta** di 14 m in larghezza e 10 m in profondità al centro dello schermo: si muove solo quando il giocatore esce da quel riquadro, con lo smorzamento di sempre. All'avvio è centrata in (26,8, 19,4), il punto che fa entrare tutto il lotto con l'arco senza che l'angolo nord finisca sotto l'interfaccia in alto. La camera non si allontana quando il mondo cresce: si cambia zoom solo con la rotella. Pizza Ready inclina la camera di circa 44°: PATRÓN usa 45°, perché la vista "dall'alto" che si cerca viene dalla distanza, non dall'angolo. Allo sblocco la camera fa un primo piano a 12 m di altezza inquadrata sull'oggetto nuovo per 3 s (la festa; Pizza Ready ≈ 5 s, UX8), poi torna al giocatore. I tasti di movimento seguono lo schermo, non la mappa: W porta il personaggio verso l'alto dello schermo, cioè verso nord-est della mappa. Lo zoom lontano serve a controllare l'intera catena quando è automatizzata. La camera non mostra mai il vuoto: oltre i bordi della valle c'è una cornice di giungla non calpestabile e poi un verde uniforme.
 
 **Schermo.** Orizzontale, adattato a qualunque finestra da 1280 × 600 in su (16:9 è il formato di riferimento); ridimensionare la finestra non deforma la scena.
 
 ## 4. Mondo e stazioni della Beta
 
-**Si parte da un lotto piccolo, che si allarga** (skill `arcade-idle`, regole PS6–PS9). La valle misura 40 × 60 m, ma all'inizio se ne usa solo il primo lotto, di 12 × 10 m. Ogni lotto è un rettangolo di terra battuta chiara chiuso da una staccionata bassa; oltre la staccionata ci sono prato e giungla, che si vedono ma dove non si entra. Un tappetino "Nuova zona" sul bordo di un lotto apre quello accanto: la staccionata in comune si abbassa e sparisce, il pavimento nuovo si srotola, compaiono le sagome delle nuove stazioni.
+**Si parte da un lotto vuoto e arioso, che si allarga** (skill `arcade-idle`, regole PS6–PS9; skill `ux-ui-arcade-idle`, UX6 e UX7, che per le misure sostituiscono PS6 e PS18: il lotto non è più "piccolo" e la camera non è più "vicinissima"). La valle misura 70 × 80 m, ma all'inizio se ne usa solo il primo lotto, di 18 × 24 m: circa 9,5 × 12,5 altezze del personaggio, come la sala iniziale di Pizza Ready (≈ 9 × 13). Il lotto di 12 × 10 m della M2b era un terzo di quella misura e dava la sensazione di soffocare (revisione del 30 ottobre 2026, voto 3/10 sullo spazio). Nel primo minuto il pavimento è libero per almeno il 70%: le stazioni sono poche e separate, e il giocatore deve camminare per andare a comprarle. Tra una fermata del primo ciclo e la successiva ci sono 2–8 m da bordo a bordo, mai di più (circa 2 s di corsa); la pianta qui sotto dà le misure. Ogni lotto è un rettangolo di terra battuta chiara chiuso da una staccionata bassa; oltre la staccionata ci sono prato e giungla, che si vedono ma dove non si entra. Un tappetino "Nuova zona" sul bordo di un lotto apre quello accanto: la staccionata in comune si abbassa e sparisce, il pavimento nuovo si srotola, compaiono le sagome delle nuove stazioni.
 
 **I lotti** (nord in alto; coordinate in metri, origine nell'angolo sud-ovest della valle).
 
 | Lotto | Rettangolo | Contenuto | Si apre |
 |---|---|---|---|
-| 1 · La Hacienda | da (14, 6) a (26, 16) | Arco PATRÓN sul lato nord, Campo 1 e Campo 2, Torchio 1, Falò, regalo di El Gordo | Inizio |
-| 2 · I campi | da (26, 6) a (36, 16) | Campo 3, Campo 4, Torchio 2, casetta dei Raccoglitori | Sblocco "Nuova zona" (Fase 1) |
-| 3 · L'ufficio | da (14, 0) a (36, 6) | Ufficio con i potenziamenti, posto del Cargador | Con l'Ufficio (tappa M3) |
-| 4 · La radura | da (4, 22) a (18, 34) | Laboratorio 1 e 2, nella giungla oltre la strada | Fase 2 |
-| 5 · Il paese | da (20, 22) a (38, 40) | Banco di confezionamento, Plaza con bancone e fila | Fase 3 |
+| 1 · La Hacienda | da (20, 10) a (38, 34) | Arco PATRÓN sul lato nord, Campo 1 e Campo 2, Torchio 1, Falò, Ufficio, regalo di El Gordo | Inizio |
+| 2 · I campi | da (38, 10) a (50, 34) | Campo 3, Campo 4, Torchio 2, casetta dei Raccoglitori, posto del Cargador | Sblocco "Nuova zona" (Fase 1) |
+| 3 · La radura | da (6, 42) a (28, 62) | Laboratorio 1 e 2, nella giungla oltre la strada | Fase 2 |
+| 4 · Il paese | da (34, 42) a (62, 68) | Banco di confezionamento, Plaza con bancone e fila | Fase 3 |
 
-**La strada di El Gordo** corre da ovest a est appena fuori dall'arco, a y = 17–19. Il camion arriva lungo la strada da ovest e si ferma a ovest dell'arco (x ≈ 15,6), così non copre l'insegna; il carico si fa dal tappetino dietro la staccionata, e le mazzette compaiono vicino all'arco. A cassone pieno riparte verso est e torna da ovest. Le auto della polizia usano la stessa strada.
+**La pianta del lotto 1** (centri e misure in metri). Il primo ciclo è un anello: Campo → tramoggia del Torchio → ripiano dei Panetti → carico del camion → vassoio delle mazzette → di nuovo al Campo. La tramoggia guarda il Campo (sud) e il ripiano guarda il camion (ovest): sono i due lati che la camera da sud-ovest vede sempre. Ingresso e uscita della stessa macchina, e il carico del camion con il suo vassoio, contano come una fermata sola; tra fermate diverse ci sono 2–8 m da bordo a bordo, misurati lungo il cammino vero, e due aree d'attivazione distano sempre almeno 0,6 m.
+
+| Elemento | Centro | Impronta | Note |
+|---|---|---|---|
+| Partenza del giocatore | (27, 17,5) | — | Il regalo a 2,4 m verso est, a destra del personaggio sullo schermo: non resta coperto dal suo corpo |
+| Regalo di El Gordo | (29,4, 16,4) | 1,2 × 1,2, alto 1,9 | Torre di mazzette 2 × 3 per 10 strati (UX11): vale \$40 in tutto, il numero di mazzette è solo visivo; a 4,5 m dal Campo 1 |
+| Campo 1 | (30, 23,5) | 4 × 4 | Si raccoglie camminando tra le piante: l'area è l'appezzamento più 0,2 m |
+| Campo 2 | (23,5, 23,5) | 4 × 4 | Come il Campo 1; 5,1 m dalla tramoggia |
+| Torchio 1 | (31, 30,1) | 3 × 3, alto 2,2 | Tramoggia a sud da (30,1, 27,7) a (32,5, 28,6), a 2,2 m dal Campo 1; ripiano dei Panetti a ovest da (28,6, 28,6) a (29,5, 31); cassone degli Scarti a est da (32,5, 29,2) a (33,4, 31,6) |
+| Falò | (37, 26,5) | 1,6 × 1,6 | Consegna sul lato ovest, da (35,3, 25,7) a (36,2, 27,3): 2,7 m dal cassone degli Scarti |
+| Carico del camion | contorno da (25,5, 33,1) a (29,5, 34) | 4 × 0,9 | Dietro la staccionata; 2,1 m dal ripiano dei Panetti |
+| Vassoio delle mazzette | (24,3, 32,8) | 1,2 × 0,8 | Vassoio scuro basso, a ovest del carico (0,6 m): da qui si torna ai Campi in linea retta, senza girare attorno al Torchio; 7,6 m dal Campo 1 e 6,9 m dal Campo 2 |
+| Ufficio | casetta in (34,5, 15) | 3 × 2,5 | Ingresso a ovest: contorno bianco da 2 × 2 in (32, 15), attaccato alla porta con la scritta UFFICIO a terra e una freccia in su, senza fondo pieno (come la stanza UPGRADE di Pizza Ready) |
+| Primo Raccoglitore | riquadro in (27, 14) | 2,3 × 2,3 | A sud dei Campi |
+| Nuova zona | riquadro in (36,8, 20) | 2,3 × 2,3 | Sul bordo est |
+| Arco PATRÓN | (22,5, 34) | 3,4 × 0,5, alto 4 | Sul lato nord, verso l'angolo nord-ovest: con la camera da sud-ovest quell'angolo sta a metà altezza dello schermo, e l'arco resta sempre in vista, mai sotto l'interfaccia in alto (primo screenshot del 30 ottobre 2026) |
+
+**La strada di El Gordo** corre da ovest a est appena fuori dall'arco, a y = 34,7–37,3: il camion si ferma col fianco a meno di un metro dalla staccionata, così il contorno di carico tocca quasi il suo cassone. Il camion arriva lungo la strada da ovest e si ferma a est dell'arco (x ≈ 27,5, y ≈ 36), così non copre l'insegna; il carico si fa dal contorno dietro la staccionata, e le mazzette compaiono sul vassoio accanto. A cassone pieno riparte verso est e torna da ovest. Le auto della polizia usano la stessa strada.
 
 **Sagome.** Ogni stazione non ancora comprata si vede come la sua impronta grigia a terra, con le parentesi bianche agli angoli e un fumetto con la mazzetta e il prezzo; quella del prossimo sblocco ha sopra la freccia gialla. All'inizio si vede una sagoma sola (PS10, PS11).
 
-**La festa dello sblocco.** Quando un tappetino è pagato la camera si avvicina all'oggetto per 1 s, l'oggetto sale dal terreno con un rimbalzo, scoppiano stelle gialle e coriandoli, poi la camera torna sul giocatore (PS13).
+**La festa dello sblocco.** Quando un tappetino è pagato la camera si avvicina all'oggetto per 3 s (UX8), l'oggetto sale dal terreno con un rimbalzo, scoppiano stelle gialle e coriandoli, poi la camera torna sul giocatore (PS13).
 
 **Merci.** Quattro oggetti, ognuno con una forma e un colore riconoscibili a colpo d'occhio:
 
@@ -243,7 +261,7 @@ L'azione principale del gioco è muoversi: ogni azione parte da sola quando il p
 
 Vendere a El Gordo è sicuro ma rende poco; portare la merce fino alla Plaza rende sei volte tanto per foglia, e attira la polizia.
 
-**Il Torchio.** È un torchio a vite, la macchina più antica per spremere: il nome dice cosa fa. Le Foglie entrano da ovest, in una tramoggia verde rivolta al tappetino di consegna, e restano visibili in mucchio; la vite scende sulla vasca; i Panetti escono a sud su un ripiano di legno, dove si impilano fino a 10; il cassone degli Scarti sta a nord. Sopra, un cartello con «🌿 → panetto» si legge da ogni punto dello schermo. A ogni Panetto la vite fa un colpo e il Panetto nuovo salta sul ripiano.
+**Il Torchio.** È un torchio a vite, la macchina più antica per spremere: il nome dice cosa fa. Le Foglie entrano da sud, in una tramoggia rivolta al Campo, e restano visibili in mucchio; la vite scende sulla vasca; i Panetti escono a ovest su un ripiano scuro, dove si impilano fino a 10; il cassone degli Scarti sta a est. Sono i due lati che la camera vede sempre. Sopra, un cartello con «🌿 → panetto» si legge da ogni punto dello schermo. A ogni Panetto la vite fa un colpo e il Panetto nuovo salta sul ripiano.
 
 **Il camion di El Gordo.** Ha un cassone con capienza scritta sopra ("7/10"). Ogni Panetto o Cristallo caricato, dal giocatore o dal Cargador, si paga subito come prima. Quando il cassone è pieno il camion suona il clacson, parte lungo la strada e torna dopo 20 s; sul posto resta un cerchio con il conto alla rovescia, e nel frattempo non si vende. All'inizio il cassone non si riempie quasi mai: diventa un limite quando la produzione cresce, e si allarga con il potenziamento Cassone (sezione 5).
 
@@ -283,9 +301,9 @@ Ogni foglia vale circa 6 volte di più se la porti fino alla Plaza invece di ven
 
 **Formule.**
 
-- Potenziamenti: costo al livello n = costo base × 1,15^n. È la crescita esponenziale classica del genere: il costo corre più veloce del beneficio, e il ritmo rallenta in modo controllato ([Game Developer](https://www.gamedeveloper.com/design/the-math-of-idle-games-part-i)).
+- Potenziamenti del giocatore (Zaino, Scarpe, Guadagno): 5 livelli ciascuno, costo del prossimo livello = costo base × 1,8^n, dove n è il numero di livelli già comprati (il primo Zaino costa \$40). All'apertura dell'Ufficio il primo livello di Zaino è un regalo di El Gordo, quindi dello Zaino si comprano 4 livelli: \$40, 72, 130, 233, e la pila va da 6 a 14. Le Scarpe danno +15% a livello perché il primo acquisto si senta (Pizza Ready). Il Guadagno vale solo sul Panetto venduto a El Gordo: Cristalli e Dosi avranno i loro potenziamenti nelle fasi 2 e 3, così un +50% comprato con \$1.790 nel capitolo 1 non accorcia il capitolo 3 (revisione del 30 ottobre 2026). Ogni acquisto ha una piccola festa: coriandoli sul personaggio e il contatore che scende. Il genere usa pochi livelli ripidi (RC10, RC11): così la decisione D6 è chiusa (30 ottobre 2026).
 
-- Zaino e Scarpe: numero di livelli e crescita da rivedere nella tappa M8 con le partite di prova (il genere usa 4–5 livelli più ripidi).
+- Altri potenziamenti: costo al livello n = costo base × 1,15^n. È la crescita esponenziale classica del genere: il costo corre più veloce del beneficio, e il ritmo rallenta in modo controllato ([Game Developer](https://www.gamedeveloper.com/design/the-math-of-idle-games-part-i)).
 
 - Assunzioni: quelle nella sequenza degli sblocchi hanno il prezzo della tabella. Ogni lavoratore extra dello stesso ruolo, comprato dall'Ufficio, costa l'ultimo prezzo pagato × 1,6.
 
@@ -303,8 +321,9 @@ Ogni foglia vale circa 6 volte di più se la porti fino alla Plaza invece di ven
 
 | Potenziamento | Effetto per livello                              | Costo base | Livelli | Disponibile da           |
 |---------------|--------------------------------------------------|------------|---------|--------------------------|
-| Zaino         | +2 capacità della pila (da 4 a 20)               | \$40       | 8       | Fase 1                   |
-| Scarpe        | +6% velocità del giocatore                       | \$60       | 8       | Fase 1                   |
+| Zaino         | +2 capacità della pila (da 4 a 14)               | \$40       | 5       | Ufficio (Fase 1)         |
+| Scarpe        | +15% velocità del giocatore (da 4 a 7 m/s)        | \$60       | 5       | Ufficio (Fase 1)         |
+| Guadagno      | +10% prezzo del Panetto a El Gordo                | \$80       | 5       | Ufficio (Fase 1)         |
 | Fertilizzante | −10% ciclo di tutti i Campi                      | \$50       | 5       | Fase 1                   |
 | Ingranaggi    | −10% ciclo dei Torchi                          | \$150      | 5       | Fase 1                   |
 | Attrezzatura  | −10% ciclo dei Laboratori                        | \$600      | 5       | Fase 2                   |
@@ -321,13 +340,14 @@ Ogni foglia vale circa 6 volte di più se la porti fino alla Plaza invece di ven
 | 1   | Campo 1                                  | 1    | \$5      | 0,1              |
 | 2   | Torchio 1                                 | 1    | \$15     | 0,3              |
 | —   | Arriva il camion di El Gordo (gratis)    | 1    | —        | 0,4              |
-| 3   | Campo 2                                  | 1    | \$20     | 1,5              |
-| 4   | Falò                                     | 1    | \$10     | 2                |
-| 5   | Primo raccoglitore                       | 1    | \$30     | 3                |
-| 6   | Nuova zona: lotto 2                      | 1    | \$60     | 5                |
+| 3   | Campo 2                                  | 1    | \$20     | 0,5              |
+| 4   | Falò                                     | 1    | \$10     | 1,3              |
+| 4b  | Ufficio (Zaino, Scarpe, Guadagno)        | 1    | \$40     | 1,5              |
+| 5   | Primo raccoglitore                       | 1    | \$30     | 2,5              |
+| 6   | Nuova zona: lotto 2                      | 1    | \$120    | 3,5              |
 | 7   | Campo 3                                  | 1    | \$80     | 6,5              |
 | 8   | Secondo raccoglitore                     | 1    | \$120    | 8                |
-| 9   | Torchio 2                                 | 1    | \$200    | 10               |
+| 9   | Torchio 2                                 | 1    | \$160    | 10               |
 | 9b  | Cargador di El Gordo (ritiro automatico) | 1    | \$250    | 11,5             |
 | 6   | Laboratorio 1                            | 2    | \$350    | 12               |
 | 7   | Corriere Torchio → Laboratorio            | 2    | \$500    | 15               |
@@ -347,9 +367,9 @@ Ogni foglia vale circa 6 volte di più se la porti fino alla Plaza invece di ven
 
 L'ultimo sblocco cambia l'abito del personaggio in completo bianco e apre una scena che mostra, chiusa da un lucchetto, la prima attività di copertura: "Prossimamente: il denaro sporco". È il gancio verso la versione successiva.
 
-**Il regalo di El Gordo.** La partita non parte da zero: dentro la Hacienda, a due passi dal giocatore, c'è una pila di \$25 in mazzette ("El Gordo ti anticipa \$25", sezione 1). Basta per il Campo 1 e il Torchio 1 nei primi 20 secondi. Lo sblocco successivo costa più di quanto resta e va guadagnato: è lo schema del genere, primo acquisto quasi regalato e secondo che costa quanto hai ([skill arcade-idle](../.claude/skills/arcade-idle/04-sintesi/regole-contenuto.md), RC4).
+**Il regalo di El Gordo.** La partita non parte da zero: dentro la Hacienda, a due passi dal giocatore, c'è un cubo di mazzette alto quanto il personaggio, da \$40 ("El Gordo ti anticipa \$40", sezione 1). Si vede da lontano e paga il primo giro intero: Campo 1, Torchio 1 e Campo 2, tre acquisti nei primi 30 secondi, come la sala di Pizza Ready pagata dai suoi \$180 (UX10, UX11). Lo sblocco successivo, il Falò, va guadagnato vendendo: è lo schema del genere, primi acquisti regalati e il successivo che costa quanto hai ([skill arcade-idle](../.claude/skills/arcade-idle/04-sintesi/regole-contenuto.md), RC4).
 
-**Verifica del flusso nei primi minuti.** Nel primo minuto il gioco costruisce il ciclo un pezzo alla volta, come Pizza Ready (PS12): Campo, Torchio, arrivo del camion, prima vendita. Un Campo produce 0,33 foglie/s. Con lo zaino da 4 e un viaggio Campo–Torchio di circa 8 s, il giocatore muove al massimo 0,5 foglie/s: il primo collo di bottiglia è il trasporto, ed è voluto. Il Campo 2 a \$20 arriva intorno al minuto 1,5; con due Campi il Raccoglitore a \$30 richiede 18 foglie, cioè circa 1,5 minuti di lavoro: arriva intorno al minuto 3.
+**Verifica del flusso nei primi minuti.** Nel primo minuto il gioco costruisce il ciclo un pezzo alla volta, come Pizza Ready (PS12): Campo, Torchio, arrivo del camion, prima vendita. Con i tratti della pianta (2–7 m, meno di 2 s di corsa a 4 m/s) il trasporto non è più il limite: lo è la produzione. Un Campo dà 0,33 foglie/s, cioè 1 Panetto ogni 9 s (\$33 al minuto); con due Campi il Torchio ne fa 1 ogni 4,5 s (\$66 al minuto), vicino al suo massimo di 1 ogni 4 s. Il regalo di \$40 paga i primi tre acquisti entro 0:30. Il Falò (\$10, 2 Panetti) arriva verso 1:20 ed è il 4° sblocco: le 16 stelle portano al Rispetto 2, che fa piovere \$40 di mazzette. Con quelle si compra subito l'Ufficio, che apre regalando il primo livello di Zaino (pila da 4 a 6). Il Raccoglitore a \$30 chiede 6 Panetti, cioè meno di 30 s di produzione con due Campi: arriva verso 2:30. Il Raccoglitore è il 6° sblocco: le stelle arrivano a 24 e il Rispetto 3 fa piovere \$60. La Nuova zona costa \$120 apposta, così non si compra con la sola pioggia e arriva verso 3:30, un minuto dopo: due momenti grandi non finiscono attaccati (UX10). Lo Zaino regalato all'apertura dell'Ufficio non dà stelle: le danno solo i livelli comprati.
 
 **Il Rispetto.** È il livello del giocatore, come il livello del locale nei giochi del genere (10 su 11 ne hanno uno). Si guadagnano stelle: **+4 per ogni sblocco** della tabella e **+1 per ogni livello di potenziamento** comprato. Le soglie sono cumulative e si allungano:
 
@@ -358,7 +378,9 @@ L'ultimo sblocco cambia l'abito del personaggio in completo bianco e apre una sc
 | Stelle totali | 15 | 24 | 39 | 60 | 81 | 114 | 141 | 165 | 200 |
 
 - A ogni livello piove intorno al giocatore un premio di \$20 × il nuovo livello, in mazzette da raccogliere.
-- Due sblocchi chiedono anche un livello minimo: **Laboratorio 1 vuole Rispetto 4, Banco + Plaza vuole Rispetto 5**. I numeri sono scelti perché il livello arrivi prima dei soldi: i 10 sblocchi a pagamento fino al Cargador danno 40 stelle (Rispetto 4); i 13 fino al Campo 4 ne danno 52, e bastano 8 livelli di potenziamento per arrivare a 60. Se manca il livello, il tappetino mostra un lucchetto con "Rispetto 5" e la frase dell'obiettivo dice cosa fare ("Compra un potenziamento!").
+- Due sblocchi chiedono anche un livello minimo: **Laboratorio 1 vuole Rispetto 4, Banco + Plaza vuole Rispetto 5**. I numeri sono scelti perché il livello arrivi prima dei soldi: gli 11 sblocchi a pagamento fino al Cargador, Ufficio compreso, danno 44 stelle (Rispetto 4); i 14 fino al Campo 4 ne danno 56, e bastano 8 livelli di potenziamento per arrivare a 60. Se manca il livello, il tappetino mostra un lucchetto con "Rispetto 5" e la frase dell'obiettivo dice cosa fare ("Compra un potenziamento!").
+
+**Il Torchio 2 a \$160.** Il giocatore automatico che compra anche qualche potenziamento (solo quando costa meno di metà di quanto manca allo sblocco) arrivava al Torchio 2 dopo un buco di quasi 5 minuti, perché in quel tratto il cassone del camion limita i guadagni: il prezzo è sceso da \$200 a \$160, secondo la regola qui sotto (30 ottobre 2026).
 
 **Regola di ritmo da testare.** Nella prima ora il prossimo sblocco non deve mai distare più di 3–4 minuti di gioco attivo. Se un test supera questa soglia, si abbassa il costo, non si alza il guadagno, per non sballare le fasi successive.
 
@@ -573,19 +595,20 @@ In 3 minuti il giocatore deve aver fatto un giro completo della catena, incassat
 | 0:00  | Schermata iniziale e clic su GIOCA                                                                                      | Dove può arrivare                        |
 | 0:02  | Dal nero si apre la Hacienda vuota con l'arco PATRÓN, dopo l'impero della schermata iniziale                              | Il contesto, senza leggere               |
 | 0:05  | Dentro la Hacienda vuota, con l'arco PATRÓN sullo sfondo. Tasti W A S D disegnati a schermo accanto alla frase "Muoviti con WASD". Freccia verso le mazzette a due passi: "Raccogli i soldi!" | I comandi; la missione |
-| 0:08  | Le mazzette volano sulla schiena del personaggio e nel contatore: "El Gordo ti anticipa \$25" | Il contante |
+| 0:08  | Il cubo di mazzette si svuota: le banconote volano nel contatore in alto a destra. "El Gordo ti anticipa \$40" | Il contante |
 | 0:10  | Sagoma del Campo 1 con il fumetto "\$5": "Compra il campo!". La festa: camera vicina, piantine che spuntano, stelle | Gli sblocchi |
-| 0:18  | Sagoma del Torchio con "\$15": "Compra il torchio!". Seconda festa | Le stazioni |
-| 0:24  | Clacson: il camion di El Gordo arriva lungo la strada e si ferma accanto all'arco | Il compratore |
-| 0:28  | "Raccogli le foglie!": camminando tra le piante le foglie volano tra le braccia una a una | La raccolta e la pila |
+| 0:16  | Sagoma del Torchio con "\$15": "Compra il torchio!". Seconda festa | Le stazioni |
+| 0:22  | Sagoma del Campo 2, pagata con il resto del regalo. Terza festa | Crescere |
+| 0:28  | Finita la festa, clacson: il camion di El Gordo arriva lungo la strada e si ferma a est dell'arco | Il compratore |
+| 0:30  | "Raccogli le foglie!": camminando tra le piante le foglie volano tra le braccia una a una | La raccolta e la pila |
 | 0:40  | "Foglie al torchio!": la vite scende, esce il primo Panetto | Le stazioni trasformano |
-| 0:55  | "Vendi a El Gordo!": il cassone segna "1/10", le mazzette compaiono sul tappetino accanto al camion. "Prendi i soldi!" | Prima ricompensa |
-| 1:30  | Sagoma del Campo 2 | Crescere |
-| 2:00  | Primo sacco di Scarti: sagoma del Falò, "Compra il falò!" | Il lavoretto del tema |
-| 2:30  | Tappetino "Raccoglitore – \$30" accanto ai Campi | Si può assumere |
-| 3:00  | Appena assunto, la camera lo segue per 1,5 s mentre fa il suo primo giro. Testo: "Ora lavora per te"                    | **Momento chiave: la prima automazione** |
-| 3:30  | Freccia verso l'Ufficio: "El Gordo ti regala uno zaino". Il primo livello di Zaino è gratis                             | Il pannello potenziamenti                |
-| 5:00  | "Apri una nuova zona!": la staccionata verso est sparisce e si apre il lotto 2. Da qui guida solo la frase dell'obiettivo in alto (sezione 9)                                                                   | Autonomia                                |
+| 0:55  | "Vendi a El Gordo!": il cassone segna "1/10", le mazzette compaiono sul vassoio accanto al camion. "Prendi i soldi!" | Prima ricompensa |
+| 1:10  | Primo sacco di Scarti: sagoma del Falò, "Compra il falò!" | Il lavoretto del tema |
+| 1:20  | Falò comprato: Rispetto 2, pioggia di \$40 in mazzette intorno al giocatore | Il livello |
+| 1:30  | Sagoma dell'Ufficio, "Compra l'ufficio!". Si apre con lo Zaino al livello 1 regalato; dentro, le schede Zaino, Scarpe e Guadagno | I potenziamenti |
+| 2:00  | Tappetino "Raccoglitore – \$30" a sud dei Campi | Si può assumere |
+| 2:30  | Rispetto 3: pioggia di \$60. Appena assunto, il Raccoglitore viene seguito dalla camera per 1,5 s mentre fa il suo primo giro. Testo: "Ora lavora per te"                    | **Momento chiave: la prima automazione** |
+| 3:30  | "Apri una nuova zona!": la staccionata verso est sparisce e si apre il lotto 2. Da qui guida solo la frase dell'obiettivo in alto (sezione 9)                                                                   | Autonomia                                |
 
 **Spiegazioni al momento giusto** (una riga, una sola volta):
 
@@ -650,10 +673,10 @@ Il giocatore resta finché ha sempre un passo successivo chiaro, vicino e divers
 | Luce piena, quasi senza chiaroscuro | Luce ambiente forte e sole alto (65°): le facce in ombra restano chiare; ombre corte e leggere, solo "appoggi" sotto gli oggetti. Niente nebbia, niente mappatura dei toni cinematografica |
 | Pavimenti puliti a colori piatti | Erba di un solo verde chiaro; sentieri e campi con bordi netti e arrotondati e un filo più scuro sul contorno, come zone disegnate. Niente chiazze, ciuffi d'erba o sassi sparsi |
 | Pastello e chiaro | Lo sfondo è chiaro e gli oggetti hanno colori più saturi: risaltano sul pavimento |
-| Pochi oggetti, grossi | Camera vicina; merci e pile più grandi del vero: ogni merce è larga quanto la testa del personaggio e una pila di 8 oggetti arriva alla spalla |
+| Pochi oggetti, grossi, con aria intorno | Camera lontana (personaggio a circa 1/13 dello schermo) su un lotto vuoto e arioso; poche stazioni grandi e semplici, ciascuna con una sola massa di colore più il giallo di marca; merci più grandi del vero, e quelle in mano più larghe del corpo (UX4) |
 | Ordine da griglia | Stazioni allineate, alberi della cornice in file regolari, niente disposizione casuale dentro la valle |
 | Il giocatore si distingue | È l'unico personaggio con un colore acceso; i lavoratori e i clienti hanno colori più spenti |
-| Il gioco parla con oggetti nel mondo | Tappetini con l'icona di ciò che sbloccano e il prezzo grande; mazzette a terra in blocchi da 2 × 3 che crescono in altezza; contatori "n/max" sopra stazioni, cassoni e camion; scritta MAX a stazione piena; fumetti tondi con un'icona e un numero, mai frasi; freccia gialla 3D sopra il prossimo tappetino e un anello a terra (da M2) |
+| Il gioco parla con oggetti nel mondo | Riquadri d'acquisto con l'icona di ciò che sbloccano e il prezzo grande; presa e consegna sulla macchina, segnate solo da un contorno bianco con icona e freccia (UX2); mazzette a terra in blocchi da 2 × 3 che crescono in altezza; contatori "n/max" sopra stazioni, cassoni e camion; scritta MAX a stazione piena; fumetti tondi con un'icona e un numero, mai frasi; freccia gialla 3D sopra il prossimo tappetino e un anello a terra (da M2) |
 | Due colori di marca | L'azzurro della Lumina (#5CE1E6) e il giallo anni '80 (#FFC94A) si ripetono su tutte le stazioni, i tappetini e le insegne: la filiera si riconosce come una cosa sola |
 | Le stazioni sono macchine che si spiegano da sole | Sopra ogni stazione c'è un cartello con cosa entra e cosa esce, a icone: «🌿 → panetto» sul Torchio, «panetto → cristallo» sul Laboratorio. La merce in entrata si vede accumulata dal lato del tappetino di consegna, quella prodotta impilata sul lato del ritiro: il flusso attraversa la macchina da una parte all'altra (prova di percezione, domanda 5) |
 | I soldi si vedono | Mazzette verde acceso con un bordo chiaro: nessun altro oggetto ha quel verde, che deve staccarsi dal prato pastello |
@@ -686,7 +709,7 @@ Il giocatore resta finché ha sempre un passo successivo chiaro, vicino e divers
 - Giorno pieno, niente ciclo giorno-notte. Luce emisferica forte, quasi bianca, che tiene chiare anche le facce in ombra; sole alto da sud-ovest (65° di elevazione), tenue e appena caldo. Ombre corte e leggere.
 - Niente nebbia e niente mappatura dei toni cinematografica: i colori della palette arrivano allo schermo come sono. Oltre la cornice di giungla lo sfondo è un verde uniforme.
 - Materiali Lambert con ombreggiatura piatta: le facce dei poligoni si vedono, ed è lo stile.
-- Ombre vere dalla luce direzionale (mappa d'ombra da 2048 px, filtro PCF con bordi morbidi) su personaggi, stazioni e alberi; in qualità Media 1024 px. La mappa d'ombra segue il giocatore e copre un riquadro di 36 m di lato. Le ombre VSM sono escluse: disegnano nella mappa d'ombra anche gli oggetti che le ricevono (terreno) e costano circa 27.000 triangoli in più all'avvio.
+- Ombre vere dalla luce direzionale (mappa d'ombra da 2048 px, filtro PCF con bordi morbidi) su personaggi, stazioni e alberi; in qualità Media 1024 px. La mappa d'ombra segue la camera e copre un riquadro di 57 m di lato, quanto l'inquadratura ruotata allo zoom lontano (da tarare sull'iMac). Le ombre VSM sono escluse: disegnano nella mappa d'ombra anche gli oggetti che le ricevono (terreno) e costano circa 27.000 triangoli in più all'avvio.
 - Terreno pulito: erba di un solo verde chiaro. Sentieri e campi sono zone nette con angoli arrotondati e un contorno più scuro di 15 cm; i campi hanno solchi regolari.
 - I lotti sono pavimenti di terra battuta chiara chiusi da una staccionata bassa (PS6); fuori c'è prato a tinta unita e, verso i bordi della valle, la giungla in file regolari. Dentro i lotti non ci sono sassi, ceppi o fiori sparsi: ogni oggetto ha un ruolo.
 - Bloom (UnrealBloomPass) leggero solo sulle cose che brillano: Lumina, lampade, finestre del Laboratorio. Si disattiva in qualità Media.
@@ -698,16 +721,17 @@ Il giocatore resta finché ha sempre un passo successivo chiaro, vicino e divers
 | Personaggio adulto | 1,7 m di altezza (il giocatore 1,9 m: è il protagonista e deve spiccare) |
 | Porta | 2,0 m di altezza |
 | Capanna | 5 × 4 m di pianta, gronda a 2,4 m, colmo a 3,6 m |
-| Torchio | 2,4 × 2,4 m, alto 1,8 m |
+| Torchio | 3 × 3 m, alto 2,2 m: un blocco unico con una vite grossa, leggibile con la camera lontana |
+| Appezzamento del Campo | 4 × 4 m |
 | Camion di El Gordo | 2,3 × 5,5 m, alto 2,6 m |
-| Appezzamento | 4 × 4 m, piante alte 0,7–1,0 m in file regolari |
+| Piante di Lumina | 0,7–1,0 m, in file regolari |
 | Cespugli | 0,5–1,2 m |
 | Alberi della giungla | 4–8 m |
 
 **Visibilità del personaggio.**
 
 - Gli oggetti che stanno tra la camera e il giocatore (alberi, tetti, stazioni) diventano trasparenti al 30% in 0,15 s e tornano pieni quando il giocatore si allontana. Il giocatore non è mai nascosto.
-- Inquadratura di partenza: il giocatore dentro la Hacienda, nel terzo centrale dello schermo, con l'arco PATRÓN e la sagoma del Campo 1 in vista; niente di più alto delle ginocchia tra la camera e lui, e nessun oggetto che copra più di un quinto dello schermo. Il punto di partenza è nel lotto 1 a (20, 9), con il regalo di El Gordo a due passi verso nord-est; la capanna non c'è più nella zona di partenza.
+- Inquadratura di partenza: il giocatore dentro la Hacienda, nel terzo centrale dello schermo, con l'arco PATRÓN e la sagoma del Campo 1 in vista; niente di più alto delle ginocchia tra la camera e lui, e nessun oggetto che copra più di un quinto dello schermo. Il punto di partenza è nel lotto 1 a (27, 17,5), con il regalo di El Gordo a due passi verso nord-est; la capanna non c'è più nella zona di partenza.
 
 **Modelli.**
 
@@ -735,7 +759,7 @@ Il giocatore resta finché ha sempre un passo successivo chiaro, vicino e divers
 | Prendi un oggetto       | Vola in arco verso la pila; scatta da 1,3 a 1,0 di scala                                                          | "Pop" che sale di un semitono a ogni oggetto consecutivo (max 12) | 0,25 s |
 | Lasci un oggetto        | Vola alla stazione; la stazione si schiaccia e torna (0,95 → 1,05 → 1)                                            | Tonfo morbido                                                     | 0,12 s |
 | Incassi                 | Le mazzette volano al contatore in alto; il numero conta in animazione e si gonfia del 15%                        | Tintinnio di cassa                                                | 0,4 s  |
-| Sblocco                 | Anello che si riempie; poi l'oggetto sale da terra con rimbalzo, esplosione di 20 foglie, vibrazione camera 0,1 m | Fanfara breve                                                     | 0,5 s  |
+| Sblocco                 | Anello che si riempie; poi l'oggetto sale da terra con rimbalzo, esplosione di 20 foglie, vibrazione camera 0,1 m | Tic di pagamento che salgono di tono, poi fanfara di 1,2 s e un tintinnio per stella | 3 s    |
 | Assunzione              | Il lavoratore cade dall'alto e rimbalza                                                                           | "Hey!" sintetico                                                  | 0,4 s  |
 | Cliente servito         | Testo verde con l'importo reale incassato (es. "+\$30") che sale e svanisce                                       | Moneta                                                            | 0,6 s  |
 | Soglia di Calore        | La barra pulsa; luci blu e rosse ai bordi dello schermo                                                           | Sirena breve                                                      | 1 s    |
@@ -744,13 +768,23 @@ Il giocatore resta finché ha sempre un passo successivo chiaro, vicino e divers
 
 La vibrazione della camera si usa solo per sblocchi e retate, mai per azioni ripetute.
 
-**Obiettivi di prestazione.** 60 fotogrammi al secondo su un portatile recente di fascia media in qualità Alta, e almeno 50 sul tuo iMac 2015; meno di 150 chiamate di disegno e meno di 150.000 triangoli in scena. Nella zona di partenza (capanna e Campo 1) il limite è 60.000 triangoli. I conteggi sono quelli del pannello debug, ombre comprese. Gli alberi della giungla lontana sono versioni semplificate, senza ombre. Per oggetti ripetuti (piante, pile, mazzette, clienti) si usa una sola geometria disegnata più volte. Gli oggetti statici (vegetazione, capanna, stazioni) si fondono in poche geometrie: tutti i materiali con un solo colore pieno diventano un unico materiale con il colore nei vertici, e la vegetazione si divide in blocchi di 12 m che si scartano quando sono fuori inquadratura. Risoluzione interna limitata a 2560 × 1440, anche sugli schermi 5K. Le impostazioni offrono Qualità grafica Alta o Media.
+**Obiettivi di prestazione.** 60 fotogrammi al secondo su un portatile recente di fascia media in qualità Alta, e almeno 50 sul tuo iMac 2015; meno di 150 chiamate di disegno e meno di 150.000 triangoli in scena. Nell'inquadratura di partenza (tutto il lotto 1 con la cornice) il limite è 60.000 triangoli. I conteggi sono quelli del pannello debug, ombre comprese. Gli alberi della giungla lontana sono versioni semplificate, senza ombre. Per oggetti ripetuti (piante, pile, mazzette, clienti) si usa una sola geometria disegnata più volte. Gli oggetti statici (vegetazione, capanna, stazioni) si fondono in poche geometrie: tutti i materiali con un solo colore pieno diventano un unico materiale con il colore nei vertici, e la vegetazione si divide in blocchi di 12 m che si scartano quando sono fuori inquadratura. Risoluzione interna limitata a 2560 × 1440, anche sugli schermi 5K. Le impostazioni offrono Qualità grafica Alta o Media.
 
 ## 11. Audio
 
 Tutti gli effetti sonori si generano da codice con ZzFX, una libreria di pochi kilobyte che crea suoni sintetici da una lista di parametri: niente file da cercare né licenze. La musica è l'unico elemento audio che può richiedere un file.
 
-- **Effetti.** Quelli elencati nella tabella del game feel (sezione 10). Ogni effetto ha 2–3 varianti leggermente diverse, scelte a caso, per non stancare l'orecchio.
+- **Effetti.** Quelli elencati nella tabella del game feel (sezione 10), più il clacson del camion, la fiammata del Falò, il russare e il risveglio dei lavoratori, il jingle del livello di Rispetto e un clic leggero per i pulsanti. Arrivano nella tappa M2c, prima del resto dell'audio, perché un gioco del genere senza suoni sembra rotto (revisione del 30 ottobre 2026, voto 1/10). Regole (revisione del 30 ottobre 2026):
+
+  - Il pop della raccolta suona a ogni pezzo, fino a 12 al secondo (un pezzo ogni 0,08 s), e sale di un semitono a pezzo: la scala si sente. Gli altri suoni hanno un intervallo minimo proprio.
+  - Al massimo 8 voci insieme, melodie comprese. Una melodia alla volta: se sblocco e livello arrivano insieme, il jingle del livello parte dopo la fanfara.
+  - Le melodie seguono il tempo del gioco: in pausa si fermano.
+  - Ogni suono ha 3 varianti con il tono leggermente diverso, scelte dal generatore con seme.
+  - Volume generale 0,5, effetti al 70% all'avvio. Il pop, il suono più ripetuto, è più basso della cassa, della fanfara e dei potenziamenti.
+  - La festa dura 3 s: fanfara di circa 1,2 s, poi un tintinnio per ogni stella guadagnata.
+  - Ogni vendita al camion fa una moneta; ogni assunzione un "Hey!"; i pulsanti un clic.
+  - Il tasto M toglie e rimette l'audio, con un avviso suo (non quello della pausa) e un'icona dell'altoparlante fissa in basso a destra; la scelta si ricorda nel browser.
+  - La libreria audio si carica al primo clic o tasto: prima non si crea nessun contesto audio. Ogni effetto ha 2–3 varianti leggermente diverse, scelte a caso, per non stancare l'orecchio.
 
 - **Suoni ripetuti.** La raccolta usa un "pop" che sale di tono a ogni oggetto consecutivo: rende piacevole anche l'azione più ripetuta del gioco.
 
@@ -780,7 +814,9 @@ L'interfaccia occupa il meno possibile: tre elementi fissi in alto, disposti com
 
 **Elementi nel mondo.**
 
-- Tappetini di sblocco: prezzo grande sopra, anello che si riempie durante il pagamento.
+- Riquadri d'acquisto: prezzo grande sopra, anello giallo che si riempie durante il pagamento e prezzo che scende.
+
+- Presa e consegna: contorno bianco sottile attaccato alla macchina, con l'icona della merce e una freccia dentro o fuori (sezione 3).
 
 - Stazioni: anello di avanzamento del ciclo e numero di pezzi pronti; icona di stop rossa se ferme.
 
@@ -788,15 +824,15 @@ L'interfaccia occupa il meno possibile: tre elementi fissi in alto, disposti com
 
 - Le etichette nel mondo sono al massimo circa 40 a schermo; oltre si nascondono quelle lontane.
 
-**Pannello Ufficio.** Si apre quando stai sul tappetino viola e si chiude da solo quando ne esci (oppure con la X o Esc). Non si apre a distanza: all'Ufficio si va a piedi, come agli uffici di Pizza Ready e Burger Please.
+**Pannello Ufficio.** Si apre quando stai sul contorno davanti all'ingresso dell'Ufficio e si chiude da solo quando ne esci (oppure con la X o Esc). Non si apre a distanza: all'Ufficio si va a piedi, come agli uffici di Pizza Ready e Burger Please.
 
 - Pannello laterale a destra, largo il 35% dello schermo; il mondo resta visibile a sinistra.
 
-- Quattro schede: **Giocatore** (Zaino, Scarpe), **Stazioni** (Fertilizzante, Ingranaggi, Cassone, Attrezzatura, Purezza, Bilance), **Squadra** (Formazione, lavoratori extra), **Polizia** (Quota, Paga il Comandante; compare dalla Fase 3).
+- Nella Fase 1 c'è una scheda sola, **Giocatore** (Zaino, Scarpe, Guadagno), e l'Ufficio si compra come sblocco 4b. Dalla tappa M3 le schede diventano quattro: **Giocatore** (Zaino, Scarpe, Guadagno), **Stazioni** (Fertilizzante, Ingranaggi, Cassone, Attrezzatura, Purezza, Bilance), **Squadra** (Formazione, lavoratori extra), **Polizia** (Quota, Paga il Comandante; compare dalla Fase 3).
 
 - Ogni potenziamento è una scheda grande con l'immagine dell'oggetto, il nome, i livelli come tacche, l'effetto "prima → dopo" (es. "Capacità 4 → 6") e il pulsante con il prezzo, come le schede di Pizza Ready e Burger Please. Grigio se non te lo puoi permettere, verde se sì.
 
-- Un pallino rosso sull'icona dell'Ufficio nel mondo segnala che c'è almeno un potenziamento acquistabile.
+- Un pallino rosso sopra il tetto dell'Ufficio segnala che c'è almeno un potenziamento acquistabile. La prima volta che l'Ufficio si apre, la frase dell'obiettivo dice "Entra nell'ufficio!" e la freccia indica la porta, finché il giocatore non ci entra.
 
 **Impostazioni.** Volumi (musica, effetti, ambiente) · Qualità grafica (Alta/Media) · Valore dell'impero e Condividi · Esporta salvataggio · Importa salvataggio · Ricomincia da zero (con doppia conferma) · Versione del gioco.
 
@@ -948,9 +984,10 @@ La Beta si costruisce in 10 tappe, una per sessione di Claude Code, e ognuna fin
 | M1b · Direzione visiva      | Modelli dai pacchetti CC0, stazioni da codice nello stesso stile, luce e atmosfera, terreno ed erba, bordi morbidi, bloom, proporzioni, oggetti trasparenti davanti al giocatore, inquadratura di partenza, budget dei triangoli | L'angolo capanna + Campo 1 sembra il gioco finito; meno di 60.000 triangoli lì; almeno 50 fps sull'iMac |
 | M2 · Fase 1 a mano          | Campi, Torchio, camion con cassone, Scarti e Falò, pila, zone, contante, regalo di El Gordo, Rispetto, tappetini di sblocco, Raccoglitori con percorsi e sonno; informazione nel mondo, colori di marca e interfaccia del genere (sezioni 10 e 12) | Si gioca dal minuto 0 allo sblocco del Torchio 2, con i due Raccoglitori; gli screenshot passano la parte A della lista di controllo della skill arcade-idle |
 | M2b · Rifondazione          | Mondo ricostruito da zero secondo la skill arcade-idle (Fase 6): lotti recintati che si allargano, arco PATRÓN, sagome degli sblocchi con la festa, camion che arriva sulla strada, mazzette sulla schiena, camera a 19 m, sequenza del primo minuto | Gli screenshot superano la lista di controllo e le regole PS1–PS20; si gioca dal minuto 0 al Torchio 2 senza aiuto |
-| M3 · Ufficio e Cargador     | Cargador di El Gordo, pannello Ufficio e potenziamenti a schede, lavoratori extra dall'Ufficio, spinte nel mondo                                  | La Fase 1 gira da sola; i potenziamenti cambiano i numeri come in tabella                        |
-| M4 · Fase 2                 | Laboratorio (con Rispetto 3), Corriere A, barra del Calore, Purezza, ordini speciali e spinta ×2                                                 | Il Calore sale e scende come da sezione 7; un ordine si completa, paga doppio e dà 60 s di velocità doppia |
-| M5 · Fase 3                 | Banco, Plaza (con Rispetto 4), clienti e Fama, spacciatore, Corriere B, Quota, posti di blocco, perquisizioni, retate, rivale, Guardia, capi squadra, finale Beta | Tutta la sequenza degli sblocchi si completa con la modalità debug a tempo × 10; il test "produrre di più conviene sempre" è verde |
+| M2c · Storia e spazio       | Storia nel GDD, Torchio che si spiega, schermata iniziale; poi il mondo della prima sessione rifatto dopo la revisione del 30 ottobre 2026 (voto 3,2/10): lotto da 18 × 24 m, camera a 25 m di altezza inquadrata, presa e consegna sulla macchina, soldi non addosso, merce più larga del corpo, regalo a cubo, Ufficio con Zaino, Scarpe e Guadagno, effetti sonori | Ogni voce passa una revisione indipendente con le skill `arcade-idle` e `ux-ui-arcade-idle` con media ≥ 7 e nessuna area sotto 6; Luca la prova sull'iMac |
+| M3 · Ufficio e Cargador     | Cargador di El Gordo, le altre tre schede del pannello Ufficio (Stazioni, Squadra, Polizia) con i loro potenziamenti, lavoratori extra dall'Ufficio, spinte nel mondo                                  | La Fase 1 gira da sola; i potenziamenti cambiano i numeri come in tabella                        |
+| M4 · Fase 2                 | Laboratorio (con Rispetto 4), Corriere A, barra del Calore, Purezza, ordini speciali e spinta ×2                                                 | Il Calore sale e scende come da sezione 7; un ordine si completa, paga doppio e dà 60 s di velocità doppia |
+| M5 · Fase 3                 | Banco, Plaza (con Rispetto 5), clienti e Fama, spacciatore, Corriere B, Quota, posti di blocco, perquisizioni, retate, rivale, Guardia, capi squadra, finale Beta | Tutta la sequenza degli sblocchi si completa con la modalità debug a tempo × 10; il test "produrre di più conviene sempre" è verde |
 | M6 · Salvataggio e offline  | Salvataggio automatico, migrazioni, esporta e importa, guadagni offline                                                                          | Chiudi la scheda per 30 minuti: al ritorno il contante offline corrisponde al calcolo atteso     |
 | M7 · Game feel e onboarding | Schermata iniziale (sezione 8), tutti gli effetti della sezione 10, audio, abiti del giocatore, sequenza della sezione 8, missioni (sezione 9)                         | Un amico che non ha mai visto il gioco arriva al primo raccoglitore senza aiuto                  |
 | M8 · Bilanciamento          | Partite di prova, confronto con i minuti obiettivo della sezione 5, correzioni                                                                   | Nessun buco di più di 4 minuti tra sblocchi nella prima ora; nessuna fase "morta"                |

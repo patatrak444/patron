@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import './ui/styles.css';
 import { BALANCE } from './config/balance';
-import { fromWorld, toWorld } from './config/map';
+import { OFFICE, fromWorld, inRect, toWorld } from './config/map';
 import { createBus, type GameEvents } from './core/bus';
 import { installInput, screenToMap } from './core/input';
 import { createFixedStepper, startLoop } from './core/loop';
@@ -17,6 +17,11 @@ import { createRng } from './core/rng';
 import { prepareScenario, type Scenario } from './debug/scenarios';
 import { hasWebGL2, installMinSizeNotice, isTouchOnlyDevice, showBlockingMessage } from './ui/deviceGate';
 import { createHud } from './ui/hud';
+import { Sfx, type SoundEngine } from './audio/sfx';
+import { loadZzfx } from './audio/engine';
+import { createOfficePanel, type UpgradeView } from './ui/officePanel';
+import { buyUpgrade, profitFactor, speedFactor, stackCapacity, upgradeCost } from './sim/upgrades';
+import type { Phase1State } from './sim/phase1';
 import { cameraOffset, distanceForWidth, GameCamera } from './world/camera';
 import { createTitleScreen } from './ui/title';
 import { loadAssets, type Assets } from './world/assets';
@@ -30,6 +35,45 @@ import { Phase1View } from './world/phase1View';
 
 /** Modello del giocatore nella prima fase; gli abiti per fase arrivano in M7 (GDD sezione 9). */
 const PLAYER_MODEL = 'mini_male_a';
+
+/** Audio sì o no, ricordato nel browser: se l'archivio non c'è, l'audio resta acceso. */
+const MUTE_KEY = 'patron.muted';
+function readMuted(): boolean {
+  try {
+    return localStorage.getItem(MUTE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+function writeMuted(muted: boolean): void {
+  try {
+    localStorage.setItem(MUTE_KEY, muted ? '1' : '0');
+  } catch {
+    // Archivio non disponibile: la scelta vale per questa sessione.
+  }
+}
+
+/** Le tre schede dell'Ufficio con l'effetto adesso e al prossimo livello (GDD sezione 5). */
+function upgradeViews(s: Phase1State): UpgradeView[] {
+  const cfg = BALANCE.phase1;
+  return cfg.upgrades.list.map((d) => {
+    const level = s.upgrades[d.id];
+    const max = level >= d.levels;
+    const next: Phase1State = { ...s, upgrades: { ...s.upgrades, [d.id]: level + 1 } };
+    const pct = (k: number): string => `${Math.round(k * 100)}%`;
+    const price = (k: number): string => {
+      const v = cfg.truck.pastePrice * k;
+      return Number.isInteger(v) ? `$${v}` : `$${v.toFixed(2).replace('.', ',')}`;
+    };
+    const fx =
+      d.id === 'backpack'
+        ? { label: 'Capacità', now: `${stackCapacity(s)}`, next: `${stackCapacity(next)}` }
+        : d.id === 'shoes'
+          ? { label: 'Velocità', now: pct(speedFactor(s)), next: pct(speedFactor(next)) }
+          : { label: 'Panetto', now: price(profitFactor(s)), next: price(profitFactor(next)) };
+    return { id: d.id, name: d.name, level, levels: d.levels, label: fx.label, now: fx.now, next: max ? null : fx.next, cost: upgradeCost(s, d.id) };
+  });
+}
 
 async function boot(root: HTMLElement): Promise<void> {
   if (isTouchOnlyDevice()) {
@@ -92,8 +136,9 @@ async function boot(root: HTMLElement): Promise<void> {
 
   const camera = new GameCamera(BALANCE.camera, innerWidth / innerHeight);
   const frame = createFrame(renderer, scene, camera.camera, quality, BALANCE.render.bloom);
-  const spawn = toWorld(state.player);
-  camera.follow(spawn.x, spawn.z, true);
+  // All'avvio la camera inquadra tutto il lotto 1 con l'arco (GDD sezione 3).
+  const start = toWorld(BALANCE.camera.start);
+  camera.follow(start.x, start.z, true, true);
 
   const resize = (): void => {
     const w = innerWidth;
@@ -104,7 +149,45 @@ async function boot(root: HTMLElement): Promise<void> {
   addEventListener('resize', resize);
   resize();
 
-  const hud = createHud(root);
+  const hud = createHud(root, BALANCE.feel);
+  // Effetti sonori (GDD sezione 11): ascoltano il bus; il motore si carica al primo clic o tasto, M li
+  // toglie e la scelta si ricorda nel browser.
+  const sfx = new Sfx(BALANCE.audio);
+  sfx.attach(bus);
+  sfx.muted = readMuted();
+  hud.setMuted(sfx.muted, false);
+  // Il contesto audio si crea una volta sola, dentro il primo gesto (Safari); la libreria arriva dopo.
+  let audioLoader: (() => Promise<SoundEngine>) | null = null;
+  const unlockAudio = (): void => {
+    audioLoader ??= loadZzfx(BALANCE.audio.masterVolume);
+    void sfx.unlock(audioLoader);
+  };
+  const toggleAudio = (): void => {
+    const muted = sfx.toggleMute();
+    hud.setMuted(muted, true);
+    writeMuted(muted);
+  };
+  addEventListener('pointerdown', unlockAudio, { capture: true });
+  addEventListener('keydown', (e) => {
+    unlockAudio();
+    if (e.code === 'KeyM' && !e.repeat) toggleAudio();
+  });
+  hud.onMuteClick(toggleAudio);
+  // Ufficio (GDD sezione 12): si apre stando sul contorno davanti alla porta, si chiude uscendo.
+  const office = createOfficePanel(root, (id) => {
+    sfx.play('click', buyUpgrade(state.phase1, id, bus) ? 1 : 0.7);
+  });
+  let wasInOffice = false;
+  const badgeAt = new THREE.Vector3();
+  // Raccogliendo, le banconote volano dal mucchio alla pillola del contante (GDD sezione 3, UX3).
+  const billFrom = new THREE.Vector3();
+  bus.on('cash:collect', ({ amount, pile }) => {
+    const at = view.pileWorld(pile);
+    if (!at || mode !== 'play') return;
+    // Le banconote partono dallo strato che sparisce: la cima del mucchio.
+    billFrom.set(at.x, at.top, at.z).project(camera.camera);
+    hud.flyBills((billFrom.x * 0.5 + 0.5) * innerWidth, (-billFrom.y * 0.5 + 0.5) * innerHeight, amount);
+  });
   installMinSizeNotice(root);
 
   // Schermata iniziale (GDD sezione 8): sotto il logo gira l'impero dimostrativo, uno stato di gioco
@@ -135,8 +218,8 @@ async function boot(root: HTMLElement): Promise<void> {
     if (mode !== 'title') return;
     view.showState(state.phase1, !instant);
     player.root.visible = true;
-    const w = toWorld(state.player);
-    camera.follow(w.x, w.z, true);
+    camera.follow(start.x, start.z, true, true);
+    camera.follow(start.x, start.z);
     craneFrom.pos.copy(camera.camera.position);
     craneFrom.quat.copy(camera.camera.quaternion);
     placeCrane();
@@ -144,7 +227,7 @@ async function boot(root: HTMLElement): Promise<void> {
     craneFrom.quat.copy(camera.camera.quaternion);
     mode = instant ? 'play' : 'descend';
     descendTime = 0;
-    if (instant) camera.follow(w.x, w.z, true);
+    if (instant) camera.follow(start.x, start.z, true);
     stepper.paused = false;
   };
   void title.started.then(() => startPlay(false));
@@ -192,21 +275,33 @@ async function boot(root: HTMLElement): Promise<void> {
         setPlayer(x: number, y: number) {
           Object.assign(state.player, { x, y, prevX: x, prevY: y, vx: 0, vy: 0, path: [] });
           const w = toWorld({ x, y });
-          camera.follow(w.x, w.z, true);
+          camera.follow(w.x, w.z, true, true);
+          camera.follow(w.x, w.z);
         },
         zoom: (step: number) => camera.zoom(step),
+        /** Gira il giocatore e gli mette in mano questa merce (controllo UX 10: pila nelle 8 direzioni). */
+        pose(facing: number, items: string[]) {
+          Object.assign(state.player, { facing, prevFacing: facing, vx: 0, vy: 0, path: [] });
+          state.phase1.stack.items = items as typeof state.phase1.stack.items;
+        },
         /** Prepara una situazione di gioco per gli screenshot (src/debug/scenarios.ts). */
         prepare(name: Scenario) {
           view.holdFesta = name === 'festa';
+          // Le scene di debug ripetono sblocchi già fatti: niente fanfare.
+          sfx.silent = true;
           prepareScenario(state, name, bus);
+          sfx.silent = false;
           Object.assign(moveCtx, createMoveContext(state.phase1));
           view.syncUnlocked(state.phase1);
           const w = toWorld(state.player);
           const f = view.festaFocus();
-          camera.closeUp(f ? BALANCE.feel.festaWidth : null);
-          camera.follow(f?.x ?? w.x, f?.z ?? w.z, true);
+          camera.closeUp(f ? BALANCE.feel.festaHeight : null);
+          camera.follow(f?.x ?? w.x, f?.z ?? w.z, true, true);
+          if (!f) camera.follow(w.x, w.z);
         },
         state,
+        /** Suoni partiti finora, per nome (verifica automatica dell'audio). */
+        sounds: () => ({ ...sfx.played }),
         /** Salta la schermata iniziale senza animazione (screenshot automatici). */
         skipTitle() {
           title.start();
@@ -264,17 +359,31 @@ async function boot(root: HTMLElement): Promise<void> {
     const facing = p.prevFacing + angleDelta(p.prevFacing, p.facing) * alpha;
     const w = toWorld({ x, y });
     const dt = stepper.paused ? 0 : frameSeconds;
+    player.carrying = state.phase1.stack.items.length > 0;
     player.update(w.x, w.z, facing, Math.hypot(p.vx, p.vy), BALANCE.player.speed, dt);
     const s1 = state.phase1;
     view.update(
       s1,
-      { x: w.x, z: w.z, rotY: player.root.rotation.y, vx: p.vx, vz: -p.vy },
+      { x: w.x, z: w.z, rotY: player.root.rotation.y, vx: p.vx, vz: -p.vy, stepPhase: player.stepPhase },
       s1.stack.items,
       alpha,
       dt,
       state.time,
     );
     hud.setCash(s1.cash);
+    hud.update(frameSeconds);
+    sfx.update(dt);
+    const inOffice = mode === 'play' && s1.office && inRect({ x, y }, OFFICE.door.area);
+    if (inOffice && !wasInOffice) office.reopen();
+    wasInOffice = inOffice;
+    office.set(inOffice ? upgradeViews(s1) : null, s1.cash);
+    // Pallino rosso sopra il tetto dell'Ufficio se un potenziamento si può comprare e non si è dentro.
+    const affordable = s1.office && !inOffice && BALANCE.phase1.upgrades.list.some((u) => (upgradeCost(s1, u.id) ?? Infinity) <= s1.cash);
+    if (affordable) {
+      const o = toWorld(OFFICE);
+      badgeAt.set(o.x, 3.4, o.z).project(camera.camera);
+      hud.setOfficeBadge(badgeAt.z < 1 ? { x: (badgeAt.x * 0.5 + 0.5) * innerWidth, y: (-badgeAt.y * 0.5 + 0.5) * innerHeight } : null);
+    } else hud.setOfficeBadge(null);
     const prog = levelProgress(s1.stars);
     hud.setRespect(s1.level, prog.stars, prog.next);
     const goal = objective(s1);
@@ -287,8 +396,8 @@ async function boot(root: HTMLElement): Promise<void> {
 
     // Festa dello sblocco: un attimo di primo piano sull'oggetto nuovo, poi si torna al giocatore.
     const festa = view.festaFocus();
-    camera.closeUp(festa ? BALANCE.feel.festaWidth : null);
-    camera.follow(festa?.x ?? w.x, festa?.z ?? w.z);
+    camera.closeUp(festa ? BALANCE.feel.festaHeight : null);
+    camera.follow(festa?.x ?? w.x, festa?.z ?? w.z, false, festa !== null);
     camera.update(frameSeconds);
     if (mode === 'descend') {
       // Dalla gru al lotto 1: si fonde la posa della gru con quella di gioco (GDD sezione 8).

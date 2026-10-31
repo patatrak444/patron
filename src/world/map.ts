@@ -6,7 +6,7 @@
 
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
-import { ARCH, BONFIRE, FIELD_PLOTS, FIELD_SIZE, LOTS, PICKER_HUT, PRESSES, TRUCK, VALLEY, inRect, toWorld, type LotId, type MapPoint, type Rect } from '../config/map';
+import { ARCH, BONFIRE, FIELD_PLOTS, FIELD_SIZE, LOTS, OFFICE, PICKER_HUT, PRESSES, ROAD, TRUCK, VALLEY, inRect, toWorld, type LotId, type MapPoint, type Rect } from '../config/map';
 import { createRng, type Rng } from '../core/rng';
 import type { Assets, PropId } from './assets';
 import { bakeGroup, createBatches } from './batching';
@@ -22,6 +22,9 @@ const WOOD = 0x9a6b45;
 const WOOD_DARK = 0x6b4a2f;
 /** Terra battuta chiara dei lotti: il pavimento più luminoso della scena (regola RF6). */
 const LOT_FLOOR = 0xf0dfb8;
+/** Staccionata in legno chiaro, più spessa: si legge come un muretto basso, come in Pizza Ready. */
+const FENCE_POST = 0xb98a5c;
+const FENCE_RAIL = 0xd9b07e;
 const LOT_EDGE = 0xd9c08e;
 
 const FRAME_TREES: readonly { id: PropId; weight: number; h: [number, number] }[] = [
@@ -66,7 +69,7 @@ class Placements {
       const entries = [...this.map.values()].filter((e) => e.shadow === shadow).map((e) => ({ prop: assets.props[e.id], list: e.list }));
       if (entries.length === 0) continue;
       // Blocchi da 20 m: la valle a lotti è piccola, meno blocchi vuol dire meno disegni (GDD sezione 10).
-      const b = createBatches(entries, { castShadow: shadow, chunkSize: 20 });
+      const b = createBatches(entries, { castShadow: shadow, chunkSize: 28 });
       b.name = `${name} ${shadow ? 'con ombra' : 'senza ombra'}`;
       root.add(b);
     }
@@ -93,12 +96,64 @@ function moved<T extends THREE.Object3D>(o: T, x: number, y: number, z: number):
 }
 
 /** Pavimento di un lotto: terra battuta chiara con il bordo più scuro, appena sopra il prato. */
+/** Quadri tenui del pavimento: due toni di terra battuta che si alternano, ripetuti. */
+function tileTexture(repeatX: number, repeatY: number): THREE.CanvasTexture {
+  const c = document.createElement('canvas');
+  c.width = 64;
+  c.height = 64;
+  const ctx = c.getContext('2d')!;
+  const a = new THREE.Color(LOT_FLOOR);
+  const b = a.clone().multiplyScalar(0.965);
+  ctx.fillStyle = `#${a.getHexString()}`;
+  ctx.fillRect(0, 0, 64, 64);
+  ctx.fillStyle = `#${b.getHexString()}`;
+  ctx.fillRect(0, 0, 32, 32);
+  ctx.fillRect(32, 32, 32, 32);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(repeatX / 2, repeatY / 2);
+  t.magFilter = THREE.NearestFilter;
+  t.anisotropy = 4;
+  return t;
+}
+
+/** Ricolora una tavolozza Kenney: i colori chiari diventano il giallo di marca, quelli scuri restano. */
+function yellowPalette(src: THREE.Texture): THREE.Texture {
+  const img = src.image as CanvasImageSource & { width: number; height: number };
+  const c = document.createElement('canvas');
+  c.width = img.width;
+  c.height = img.height;
+  const ctx = c.getContext('2d')!;
+  ctx.drawImage(img, 0, 0);
+  const data = ctx.getImageData(0, 0, c.width, c.height);
+  const p = data.data;
+  // Giallo di marca in sRGB, come i pixel della tavolozza.
+  const by = [(PALETTE.brandYellow >> 16) & 255, (PALETTE.brandYellow >> 8) & 255, PALETTE.brandYellow & 255] as const;
+  for (let i = 0; i < p.length; i += 4) {
+    const lum = (0.2126 * p[i]! + 0.7152 * p[i + 1]! + 0.0722 * p[i + 2]!) / 255;
+    if (lum < 0.42) continue;
+    const k = Math.min(1, 0.72 + (lum - 0.42) * 0.6);
+    p[i] = by[0] * k;
+    p[i + 1] = by[1] * k;
+    p[i + 2] = by[2] * k;
+  }
+  ctx.putImageData(data, 0, 0);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = src.colorSpace;
+  t.flipY = src.flipY;
+  t.magFilter = src.magFilter;
+  t.minFilter = src.minFilter;
+  return t;
+}
+
 function createLotFloor(lot: Rect): THREE.Group {
   const g = new THREE.Group();
   const w = lot.x1 - lot.x0;
   const h = lot.y1 - lot.y0;
   const edge = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.3, h + 0.3), new THREE.MeshLambertMaterial({ color: LOT_EDGE }));
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshLambertMaterial({ color: LOT_FLOOR }));
+  // Pavimento a quadri tenui da 2 m (RF15): fa leggere distanze e velocità senza sporcare la scena.
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshLambertMaterial({ map: tileTexture(w / 2, h / 2) }));
   for (const [m, y] of [
     [edge, 0.008],
     [floor, 0.012],
@@ -123,10 +178,11 @@ function createFieldSoil(): THREE.Group {
   top.castShadow = false;
   top.position.y = 0.02;
   g.add(top);
-  for (let i = 0; i < 3; i++) {
+  // Solchi regolari, uno per fila di piante.
+  for (let i = 0; i < 4; i++) {
     const f = rbox(FIELD_SIZE - 0.5, 0.03, 0.14, PALETTE.fieldEarthDark, 0.02);
     f.castShadow = false;
-    f.position.set(0, 0.075, -FIELD_SIZE / 2 + 0.75 + i * 0.75);
+    f.position.set(0, 0.075, -FIELD_SIZE / 2 + 0.5 + i * 1.0);
     g.add(f);
   }
   return bakeGroup(g);
@@ -153,13 +209,13 @@ function createFence(from: MapPoint, to: MapPoint, gap?: { at: number; width: nu
     for (let i = 0; i <= n; i++) {
       const d = a + ((b - a) * i) / n;
       const p = toWorld({ x: from.x + dir.x * d, y: from.y + dir.y * d });
-      const post = rbox(0.14, 0.85, 0.14, WOOD_DARK, 0.03);
-      post.position.set(p.x, 0.425, p.z);
+      const post = rbox(0.2, 0.9, 0.2, FENCE_POST, 0.04);
+      post.position.set(p.x, 0.45, p.z);
       g.add(post);
     }
     for (const h of [0.35, 0.65]) {
       const mid = toWorld({ x: from.x + dir.x * ((a + b) / 2), y: from.y + dir.y * ((a + b) / 2) });
-      const rail = rbox(b - a, 0.09, 0.07, WOOD, 0.02);
+      const rail = rbox(b - a, 0.13, 0.09, FENCE_RAIL, 0.03);
       rail.position.set(mid.x, h, mid.z);
       rail.rotation.y = ang;
       g.add(rail);
@@ -235,6 +291,25 @@ function createArch(): THREE.Group {
   return g;
 }
 
+/**
+ * Ufficio (GDD sezioni 4 e 12): casetta 3 × 2,5 m con la porta a ovest, dove si appoggia il contorno
+ * d'ingresso, e un'insegna gialla con la freccia in su sopra la porta.
+ */
+function createOffice(): THREE.Group {
+  const g = new THREE.Group();
+  const W = OFFICE.w;
+  const D = OFFICE.h;
+  g.add(moved(rbox(W + 0.15, 0.2, D + 0.15, 0x9c958a, 0.05), 0, 0.1, 0));
+  g.add(moved(rbox(W, 2.0, D, PALETTE.villageWall, 0.06), 0, 1.2, 0));
+  g.add(moved(rbox(W + 0.6, 0.22, D + 0.6, PALETTE.roofTile, 0.08), 0, 2.32, 0));
+  g.add(moved(rbox(W - 0.4, 0.3, D - 0.5, 0xb04a33, 0.08), 0, 2.56, 0));
+  // Porta a ovest (−x) con l'insegna gialla.
+  g.add(moved(rbox(0.1, 1.7, 1.0, 0x5a3a24, 0.03), -W / 2 - 0.03, 1.05, 0));
+  g.add(moved(rbox(0.14, 0.5, 1.5, PALETTE.brandYellow, 0.06), -W / 2 - 0.08, 2.05, 0));
+  for (const sz of [-1, 1]) g.add(moved(rbox(0.1, 0.7, 0.55, 0x2f3b45, 0.02), -W / 2 - 0.03, 1.35, sz * 0.85));
+  return bakeGroup(g);
+}
+
 /** Casetta dei Raccoglitori (decorativa) per il lotto 2. */
 function createHut(): THREE.Group {
   const g = new THREE.Group();
@@ -273,6 +348,7 @@ export interface Valley {
   readonly soils: Readonly<Record<string, THREE.Group>>;
   readonly truck: THREE.Object3D;
   readonly bonfire: THREE.Group;
+  readonly office: THREE.Group;
   readonly hut: THREE.Group;
 }
 
@@ -321,7 +397,7 @@ export function createValley(assets: Assets): Valley {
   for (const l of PRESSES) {
     const press = placeAt(bakeGroup(createPress()), l);
     const sign = createRecipeSign('leaf', 'paste', 2.3);
-    sign.position.set(TORCHIO.screw.x, 2.65, 0);
+    sign.position.set(TORCHIO.screw.x, 2.95, TORCHIO.screw.z);
     press.add(sign);
     press.name = l.id;
     press.visible = false;
@@ -333,8 +409,8 @@ export function createValley(assets: Assets): Valley {
   const soils: Record<string, THREE.Group> = {};
   for (const f of FIELD_PLOTS) {
     const pos: { x: number; z: number; h: number; r: number }[] = [];
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) pos.push({ x: -0.9 + i * 0.9, z: -0.9 + j * 0.9, h: 0.8 + ((i + j) % 3) * 0.1, r: (i * 3 + j) * 1.3 });
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) pos.push({ x: -1.5 + i * 1.0, z: -1.5 + j * 1.0, h: 0.85 + ((i + j) % 3) * 0.1, r: (i * 4 + j) * 1.3 });
     }
     const g = placeAt(createLuminaPlants(pos), f);
     g.name = `piante:${f.id}`;
@@ -350,23 +426,30 @@ export function createValley(assets: Assets): Valley {
   bonfire.visible = false;
   // Camion di El Gordo: lungo la strada, muso verso est. Arriva con la prima Pressa.
   const truck = placeAt(createSingle(assets.props.truck_flat, 2.6), TRUCK, Math.PI / 2);
+  // Il camion di El Gordo è giallo (GDD sezione 1): si ricolora la tavolozza del modello, le parti chiare
+  // diventano gialle e quelle scure (ruote, vetri) restano scure.
   truck.traverse((o) => {
     const mesh = o as THREE.Mesh;
     if (!mesh.isMesh) return;
     const mat = (mesh.material as THREE.MeshLambertMaterial).clone();
-    mat.color.setHex(0xffd27a);
+    if (mat.map) mat.map = yellowPalette(mat.map);
+    mat.color.setHex(0xffffff);
     mesh.material = mat;
   });
   truck.visible = false;
   const hut = placeAt(createHut(), PICKER_HUT, Math.PI);
   hut.visible = false;
-  root.add(bonfire, truck, hut);
+  const office = placeAt(createOffice(), OFFICE);
+  office.visible = false;
+  occluders.push(office);
+  root.add(bonfire, truck, hut, office);
 
   // Fuori dai lotti: qualche cespuglio tondo lungo la staccionata, alberi verso i bordi della valle.
   const allLots = Object.values(LOTS);
   const nearLot = (p: MapPoint, m: number): boolean => allLots.some((r) => inRect(p, r, -m));
-  const onRoad = (p: MapPoint): boolean => Math.abs(p.y - 18) < 2.6;
-  for (const s of rows(rng, { x0: 2, y0: 1, x1: VALLEY.width - 2, y1: 34 }, 3.2)) {
+  const onRoad = (p: MapPoint): boolean => Math.abs(p.y - ROAD.from.y) < ROAD.width;
+  const jungleFrom = ROAD.from.y + ROAD.width + 1.2;
+  for (const s of rows(rng, { x0: 2, y0: 1, x1: VALLEY.width - 2, y1: jungleFrom - 1 }, 4.6)) {
     if (nearLot(s, 2.2) || onRoad(s)) continue;
     // Più lontano dai lotti, alberi; vicino, cespugli bassi: niente di alto tra la camera e il lotto.
     const far = !nearLot(s, 6);
@@ -375,16 +458,17 @@ export function createValley(assets: Assets): Valley {
       const t = pickWeighted(rng, FRAME_TREES);
       P.add(t.id, true, s, t.h[0] + s.jitter * (t.h[1] - t.h[0]), s.jitter * 6.3);
     } else if (s.jitter < 0.55) {
-      P.add('bush_round', true, s, 0.9 + s.jitter * 0.4, s.jitter * 6.3);
+      // I cespugli fuori dalla staccionata non fanno ombra: con la camera lontana costavano disegni in più.
+      P.add('bush_round', false, s, 0.9 + s.jitter * 0.4, s.jitter * 6.3);
     }
   }
   // Giungla fitta oltre la strada, verso nord (radura e paese delle Fasi 2 e 3).
-  for (const s of rows(rng, { x0: 0, y0: 21.5, x1: VALLEY.width, y1: VALLEY.depth - 1 }, 3)) {
+  for (const s of rows(rng, { x0: 0, y0: jungleFrom, x1: VALLEY.width, y1: VALLEY.depth - 1 }, 4.9)) {
     const t = pickWeighted(rng, FRAME_TREES);
-    P.add(t.id, s.y < 24, s, t.h[0] + s.jitter * (t.h[1] - t.h[0]), s.jitter * 6.3);
+    P.add(t.id, false, s, t.h[0] + s.jitter * (t.h[1] - t.h[0]), s.jitter * 6.3);
   }
   // Cornice oltre i bordi della valle; a sud e a ovest solo cespugli, per non coprire la vista.
-  for (const s of rows(rng, { x0: -FRAME_DEPTH, y0: -FRAME_DEPTH, x1: VALLEY.width + FRAME_DEPTH, y1: VALLEY.depth + FRAME_DEPTH }, 3)) {
+  for (const s of rows(rng, { x0: -FRAME_DEPTH, y0: -FRAME_DEPTH, x1: VALLEY.width + FRAME_DEPTH, y1: VALLEY.depth + FRAME_DEPTH }, 4.5)) {
     const outside = s.x < -0.9 || s.y < -0.9 || s.x > VALLEY.width + 0.9 || s.y > VALLEY.depth + 0.9;
     if (!outside) continue;
     if (s.y < 0 || s.x < 0) {
@@ -397,5 +481,5 @@ export function createValley(assets: Assets): Valley {
   }
   P.build(assets, root, 'vegetazione');
 
-  return { root, occluders, lots, fences, arch, presses, plants, soils, truck, bonfire, hut };
+  return { root, occluders, lots, fences, arch, presses, plants, soils, truck, bonfire, office, hut };
 }

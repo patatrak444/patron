@@ -45,3 +45,29 @@ Tempi misurati col giocatore automatico: primo Raccoglitore 1,2 min (obiettivo 3
 
 - Fluidità sull'iMac (fotogrammi al secondo con `?debug=1`).
 - Partita a mano di una persona dal minuto 0 alla Pressa 2.
+
+## M2c · Rifondazione della prima sessione (30–31 ottobre 2026)
+
+Il gioco della M2b ha preso 3,2/10 da una revisione indipendente con le skill `arcade-idle` e `ux-ui-arcade-idle` (spazio 3, tappetini 3, pila 2, soldi 4, grafica 5, guida 5, ritmo 3, suono 1, fedeltà 3). Il mondo della prima sessione è stato rifatto voce per voce, e ogni voce è passata da una revisione indipendente con soglia media ≥ 7 e nessuna area sotto 6.
+
+| Voce | Voto finale | Note |
+| --- | --- | --- |
+| Nuova direzione nel GDD | 7,3 | dopo una prima lettura a 6,6 |
+| Spazio, pianta e camera | 7,2 | lotto 18 × 24 m, pianta ad anello (tratti 2–8 m), camera a 25 m di altezza inquadrata |
+| Presa, consegna e riquadri | 7,0 | contorni sulla macchina; pagamento di 2 s per ogni prezzo |
+| Soldi e regalo | 7,2 | niente soldi addosso; banconote una a una, contatore che sale all'arrivo |
+| Pila in mano | 7,6 | dopo una prima lettura a 5,8 |
+| Ufficio e potenziamenti | 7,0 | Zaino, Scarpe, Guadagno; pallino rosso; il giocatore automatico compra |
+| Effetti sonori | 7,0 | dopo una prima lettura a 6,0 |
+| Grafica | 7,1 | dopo una prima lettura a 6,5 |
+
+Scelte di Luca tenute contro il parere dei revisori: lotto grande (niente soffocamento), riquadro d'acquisto arancio con anello giallo (il verde a terra è dei soldi), pulsanti verdi nell'Ufficio (GDD sezione 12).
+
+Tempi col giocatore automatico che compra anche i potenziamenti: Campo 2 0,4 min (obiettivo 0,5), Falò 1,0 (1,3), Ufficio 1,2 (1,5), Raccoglitore 2,0 (2,5), Nuova zona 3,4 (3,5), Campo 3 4,5 (6,5), secondo Raccoglitore 6,4 (8), Torchio 2 9,6 (10).
+
+### Non verificato da qui
+
+- Fluidità sull'iMac con `?debug=1` (il browser di prova gira a 1–4 fps).
+- Il suono: generato e misurato (durata, volume, nessuna saturazione) e contato nel browser, ma nessuno l'ha ascoltato. Da provare anche su Safari.
+- Il volo delle banconote e l'oscillazione della pila in movimento: verificati dal codice e dai test, non visti.
+- Una partita a mano dal minuto 0 al Torchio 2.

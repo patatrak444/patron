@@ -48,7 +48,7 @@ function leafGeometry(): THREE.BufferGeometry {
     leaf.scale(1, 1, 0.35);
     leaf.rotateZ(Math.PI / 2 + rot);
     leaf.translate(dx * 0.4, 0.08, dx);
-    parts.push(painted(leaf, 0x3fc24a));
+    parts.push(painted(leaf, 0x5cc296));
     const tip = new THREE.ConeGeometry(0.045, 0.12, 4, 1);
     tip.scale(1, 1, 0.4);
     tip.rotateZ(Math.PI / 2 + rot);
@@ -83,9 +83,11 @@ function scrapGeometry(): THREE.BufferGeometry {
 
 function moneyGeometry(): THREE.BufferGeometry {
   // Mazzetta verde acceso con la fascia chiara: l'unico verde di quel tono nella scena (GDD sezione 10).
-  const bill = painted(new RoundedBoxGeometry(0.36, 0.11, 0.22, 1, 0.025), PALETTE.money);
+  // Spigoli vivi: con la camera lontana gli arrotondamenti non si vedono, e una mazzetta passa da 216 a 24
+  // triangoli (la torre del regalo ne ha 60).
+  const bill = painted(new THREE.BoxGeometry(0.36, 0.11, 0.22), PALETTE.money);
   bill.translate(0, 0.055, 0);
-  const band = painted(new RoundedBoxGeometry(0.09, 0.115, 0.225, 1, 0.015), PALETTE.moneyBand);
+  const band = painted(new THREE.BoxGeometry(0.09, 0.115, 0.225), PALETTE.moneyBand);
   band.translate(0, 0.055, 0);
   return mergeGeometries([bill, band])!;
 }
@@ -132,12 +134,12 @@ export class ItemBatch {
   }
 
   /** Un pezzo con la base nel punto (x, y, z) del mondo, ruotato attorno alla verticale. */
-  add(kind: VisualItem, x: number, y: number, z: number, rotY = 0, scale = 1, tiltX = 0, tiltZ = 0): void {
+  add(kind: VisualItem, x: number, y: number, z: number, rotY = 0, scale = 1, tiltX = 0, tiltZ = 0, scaleY = scale, scaleZ = scale): void {
     const i = this.counts[kind];
     if (i >= MAX_PER_KIND) return;
     this.q.setFromAxisAngle(this.up, rotY);
     if (tiltX !== 0 || tiltZ !== 0) this.q.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(tiltX, 0, tiltZ)));
-    this.m.compose(this.v.set(x, y, z), this.q, scale === 1 ? this.one : this.sc.setScalar(scale));
+    this.m.compose(this.v.set(x, y, z), this.q, scale === 1 && scaleY === 1 && scaleZ === 1 ? this.one : this.sc.set(scale, scaleY, scaleZ));
     this.meshes[kind].setMatrixAt(i, this.m);
     this.counts[kind] = i + 1;
   }
@@ -155,13 +157,29 @@ export class ItemBatch {
  * Mucchio di mazzette a blocchi di 2 × 3 che cresce in altezza (GDD sezione 10), come i soldi a
  * terra di Pizza Ready. Oltre 40 mazzette la pila smette di crescere (GDD sezione 4).
  */
-export function addMoneyPile(batch: ItemBatch, value: number, x: number, z: number, pop = 1): void {
+/** Restituisce l'altezza della cima del mucchio sopra `baseY`. */
+export function addMoneyPile(batch: ItemBatch, value: number, x: number, z: number, pop = 1, baseY = 0): number {
   const bundles = Math.min(40, Math.max(6, Math.ceil(value / 5)));
   for (let i = 0; i < bundles; i++) {
     const layer = Math.floor(i / 6);
     const slot = i % 6;
     const col = slot % 2;
     const row = Math.floor(slot / 2);
-    batch.add('money', x + (col - 0.5) * 0.38 * ITEM_SCALE, layer * ITEM_HEIGHT.money * pop, z + (row - 1) * 0.24 * ITEM_SCALE, 0, pop);
+    batch.add('money', x + (col - 0.5) * 0.38 * ITEM_SCALE, baseY + layer * ITEM_HEIGHT.money * pop, z + (row - 1) * 0.24 * ITEM_SCALE, 0, pop);
+  }
+  return Math.ceil(bundles / 6) * ITEM_HEIGHT.money * pop;
+}
+
+/**
+ * Il regalo di El Gordo: torre di mazzette 2 × 3 alta quanto il personaggio, che si vede da lontano (GDD
+ * sezione 4, UX11). Il numero di mazzette è solo visivo.
+ */
+export function addMoneyTower(batch: ItemBatch, x: number, z: number, layers: number): void {
+  for (let i = 0; i < layers * 6; i++) {
+    const layer = Math.floor(i / 6);
+    const slot = i % 6;
+    const col = slot % 2;
+    const row = Math.floor(slot / 2);
+    batch.add('money', x + (col - 0.5) * 0.38 * ITEM_SCALE, layer * ITEM_HEIGHT.money, z + (row - 1) * 0.24 * ITEM_SCALE, (layer % 2) * 0.06, 1);
   }
 }

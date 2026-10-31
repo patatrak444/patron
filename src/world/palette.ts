@@ -23,10 +23,6 @@ export const PALETTE = {
   brandBlueDark: 0x2f8fa8,
   brandYellow: 0xffc94a,
   brandYellowDark: 0xe0a52c,
-  /** Tappetini delle zone (GDD sezione 3). */
-  matPickup: 0x6ed36a,
-  matDeposit: 0xffd84a,
-  matCash: 0x5aa8f0,
   magenta: 0xff4f9a,
   gold: 0xffc94a,
   white: 0xffffff,
