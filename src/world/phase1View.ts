@@ -87,8 +87,8 @@ export class Phase1View {
   private readonly pressOut = new Map<string, Label>();
   private readonly pressScrap = new Map<string, Label>();
   private readonly pressStop = new Map<string, Label>();
-  private readonly truckLabel = new Label(0.7);
-  private readonly truckTimer = new Label(0.7);
+  private readonly truckLabel = new Label(1.05);
+  private readonly truckTimer = new Label(1.05);
   /** Animazioni a tempo: aree che si aprono, stazioni che compaiono, fiammate. */
   private readonly tweens: { t: number; dur: number; apply: (k: number) => void }[] = [];
   private readonly confetti = new Confetti();
@@ -122,7 +122,7 @@ export class Phase1View {
     for (const p of PRESSES) {
       const out = new Label();
       const scrap = new Label();
-      const stop = new Label(0.8);
+      const stop = new Label(1.15);
       const o = toWorld(p.output);
       out.sprite.position.set(o.x - 0.4, 2.1, o.z);
       const s = toWorld(p.scrap);
@@ -283,7 +283,7 @@ export class Phase1View {
     if (!v) {
       const model = WORKER_MODELS[index % WORKER_MODELS.length]!;
       const character = new Character(this.assets.characters[model], { cap: STRAW });
-      const zzz = new Label(0.5);
+      const zzz = new Label(0.75);
       this.root.add(character.root, zzz.sprite);
       v = { character, zzz, sway: new StackSway() };
       this.workers.set(w.id, v);
@@ -334,7 +334,7 @@ export class Phase1View {
     if (s.bonfire) specs.push({ contour: BONFIRE.mat, icon: 'scrap', into: true });
     if (s.truck.arrived) specs.push({ contour: TRUCK.deposit, icon: 'paste', into: true });
     if (s.office) specs.push({ contour: OFFICE.door, icon: 'office', into: true });
-    this.contours.set(specs);
+    this.contours.set(specs, s.truck.arrived ? TRUCK.tray : null);
 
     // Campi: le piante crescono con le Foglie pronte; contatore "n/8", MAX quando è pieno.
     for (const f of s.fields) {

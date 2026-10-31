@@ -34,7 +34,7 @@ export class Label {
   /** Altezza della scritta nel mondo, in metri. */
   private readonly worldHeight: number;
 
-  constructor(worldHeight = 0.62) {
+  constructor(worldHeight = 0.95) {
     this.worldHeight = worldHeight;
     this.canvas.width = 256;
     this.canvas.height = 96;

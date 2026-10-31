@@ -22,6 +22,9 @@ const WOOD = 0x9a6b45;
 const WOOD_DARK = 0x6b4a2f;
 /** Terra battuta chiara dei lotti: il pavimento più luminoso della scena (regola RF6). */
 const LOT_FLOOR = 0xf0dfb8;
+/** Staccionata in legno chiaro, più spessa: si legge come un muretto basso, come in Pizza Ready. */
+const FENCE_POST = 0xb98a5c;
+const FENCE_RAIL = 0xd9b07e;
 const LOT_EDGE = 0xd9c08e;
 
 const FRAME_TREES: readonly { id: PropId; weight: number; h: [number, number] }[] = [
@@ -93,12 +96,64 @@ function moved<T extends THREE.Object3D>(o: T, x: number, y: number, z: number):
 }
 
 /** Pavimento di un lotto: terra battuta chiara con il bordo più scuro, appena sopra il prato. */
+/** Quadri tenui del pavimento: due toni di terra battuta che si alternano, ripetuti. */
+function tileTexture(repeatX: number, repeatY: number): THREE.CanvasTexture {
+  const c = document.createElement('canvas');
+  c.width = 64;
+  c.height = 64;
+  const ctx = c.getContext('2d')!;
+  const a = new THREE.Color(LOT_FLOOR);
+  const b = a.clone().multiplyScalar(0.965);
+  ctx.fillStyle = `#${a.getHexString()}`;
+  ctx.fillRect(0, 0, 64, 64);
+  ctx.fillStyle = `#${b.getHexString()}`;
+  ctx.fillRect(0, 0, 32, 32);
+  ctx.fillRect(32, 32, 32, 32);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(repeatX / 2, repeatY / 2);
+  t.magFilter = THREE.NearestFilter;
+  t.anisotropy = 4;
+  return t;
+}
+
+/** Ricolora una tavolozza Kenney: i colori chiari diventano il giallo di marca, quelli scuri restano. */
+function yellowPalette(src: THREE.Texture): THREE.Texture {
+  const img = src.image as CanvasImageSource & { width: number; height: number };
+  const c = document.createElement('canvas');
+  c.width = img.width;
+  c.height = img.height;
+  const ctx = c.getContext('2d')!;
+  ctx.drawImage(img, 0, 0);
+  const data = ctx.getImageData(0, 0, c.width, c.height);
+  const p = data.data;
+  // Giallo di marca in sRGB, come i pixel della tavolozza.
+  const by = [(PALETTE.brandYellow >> 16) & 255, (PALETTE.brandYellow >> 8) & 255, PALETTE.brandYellow & 255] as const;
+  for (let i = 0; i < p.length; i += 4) {
+    const lum = (0.2126 * p[i]! + 0.7152 * p[i + 1]! + 0.0722 * p[i + 2]!) / 255;
+    if (lum < 0.42) continue;
+    const k = Math.min(1, 0.72 + (lum - 0.42) * 0.6);
+    p[i] = by[0] * k;
+    p[i + 1] = by[1] * k;
+    p[i + 2] = by[2] * k;
+  }
+  ctx.putImageData(data, 0, 0);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = src.colorSpace;
+  t.flipY = src.flipY;
+  t.magFilter = src.magFilter;
+  t.minFilter = src.minFilter;
+  return t;
+}
+
 function createLotFloor(lot: Rect): THREE.Group {
   const g = new THREE.Group();
   const w = lot.x1 - lot.x0;
   const h = lot.y1 - lot.y0;
   const edge = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.3, h + 0.3), new THREE.MeshLambertMaterial({ color: LOT_EDGE }));
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshLambertMaterial({ color: LOT_FLOOR }));
+  // Pavimento a quadri tenui da 2 m (RF15): fa leggere distanze e velocità senza sporcare la scena.
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshLambertMaterial({ map: tileTexture(w / 2, h / 2) }));
   for (const [m, y] of [
     [edge, 0.008],
     [floor, 0.012],
@@ -154,13 +209,13 @@ function createFence(from: MapPoint, to: MapPoint, gap?: { at: number; width: nu
     for (let i = 0; i <= n; i++) {
       const d = a + ((b - a) * i) / n;
       const p = toWorld({ x: from.x + dir.x * d, y: from.y + dir.y * d });
-      const post = rbox(0.14, 0.85, 0.14, WOOD_DARK, 0.03);
-      post.position.set(p.x, 0.425, p.z);
+      const post = rbox(0.2, 0.9, 0.2, FENCE_POST, 0.04);
+      post.position.set(p.x, 0.45, p.z);
       g.add(post);
     }
     for (const h of [0.35, 0.65]) {
       const mid = toWorld({ x: from.x + dir.x * ((a + b) / 2), y: from.y + dir.y * ((a + b) / 2) });
-      const rail = rbox(b - a, 0.09, 0.07, WOOD, 0.02);
+      const rail = rbox(b - a, 0.13, 0.09, FENCE_RAIL, 0.03);
       rail.position.set(mid.x, h, mid.z);
       rail.rotation.y = ang;
       g.add(rail);
@@ -226,14 +281,6 @@ function createArch(): THREE.Group {
   board.position.set(0, 4.25, 0);
   board.castShadow = true;
   g.add(board);
-  // Vassoio scuro delle mazzette del camion, accanto all'arco (GDD sezione 4): fuso nell'arco, nessun
-  // disegno in più. Coordinate locali: x verso est, +z verso sud.
-  const tray = toWorld(TRUCK.cash);
-  const arch = toWorld(ARCH);
-  const tw = TRUCK.tray.x1 - TRUCK.tray.x0;
-  const td = TRUCK.tray.y1 - TRUCK.tray.y0;
-  g.add(moved(rbox(tw + 0.1, 0.07, td + 0.1, 0x555b73, 0.03), tray.x - arch.x, 0.035, tray.z - arch.z));
-  g.add(moved(rbox(tw - 0.08, 0.05, td - 0.08, 0x3b3f52, 0.02), tray.x - arch.x, 0.07, tray.z - arch.z));
   // Due lanterne: le poche cose che brillano, insieme alla Lumina.
   for (const sx of [-1, 1]) {
     const lamp = new THREE.Mesh(new THREE.OctahedronGeometry(0.16, 0), flat(0xffd27a, 0xffb347, 2.2));
@@ -379,11 +426,14 @@ export function createValley(assets: Assets): Valley {
   bonfire.visible = false;
   // Camion di El Gordo: lungo la strada, muso verso est. Arriva con la prima Pressa.
   const truck = placeAt(createSingle(assets.props.truck_flat, 2.6), TRUCK, Math.PI / 2);
+  // Il camion di El Gordo è giallo (GDD sezione 1): si ricolora la tavolozza del modello, le parti chiare
+  // diventano gialle e quelle scure (ruote, vetri) restano scure.
   truck.traverse((o) => {
     const mesh = o as THREE.Mesh;
     if (!mesh.isMesh) return;
     const mat = (mesh.material as THREE.MeshLambertMaterial).clone();
-    mat.color.setHex(0xffd27a);
+    if (mat.map) mat.map = yellowPalette(mat.map);
+    mat.color.setHex(0xffffff);
     mesh.material = mat;
   });
   truck.visible = false;

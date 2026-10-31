@@ -4,7 +4,7 @@
 // mesh, ricostruita quando cambia l'insieme di quelli visibili; tutte le icone sono un solo disegno.
 
 import * as THREE from 'three';
-import type { Contour, Side } from '../config/map';
+import type { Contour, Rect, Side } from '../config/map';
 
 /** Cosa mostra l'icona di un contorno. */
 export type ContourIcon = 'leaf' | 'paste' | 'scrap' | 'office';
@@ -28,6 +28,8 @@ const LIFT = 0.025;
 const FILL = new THREE.Color(0xc9a46a);
 /** Bianco appena sotto la soglia del bloom: il bordo si vede ma non abbaglia. */
 const EDGE = new THREE.Color(0xeeeeee);
+const TRAY_EDGE = new THREE.Color(0x555b73);
+const TRAY_FILL = new THREE.Color(0x3b3f52);
 
 function drawAtlas(): HTMLCanvasElement {
   const c = document.createElement('canvas');
@@ -182,16 +184,19 @@ export class ContourLayer {
     this.root.add(this.lines, this.icons);
   }
 
-  /** Mostra questi contorni; ricostruisce la mesh solo se l'insieme è cambiato. */
-  set(specs: readonly ContourSpec[]): void {
-    const key = specs.map((s) => `${s.contour.x},${s.contour.y},${s.icon},${s.into}`).join('|');
+  /**
+   * Mostra questi contorni e, se c'è, il vassoio scuro delle mazzette del camion (stessa mesh, nessun
+   * disegno in più); ricostruisce solo se l'insieme è cambiato.
+   */
+  set(specs: readonly ContourSpec[], tray: Rect | null = null): void {
+    const key = specs.map((s) => `${s.contour.x},${s.contour.y},${s.icon},${s.into}`).join('|') + (tray ? `|t${tray.x0},${tray.y0}` : '');
     if (key === this.key) return;
     this.key = key;
-    this.buildLines(specs);
+    this.buildLines(specs, tray);
     this.buildIcons(specs);
   }
 
-  private buildLines(specs: readonly ContourSpec[]): void {
+  private buildLines(specs: readonly ContourSpec[], tray: Rect | null): void {
     const pos: number[] = [];
     const col: number[] = [];
     const quad = (x0: number, z0: number, x1: number, z1: number, c: THREE.Color, a: number): void => {
@@ -212,6 +217,11 @@ export class ContourLayer {
       if (!(o.z === 1)) quad(x0, z0, x1, z0 + LINE, EDGE, 0.95); // lato nord (−z)
       if (!(o.x === -1)) quad(x1 - LINE, z0, x1, z1, EDGE, 0.95); // lato est
       if (!(o.x === 1)) quad(x0, z0, x0 + LINE, z1, EDGE, 0.95); // lato ovest
+    }
+    if (tray) {
+      // Vassoio: bordo grigio-blu e fondo scuro, come il ripiano del Torchio.
+      quad(tray.x0 - 0.06, -tray.y1 - 0.06, tray.x1 + 0.06, -tray.y0 + 0.06, TRAY_EDGE, 1);
+      quad(tray.x0 + 0.04, -tray.y1 + 0.04, tray.x1 - 0.04, -tray.y0 - 0.04, TRAY_FILL, 1);
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
