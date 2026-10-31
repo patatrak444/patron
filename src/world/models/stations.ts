@@ -158,7 +158,7 @@ export function createPress(): THREE.Group {
   g.add(at(rbox(1.8, 0.95, 1.8, PALETTE.brandYellow, 0.16), screw.x, 0.6, screw.z));
   g.add(at(rbox(1.4, 0.12, 1.4, FRAME, 0.05), screw.x, 1.12, screw.z));
   // Fascia luminosa di Lumina attorno al blocco: il secondo colore di marca, l'unica cosa che brilla.
-  g.add(at(new THREE.Mesh(new RoundedBoxGeometry(1.84, 0.1, 1.84, 1, 0.04), flat(PALETTE.lumina, PALETTE.lumina, 0.9)), screw.x, 0.82, screw.z));
+  g.add(at(new THREE.Mesh(new RoundedBoxGeometry(1.86, 0.16, 1.86, 1, 0.05), flat(PALETTE.lumina, PALETTE.lumina, 1.6)), screw.x, 0.84, screw.z));
   // Telaio: due montanti a est e a ovest e la traversa, così la vite si vede da sud-ovest.
   for (const sx of [-1, 1]) g.add(at(rbox(0.28, 1.0, 0.34, FRAME, 0.07), screw.x + sx * 0.72, 1.62, screw.z));
   g.add(at(rbox(1.75, 0.3, 0.44, FRAME, 0.1), screw.x, 2.05, screw.z));
@@ -176,11 +176,11 @@ export function createPress(): THREE.Group {
   plate.name = 'pressPlate';
   g.add(at(plate, screw.x, 1.3, screw.z));
   // Tramoggia a sud: cassa aperta e scura, larga quanto il suo contorno.
-  g.add(at(rbox(2.2, 0.5, 0.62, FRAME, 0.05), hopper.x, 0.25, hopper.z));
+  g.add(at(rbox(2.2, 0.5, 0.62, PALETTE.brandYellowDark, 0.05), hopper.x, 0.25, hopper.z));
   for (const sz of [-1, 1]) g.add(at(rbox(2.2, 0.32, 0.07, FRAME_LIGHT, 0.02), hopper.x, 0.66, hopper.z + sz * 0.28));
   for (const sx of [-1, 1]) g.add(at(rbox(0.07, 0.32, 0.62, FRAME_LIGHT, 0.02), hopper.x + sx * 1.07, 0.66, hopper.z));
   // Ripiano dei Panetti a ovest: piano scuro basso, dove i Panetti si impilano.
-  g.add(at(rbox(0.66, 0.5, 2.2, FRAME, 0.05), shelf.x, 0.25, shelf.z));
+  g.add(at(rbox(0.66, 0.5, 2.2, PALETTE.brandYellowDark, 0.05), shelf.x, 0.25, shelf.z));
   g.add(at(rbox(0.7, 0.06, 2.24, FRAME_LIGHT, 0.02), shelf.x, 0.53, shelf.z));
   // Cassone degli Scarti a est: cassa di legno aperta.
   g.add(at(rbox(0.66, 0.08, 2.2, WOOD_DARK, 0.03), crate.x, 0.04, crate.z));
