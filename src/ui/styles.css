@@ -729,3 +729,46 @@ body {
     margin-top: -6px;
   }
 }
+
+/* Audio sì / no (tasto M, GDD sezione 11): icona fissa in basso a destra e avviso breve. */
+.hud__speaker {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--ink);
+  box-shadow: 0 0 0 3px var(--ink), 0 4px 0 3px rgba(27, 27, 47, 0.35);
+  cursor: pointer;
+  z-index: 3;
+}
+
+.hud__speaker.is-muted {
+  color: #e33b3b;
+}
+
+.hud__toast {
+  position: absolute;
+  right: 82px;
+  bottom: 26px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(27, 27, 47, 0.85);
+  color: var(--white);
+  font-family: 'Baloo 2', 'Trebuchet MS', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.hud__toast.is-visible {
+  opacity: 1;
+}

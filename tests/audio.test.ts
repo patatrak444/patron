@@ -3,15 +3,17 @@
 import { describe, expect, it } from 'vitest';
 import { SoundGate } from '../src/audio/gate';
 
-const cfg = { minGap: { pick: 1 / 6 }, maxVoices: 8, chainMax: 12, chainReset: 0.6 };
+const cfg = { minGap: { pick: 0.07 }, maxVoices: 8, chainMax: 12, chainReset: 0.6 };
 
 describe('suoni', () => {
-  it('al massimo 6 pop di raccolta al secondo', () => {
+  it('il pop suona a ogni pezzo raccolto, uno ogni 0,08 s (12 al secondo), ma non più fitto', () => {
     const g = new SoundGate(cfg);
     let played = 0;
-    for (let t = 0; t < 1; t += 0.08) if (g.allow('pick', t, 0.05)) played++;
-    expect(played).toBeLessThanOrEqual(6);
-    expect(played).toBeGreaterThanOrEqual(5);
+    for (let i = 0; i < 12; i++) if (g.allow('pick', i * 0.08, 0.05)) played++;
+    expect(played).toBe(12);
+    let dense = 0;
+    for (let i = 0; i < 40; i++) if (g.allow('pick', 10 + i * 0.025, 0.02)) dense++;
+    expect(dense).toBeLessThanOrEqual(15);
   });
 
   it('al massimo 8 voci insieme', () => {

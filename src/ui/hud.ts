@@ -19,8 +19,9 @@ export interface Hud {
   flyBills(x: number, y: number, value: number): void;
   /** Avanza la coda delle banconote: si chiama a ogni fotogramma. */
   update(dt: number): void;
-  /** Mostra per un attimo "Audio sì" o "Audio no" (tasto M, GDD sezione 3). */
-  setMuted(muted: boolean): void;
+  /** Icona dell'altoparlante e, con `toast`, l'avviso "Audio sì / Audio no" (tasto M, GDD sezione 11). */
+  setMuted(muted: boolean, toast: boolean): void;
+  onMuteClick(handler: () => void): void;
   /** Pallino rosso sopra l'Ufficio quando un potenziamento si può comprare (GDD sezione 12), in pixel. */
   setOfficeBadge(at: { x: number; y: number } | null): void;
 }
@@ -31,6 +32,14 @@ export function formatCash(n: number): string {
   const fmt = (v: number, d: number): string => v.toFixed(d).replace(/\.?0+$/, '').replace('.', ',');
   if (n < 1e6) return `${fmt(n / 1000, n < 1e4 ? 2 : 1)}K`;
   return `${fmt(n / 1e6, 2)}M`;
+}
+
+/** Altoparlante, barrato quando l'audio è tolto. */
+function speakerIcon(muted: boolean): string {
+  const waves = muted
+    ? '<path d="M17 9 L23 15 M23 9 L17 15" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>'
+    : '<path d="M17 8.5 Q20.5 12 17 15.5 M19.5 6 Q25 12 19.5 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>';
+  return `<svg viewBox="0 0 26 24" width="28" height="26" aria-hidden="true"><path d="M3 9 H8 L14 4 V20 L8 15 H3 Z" fill="currentColor"/>${waves}</svg>`;
 }
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls: string, parent: HTMLElement): HTMLElementTagNameMap[K] {
@@ -72,6 +81,12 @@ export function createHud(root: HTMLElement, feel: HudFeel): Hud {
 
   const edge = el('div', 'hud__edge', root);
   edge.innerHTML = '<svg viewBox="0 0 40 40" width="64" height="64"><path d="M8 20 L30 8 L24 20 L30 32 Z" fill="#ffd23a" stroke="#1b1b2f" stroke-width="3" stroke-linejoin="round"/></svg>';
+
+  const speaker = el('button', 'hud__speaker', root);
+  speaker.type = 'button';
+  // I clic sull'interfaccia non muovono il personaggio (GDD sezione 3).
+  speaker.addEventListener('pointerdown', (e) => e.stopPropagation());
+  const toast = el('div', 'hud__toast', root);
 
   const badge = el('div', 'hud__badge', root);
   badge.textContent = '!';
@@ -140,14 +155,18 @@ export function createHud(root: HTMLElement, feel: HudFeel): Hud {
         left -= v;
       }
     },
-    setMuted(muted) {
-      pause.textContent = muted ? 'Audio no · M per riattivarlo' : 'Audio sì';
-      pause.classList.add('is-visible');
+    setMuted(muted, showToast) {
+      speaker.classList.toggle('is-muted', muted);
+      speaker.title = muted ? 'Audio no (M)' : 'Audio sì (M)';
+      speaker.innerHTML = speakerIcon(muted);
+      if (!showToast) return;
+      toast.textContent = muted ? 'Audio no · M per riattivarlo' : 'Audio sì';
+      toast.classList.add('is-visible');
       clearTimeout(muteTimer);
-      muteTimer = window.setTimeout(() => {
-        pause.classList.remove('is-visible');
-        pause.textContent = 'PAUSA · Spazio per riprendere';
-      }, 1200);
+      muteTimer = window.setTimeout(() => toast.classList.remove('is-visible'), 1200);
+    },
+    onMuteClick(handler) {
+      speaker.addEventListener('click', handler);
     },
     setOfficeBadge(at) {
       badge.classList.toggle('is-visible', at !== null);

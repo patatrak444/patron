@@ -774,7 +774,17 @@ La vibrazione della camera si usa solo per sblocchi e retate, mai per azioni rip
 
 Tutti gli effetti sonori si generano da codice con ZzFX, una libreria di pochi kilobyte che crea suoni sintetici da una lista di parametri: niente file da cercare né licenze. La musica è l'unico elemento audio che può richiedere un file.
 
-- **Effetti.** Quelli elencati nella tabella del game feel (sezione 10), più il clacson del camion, la fiammata del Falò, il russare e il risveglio dei lavoratori, il jingle del livello di Rispetto e un clic leggero per i pulsanti. Arrivano nella tappa M2c, prima del resto dell'audio, perché un gioco del genere senza suoni sembra rotto (revisione del 30 ottobre 2026, voto 1/10). Regole: al massimo 6 suoni di raccolta al secondo (gli altri pezzi passano in silenzio, il tono continua a salire), al massimo 8 voci insieme, volume effetti all'avvio 70%. La festa dura 3 s: fanfara di circa 1,2 s all'inizio, poi un tintinnio per ogni stella che vola alla barra del Rispetto. Ogni effetto ha 2–3 varianti leggermente diverse, scelte a caso, per non stancare l'orecchio.
+- **Effetti.** Quelli elencati nella tabella del game feel (sezione 10), più il clacson del camion, la fiammata del Falò, il russare e il risveglio dei lavoratori, il jingle del livello di Rispetto e un clic leggero per i pulsanti. Arrivano nella tappa M2c, prima del resto dell'audio, perché un gioco del genere senza suoni sembra rotto (revisione del 30 ottobre 2026, voto 1/10). Regole (revisione del 30 ottobre 2026):
+
+  - Il pop della raccolta suona a ogni pezzo, fino a 12 al secondo (un pezzo ogni 0,08 s), e sale di un semitono a pezzo: la scala si sente. Gli altri suoni hanno un intervallo minimo proprio.
+  - Al massimo 8 voci insieme, melodie comprese. Una melodia alla volta: se sblocco e livello arrivano insieme, il jingle del livello parte dopo la fanfara.
+  - Le melodie seguono il tempo del gioco: in pausa si fermano.
+  - Ogni suono ha 3 varianti con il tono leggermente diverso, scelte dal generatore con seme.
+  - Volume generale 0,5, effetti al 70% all'avvio. Il pop, il suono più ripetuto, è più basso della cassa, della fanfara e dei potenziamenti.
+  - La festa dura 3 s: fanfara di circa 1,2 s, poi un tintinnio per ogni stella guadagnata.
+  - Ogni vendita al camion fa una moneta; ogni assunzione un "Hey!"; i pulsanti un clic.
+  - Il tasto M toglie e rimette l'audio, con un avviso suo (non quello della pausa) e un'icona dell'altoparlante fissa in basso a destra; la scelta si ricorda nel browser.
+  - La libreria audio si carica al primo clic o tasto: prima non si crea nessun contesto audio. Ogni effetto ha 2–3 varianti leggermente diverse, scelte a caso, per non stancare l'orecchio.
 
 - **Suoni ripetuti.** La raccolta usa un "pop" che sale di tono a ogni oggetto consecutivo: rende piacevole anche l'azione più ripetuta del gioco.
 

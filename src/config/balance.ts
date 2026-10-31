@@ -253,6 +253,16 @@ export interface AudioConfig {
   readonly minGap: Readonly<Record<string, number>>;
   readonly chainMax: number;
   readonly chainReset: number;
+  /** Seme delle varianti dei suoni. */
+  readonly seed: number;
+  /** Fanfara dello sblocco e jingle del livello: semitoni e secondi tra le note. */
+  readonly fanfare: readonly number[];
+  readonly fanfareStep: number;
+  readonly levelJingle: readonly number[];
+  readonly levelStep: number;
+  /** Stelline dopo la fanfara (le stelle di uno sblocco) e secondi tra l'una e l'altra. */
+  readonly starsPerUnlock: number;
+  readonly sparkleStep: number;
 }
 
 export interface Balance {
@@ -383,11 +393,18 @@ export const BALANCE: Balance = {
     },
   },
   audio: {
-    masterVolume: 0.3,
+    masterVolume: 0.5,
     effectsVolume: 0.7,
     maxVoices: 8,
-    minGap: { pick: 1 / 6, drop: 1 / 8, cash: 0.07, pay: 0.06, horn: 0.5, fire: 0.15, snore: 1, hey: 0.5, upgrade: 0.2, click: 0.05 },
+    minGap: { pick: 0.07, drop: 0.07, coin: 0.06, cash: 0.07, pay: 0.06, horn: 0.5, fire: 0.15, snore: 1, hey: 0.5, upgrade: 0.2, click: 0.05 },
     chainMax: 12,
     chainReset: 0.6,
+    seed: 1981,
+    fanfare: [0, 4, 7, 12],
+    fanfareStep: 0.2,
+    levelJingle: [0, 4, 7, 11, 12, 16],
+    levelStep: 0.1,
+    starsPerUnlock: 4,
+    sparkleStep: 0.22,
   },
 };

@@ -18,6 +18,7 @@ import { prepareScenario, type Scenario } from './debug/scenarios';
 import { hasWebGL2, installMinSizeNotice, isTouchOnlyDevice, showBlockingMessage } from './ui/deviceGate';
 import { createHud } from './ui/hud';
 import { Sfx } from './audio/sfx';
+import { loadZzfx } from './audio/engine';
 import { createOfficePanel, type UpgradeView } from './ui/officePanel';
 import { buyUpgrade, profitFactor, speedFactor, stackCapacity, upgradeCost } from './sim/upgrades';
 import type { Phase1State } from './sim/phase1';
@@ -34,6 +35,23 @@ import { Phase1View } from './world/phase1View';
 
 /** Modello del giocatore nella prima fase; gli abiti per fase arrivano in M7 (GDD sezione 9). */
 const PLAYER_MODEL = 'mini_male_a';
+
+/** Audio sì o no, ricordato nel browser: se l'archivio non c'è, l'audio resta acceso. */
+const MUTE_KEY = 'patron.muted';
+function readMuted(): boolean {
+  try {
+    return localStorage.getItem(MUTE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+function writeMuted(muted: boolean): void {
+  try {
+    localStorage.setItem(MUTE_KEY, muted ? '1' : '0');
+  } catch {
+    // Archivio non disponibile: la scelta vale per questa sessione.
+  }
+}
 
 /** Le tre schede dell'Ufficio con l'effetto adesso e al prossimo livello (GDD sezione 5). */
 function upgradeViews(s: Phase1State): UpgradeView[] {
@@ -132,17 +150,27 @@ async function boot(root: HTMLElement): Promise<void> {
   resize();
 
   const hud = createHud(root, BALANCE.feel);
-  // Ufficio (GDD sezione 12): si apre stando sul contorno davanti alla porta, si chiude uscendo.
-  // Effetti sonori (GDD sezione 11): ascoltano il bus; partono al primo clic, M li toglie.
+  // Effetti sonori (GDD sezione 11): ascoltano il bus; il motore si carica al primo clic o tasto, M li
+  // toglie e la scelta si ricorda nel browser.
   const sfx = new Sfx(BALANCE.audio);
   sfx.attach(bus);
-  addEventListener('pointerdown', () => sfx.unlock(), { capture: true });
+  sfx.muted = readMuted();
+  hud.setMuted(sfx.muted, false);
+  const unlockAudio = (): void => void sfx.unlock(() => loadZzfx(BALANCE.audio.masterVolume));
+  const toggleAudio = (): void => {
+    const muted = sfx.toggleMute();
+    hud.setMuted(muted, true);
+    writeMuted(muted);
+  };
+  addEventListener('pointerdown', unlockAudio, { capture: true });
   addEventListener('keydown', (e) => {
-    sfx.unlock();
-    if (e.code === 'KeyM' && !e.repeat) hud.setMuted(sfx.toggleMute());
+    unlockAudio();
+    if (e.code === 'KeyM' && !e.repeat) toggleAudio();
   });
+  hud.onMuteClick(toggleAudio);
+  // Ufficio (GDD sezione 12): si apre stando sul contorno davanti alla porta, si chiude uscendo.
   const office = createOfficePanel(root, (id) => {
-    if (!buyUpgrade(state.phase1, id, bus)) sfx.play('click', 0.7);
+    sfx.play('click', buyUpgrade(state.phase1, id, bus) ? 1 : 0.7);
   });
   let wasInOffice = false;
   const badgeAt = new THREE.Vector3();
@@ -254,7 +282,10 @@ async function boot(root: HTMLElement): Promise<void> {
         /** Prepara una situazione di gioco per gli screenshot (src/debug/scenarios.ts). */
         prepare(name: Scenario) {
           view.holdFesta = name === 'festa';
+          // Le scene di debug ripetono sblocchi già fatti: niente fanfare.
+          sfx.silent = true;
           prepareScenario(state, name, bus);
+          sfx.silent = false;
           Object.assign(moveCtx, createMoveContext(state.phase1));
           view.syncUnlocked(state.phase1);
           const w = toWorld(state.player);
@@ -336,6 +367,7 @@ async function boot(root: HTMLElement): Promise<void> {
     );
     hud.setCash(s1.cash);
     hud.update(frameSeconds);
+    sfx.update(dt);
     const inOffice = mode === 'play' && s1.office && inRect({ x, y }, OFFICE.door.area);
     if (inOffice && !wasInOffice) office.reopen();
     wasInOffice = inOffice;
