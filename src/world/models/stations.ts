@@ -137,9 +137,12 @@ export const TORCHIO = {
   screw: { x: 0, z: -0.2 },
 } as const;
 
-/** Grigio-blu scuro del telaio, della tramoggia e del ripiano: il giallo di marca resta la sola massa di colore. */
-const FRAME = 0x3b3f52;
-const FRAME_LIGHT = 0x555b73;
+/**
+ * Grigio-blu del telaio, della tramoggia e del ripiano (luminanza ≈ 45%, RF4): il giallo di marca resta la
+ * massa di colore e l'azzurro della Lumina l'accento che brilla.
+ */
+const FRAME = 0x6e7c9a;
+const FRAME_LIGHT = 0x8e9ab5;
 
 /**
  * Torchio a vite (GDD sezione 4 e 10): un blocco giallo unico con la vite grossa sopra, leggibile con la
@@ -154,6 +157,8 @@ export function createPress(): THREE.Group {
   g.add(at(rbox(1.9, 0.14, 1.9, FRAME, 0.05), screw.x, 0.07, screw.z));
   g.add(at(rbox(1.8, 0.95, 1.8, PALETTE.brandYellow, 0.16), screw.x, 0.6, screw.z));
   g.add(at(rbox(1.4, 0.12, 1.4, FRAME, 0.05), screw.x, 1.12, screw.z));
+  // Fascia luminosa di Lumina attorno al blocco: il secondo colore di marca, l'unica cosa che brilla.
+  g.add(at(new THREE.Mesh(new RoundedBoxGeometry(1.84, 0.1, 1.84, 1, 0.04), flat(PALETTE.lumina, PALETTE.lumina, 0.9)), screw.x, 0.82, screw.z));
   // Telaio: due montanti a est e a ovest e la traversa, così la vite si vede da sud-ovest.
   for (const sx of [-1, 1]) g.add(at(rbox(0.28, 1.0, 0.34, FRAME, 0.07), screw.x + sx * 0.72, 1.62, screw.z));
   g.add(at(rbox(1.75, 0.3, 0.44, FRAME, 0.1), screw.x, 2.05, screw.z));
@@ -296,7 +301,8 @@ export function createLuminaPlants(positions: readonly { x: number; z: number; h
     return out;
   };
 
-  const leafMesh = new THREE.InstancedMesh(merge(leaves), flat(0x5fcf5a), positions.length);
+  // Verde salvia: il verde brillante resta ai soldi (RF9); le punte azzurre dicono che è Lumina.
+  const leafMesh = new THREE.InstancedMesh(merge(leaves), flat(0x6fcf9a), positions.length);
   const tipMesh = new THREE.InstancedMesh(merge(tips), flat(PALETTE.lumina, PALETTE.lumina, 1.0), positions.length);
   const m = new THREE.Matrix4();
   const q = new THREE.Quaternion();

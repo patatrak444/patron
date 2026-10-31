@@ -282,6 +282,10 @@ body {
   color: var(--white);
   text-shadow: var(--outline);
   white-space: nowrap;
+  margin-top: 6px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: rgba(27, 27, 47, 0.55);
 }
 
 .hud__goal.is-new {

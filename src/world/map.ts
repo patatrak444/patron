@@ -69,7 +69,7 @@ class Placements {
       const entries = [...this.map.values()].filter((e) => e.shadow === shadow).map((e) => ({ prop: assets.props[e.id], list: e.list }));
       if (entries.length === 0) continue;
       // Blocchi da 20 m: la valle a lotti è piccola, meno blocchi vuol dire meno disegni (GDD sezione 10).
-      const b = createBatches(entries, { castShadow: shadow, chunkSize: 20 });
+      const b = createBatches(entries, { castShadow: shadow, chunkSize: 28 });
       b.name = `${name} ${shadow ? 'con ombra' : 'senza ombra'}`;
       root.add(b);
     }

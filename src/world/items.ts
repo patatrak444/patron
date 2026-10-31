@@ -48,7 +48,7 @@ function leafGeometry(): THREE.BufferGeometry {
     leaf.scale(1, 1, 0.35);
     leaf.rotateZ(Math.PI / 2 + rot);
     leaf.translate(dx * 0.4, 0.08, dx);
-    parts.push(painted(leaf, 0x3fc24a));
+    parts.push(painted(leaf, 0x5cc296));
     const tip = new THREE.ConeGeometry(0.045, 0.12, 4, 1);
     tip.scale(1, 1, 0.4);
     tip.rotateZ(Math.PI / 2 + rot);

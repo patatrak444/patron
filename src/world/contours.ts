@@ -28,8 +28,9 @@ const LIFT = 0.025;
 const FILL = new THREE.Color(0xc9a46a);
 /** Bianco appena sotto la soglia del bloom: il bordo si vede ma non abbaglia. */
 const EDGE = new THREE.Color(0xeeeeee);
-const TRAY_EDGE = new THREE.Color(0x555b73);
-const TRAY_FILL = new THREE.Color(0x3b3f52);
+/** Vassoio delle mazzette: stesso linguaggio dei contorni, bordo bianco e fondo di terra più scura. */
+const TRAY_EDGE = new THREE.Color(0xeeeeee);
+const TRAY_FILL = new THREE.Color(0xb48e5c);
 
 function drawAtlas(): HTMLCanvasElement {
   const c = document.createElement('canvas');
@@ -123,14 +124,14 @@ function drawAtlas(): HTMLCanvasElement {
     outline();
     ctx.fillStyle = '#ffffff';
     ctx.fill();
-    ctx.font = '800 30px "Baloo 2", "Trebuchet MS", Arial, sans-serif';
+    ctx.font = '800 22px "Baloo 2", "Trebuchet MS", Arial, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.lineWidth = 7;
     ctx.strokeStyle = '#ffffff';
-    ctx.strokeText('UFFICIO', x, y + 40);
+    ctx.strokeText('UFFICIO', x, y + 34);
     ctx.fillStyle = '#1b1b2f';
-    ctx.fillText('UFFICIO', x, y + 40);
+    ctx.fillText('UFFICIO', x, y + 34);
   }
   return c;
 }
