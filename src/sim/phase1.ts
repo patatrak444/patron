@@ -409,10 +409,15 @@ function stepPlayerZones(s: Phase1State, pos: MapPoint, dt: number, cfg: Phase1C
     // Un oggetto ogni transferInterval finché resti sulla zona e c'è qualcosa da spostare.
     let t = (s.zoneTimers[z.key] ?? cfg.stack.transferInterval) + dt;
     while (t >= cfg.stack.transferInterval) {
+      const before = s.stack.items.length;
+      const top = s.stack.items[before - 1];
       if (!transferOnce(s, z, s.stack, cfg, bus)) {
         t = cfg.stack.transferInterval;
         break;
       }
+      const after = s.stack.items.length;
+      if (after > before) bus.emit('stack:move', { dir: 'in', item: s.stack.items[after - 1]! });
+      else if (after < before) bus.emit('stack:move', { dir: 'out', item: top ?? 'leaf' });
       t -= cfg.stack.transferInterval;
     }
     s.zoneTimers[z.key] = t;
@@ -448,6 +453,7 @@ function payPad(s: Phase1State, id: UnlockId, dt: number, cfg: Phase1Config, bus
   s.cash -= pay;
   s.padPaid += pay;
   s.padCarry -= pay;
+  if (pay > 0) bus.emit('pad:pay', { amount: pay, progress: s.padPaid / def.cost });
   if (s.padPaid >= def.cost) applyUnlock(s, def, cfg, bus);
 }
 

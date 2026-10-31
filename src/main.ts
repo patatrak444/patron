@@ -17,6 +17,7 @@ import { createRng } from './core/rng';
 import { prepareScenario, type Scenario } from './debug/scenarios';
 import { hasWebGL2, installMinSizeNotice, isTouchOnlyDevice, showBlockingMessage } from './ui/deviceGate';
 import { createHud } from './ui/hud';
+import { Sfx } from './audio/sfx';
 import { createOfficePanel, type UpgradeView } from './ui/officePanel';
 import { buyUpgrade, profitFactor, speedFactor, stackCapacity, upgradeCost } from './sim/upgrades';
 import type { Phase1State } from './sim/phase1';
@@ -132,7 +133,17 @@ async function boot(root: HTMLElement): Promise<void> {
 
   const hud = createHud(root, BALANCE.feel);
   // Ufficio (GDD sezione 12): si apre stando sul contorno davanti alla porta, si chiude uscendo.
-  const office = createOfficePanel(root, (id) => buyUpgrade(state.phase1, id, bus));
+  // Effetti sonori (GDD sezione 11): ascoltano il bus; partono al primo clic, M li toglie.
+  const sfx = new Sfx(BALANCE.audio);
+  sfx.attach(bus);
+  addEventListener('pointerdown', () => sfx.unlock(), { capture: true });
+  addEventListener('keydown', (e) => {
+    sfx.unlock();
+    if (e.code === 'KeyM' && !e.repeat) hud.setMuted(sfx.toggleMute());
+  });
+  const office = createOfficePanel(root, (id) => {
+    if (!buyUpgrade(state.phase1, id, bus)) sfx.play('click', 0.7);
+  });
   let wasInOffice = false;
   const badgeAt = new THREE.Vector3();
   // Raccogliendo, le banconote volano dal mucchio alla pillola del contante (GDD sezione 3, UX3).
@@ -253,6 +264,8 @@ async function boot(root: HTMLElement): Promise<void> {
           if (!f) camera.follow(w.x, w.z);
         },
         state,
+        /** Suoni partiti finora, per nome (verifica automatica dell'audio). */
+        sounds: () => ({ ...sfx.played }),
         /** Salta la schermata iniziale senza animazione (screenshot automatici). */
         skipTitle() {
           title.start();

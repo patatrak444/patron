@@ -243,6 +243,18 @@ export interface FeelConfig {
   readonly truckDriveSeconds: number;
 }
 
+/** Audio (GDD sezione 11): volumi e regole dei suoni. */
+export interface AudioConfig {
+  readonly masterVolume: number;
+  /** Volume degli effetti all'avvio: 70%. */
+  readonly effectsVolume: number;
+  readonly maxVoices: number;
+  /** Intervallo minimo tra due suoni con lo stesso nome: per esempio al massimo 6 pop al secondo. */
+  readonly minGap: Readonly<Record<string, number>>;
+  readonly chainMax: number;
+  readonly chainReset: number;
+}
+
 export interface Balance {
   readonly sim: SimConfig;
   readonly camera: CameraConfig;
@@ -253,6 +265,7 @@ export interface Balance {
   readonly phase1: Phase1Config;
   readonly feel: FeelConfig;
   readonly title: TitleConfig;
+  readonly audio: AudioConfig;
 }
 
 export const BALANCE: Balance = {
@@ -368,5 +381,13 @@ export const BALANCE: Balance = {
         { id: 'profit', name: 'Guadagno', baseCost: 80, levels: 5, perLevel: 0.1 },
       ],
     },
+  },
+  audio: {
+    masterVolume: 0.3,
+    effectsVolume: 0.7,
+    maxVoices: 8,
+    minGap: { pick: 1 / 6, drop: 1 / 8, cash: 0.07, pay: 0.06, horn: 0.5, fire: 0.15, snore: 1, hey: 0.5, upgrade: 0.2, click: 0.05 },
+    chainMax: 12,
+    chainReset: 0.6,
   },
 };

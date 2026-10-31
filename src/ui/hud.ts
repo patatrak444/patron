@@ -19,6 +19,8 @@ export interface Hud {
   flyBills(x: number, y: number, value: number): void;
   /** Avanza la coda delle banconote: si chiama a ogni fotogramma. */
   update(dt: number): void;
+  /** Mostra per un attimo "Audio sì" o "Audio no" (tasto M, GDD sezione 3). */
+  setMuted(muted: boolean): void;
   /** Pallino rosso sopra l'Ufficio quando un potenziamento si può comprare (GDD sezione 12), in pixel. */
   setOfficeBadge(at: { x: number; y: number } | null): void;
 }
@@ -85,6 +87,7 @@ export function createHud(root: HTMLElement, feel: HudFeel): Hud {
   let queueTimer = 0;
   const queue: { x: number; y: number; value: number }[] = [];
   let lastGoal = '';
+  let muteTimer = 0;
   const show = (n: number, bump: boolean): void => {
     if (bump) {
       cash.classList.remove('is-bump');
@@ -136,6 +139,15 @@ export function createHud(root: HTMLElement, feel: HudFeel): Hud {
         else queue.push({ x, y, value: v });
         left -= v;
       }
+    },
+    setMuted(muted) {
+      pause.textContent = muted ? 'Audio no · M per riattivarlo' : 'Audio sì';
+      pause.classList.add('is-visible');
+      clearTimeout(muteTimer);
+      muteTimer = window.setTimeout(() => {
+        pause.classList.remove('is-visible');
+        pause.textContent = 'PAUSA · Spazio per riprendere';
+      }, 1200);
     },
     setOfficeBadge(at) {
       badge.classList.toggle('is-visible', at !== null);
